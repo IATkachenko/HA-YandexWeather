@@ -1,0 +1,100 @@
+# Make new release based on conventional commits
+name: Create release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changes:
+    name: "Create changelog and tag"
+    runs-on: ubuntu-latest
+    outputs:
+      skipped: ${{ steps.changelog.outputs.skipped }}
+      clean_changelog: ${{ steps.changelog.outputs.clean_changelog }}
+      tag: ${{ steps.changelog.outputs.tag }}
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+      id: checkout
+
+    - name: Conventional Changelog Action
+      id: changelog
+      uses: TriPSs/conventional-changelog-action@v3
+      with:
+        github-token: ${{ secrets.github_token }}
+        output-file: "false"
+        skip-version-file:   "true"
+        skip-commit: "true"
+
+  version:
+    name: "Update version in manifest"
+    needs: changes
+    if: ${{ needs.changes.outputs.skipped == 'false' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Check out repository"
+        uses: actions/checkout@v2
+      - name: setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: "Prepare"
+        run: |
+          echo "NEW_VERSION=${{ needs.changes.outputs.tag }}" | sed -e 's/=v/=/' >> $GITHUB_ENV
+          # setup the username and email. I tend to use 'GitHub Actions Bot' with no email by default
+          git config user.name "GitHub Actions Bot"
+          git config user.email "github-actions@no_spam.please"
+
+      - name: Update version
+        id: update
+        working-directory: ./custom_components/yandex_weather/
+        run: |
+          sed -e "s/%%%VERSION%%%/${{ env.NEW_VERSION }}/" manifest.json.tpl >manifest.json
+          git commit -m "chore(release) ${{ needs.changes.outputs.tag }}" manifest.json
+          git push origin main
+          git tag -f -a -m "v${{ env.NEW_VERSION }}" v${{ env.NEW_VERSION }} && git push -f --tags || true
+
+  release:
+    name: "Create release"
+    needs: [ changes, version ]
+    if: ${{ needs.changes.outputs.skipped == 'false' }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: "Check out repository"
+      uses: actions/checkout@v2
+      with:
+          ref: ${{ needs.changes.outputs.tag }}
+
+    - name: "Set package name"
+      working-directory: ./custom_components
+      run: |
+        echo "package=$(ls -F | grep \/$ | sed -n "s/\///g;1p")" >> $GITHUB_ENV
+
+    - name: "Set variables"
+      working-directory: ./custom_components
+      run: |
+        echo "archive=${{ env.package }}.zip" >> $GITHUB_ENV
+        echo "basedir=$(pwd)/${{ env.package }}" >> $GITHUB_ENV
+
+    - name: "Zip component dir"
+      working-directory: ./custom_components/${{ env.package }}
+      run: |
+        rm -f manifest.json.tpl
+        zip ${{ env.archive }} -r ./
+
+    - name: Create Release
+      id: release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ needs.changes.outputs.tag }}
+        name: ${{ needs.changes.outputs.tag }}
+        draft: true
+        files: ${{ env.basedir }}/${{ env.archive }}
+        body: |
+          [![GitHub release (by tag)](https://img.shields.io/github/downloads/${{ github.repository }}/${{ needs.changes.outputs.tag }}/total?style=plastic)](https://github.com/${{ github.repository }}/releases/tag/${{ needs.changes.outputs.tag }})
+          ${{ needs.changes.outputs.clean_changelog }}
