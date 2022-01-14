@@ -6,7 +6,7 @@ This custom integration is providing weather component and set of sensors based 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 1. Go to HACS
 2. Three dots -> User repositories
-   * **Repository**: https://github.com/IATkachenko/HA-yandex_weather.git
+   * **Repository**: https://github.com/IATkachenko/HA-YandexWeather.git
    * **Category**: Integration
    * Press "Add" button
 3. At integrations press add
