@@ -1,0 +1,14 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  ha:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    ports:
+      - "8008:8123"
+    volumes:
+      - ./ha-config:/config:rw
+      - ./configuration.yaml:/config/configuration.yaml:ro
+      - ./../../../custom_components:/config/custom_components:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      DISABLE_JEMALLOC: "true"

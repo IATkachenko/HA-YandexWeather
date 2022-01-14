@@ -1,0 +1,14 @@
+config:
+frontend:
+history:
+image:
+logbook:
+person:
+system_health:
+
+# default_config:
+
+logger:
+  default: warning
+  logs:
+    custom_components.yandex_weather: info
