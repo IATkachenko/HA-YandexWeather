@@ -10,12 +10,8 @@ from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util.pressure import convert as pressure_convert
 
-from .const import (
-    DOMAIN,
-    ENTRY_NAME,
-    UPDATER, MANUFACTURER, DEFAULT_NAME, ATTR_API_CONDITION, ATTR_API_TEMPERATURE, ATTR_API_PRESSURE, ATTR_API_HUMIDITY,
-    ATTR_API_WIND_SPEED, ATTR_API_WIND_BEARING,
-)
+from .const import (DOMAIN, ENTRY_NAME, UPDATER, MANUFACTURER, DEFAULT_NAME, ATTR_API_CONDITION, ATTR_API_TEMPERATURE,
+                    ATTR_API_PRESSURE, ATTR_API_HUMIDITY, ATTR_API_WIND_SPEED, ATTR_API_WIND_BEARING, ATTR_API_IMAGE, )
 from .updater import WeatherUpdater
 
 
@@ -54,6 +50,10 @@ class YandexWeather(WeatherEntity):
             name=DEFAULT_NAME,
             configuration_url=self._updater.weather_data['info']['url']
         )
+
+    @property
+    def entity_picture(self):
+        return f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.weather_data['fact'][ATTR_API_IMAGE]}.svg"
 
     @property
     def condition(self) -> str | None:

@@ -28,6 +28,8 @@ ATTR_API_WIND_BEARING = "wind_dir"
 ATTR_API_HUMIDITY = "humidity"
 ATTR_API_PRESSURE = "pressure_pa"
 ATTR_API_CONDITION = "condition"
+ATTR_API_IMAGE = "icon"
+
 CONF_UPDATES_PER_DAY = "updates_per_day"
 UPDATE_LISTENER = "update_listener"
 PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
