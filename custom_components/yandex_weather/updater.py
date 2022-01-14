@@ -54,6 +54,7 @@ class WeatherUpdater(DataUpdateCoordinator):
     async def request(session: aiohttp.ClientSession, api_key: str, lat: float, lon: float, lang: str = 'en_US'):
         headers = {"X-Yandex-API-Key": api_key}
         url = f"{API_URL}/v{API_VERSION}/informers?lat={lat}&lon={lon}&lang={lang}"
+        _LOGGER.info(f"Sending API request")
         async with session.get(url, headers=headers) as response:
             _LOGGER.debug(response)
             try:
