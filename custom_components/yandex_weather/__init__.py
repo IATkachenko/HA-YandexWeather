@@ -33,7 +33,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         latitude, longitude, api_key, hass, updates_per_day
     )
 
-    await weather_updater.update()
+    await weather_updater.async_request_refresh()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
