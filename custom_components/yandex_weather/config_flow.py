@@ -86,13 +86,19 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Optional(
                     CONF_UPDATES_PER_DAY,
-                    default=self.config_entry.options.get(
-                        CONF_UPDATES_PER_DAY,
-                        self.config_entry.weather_data.get(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY),
-                    ),
+                    default=self._get_value(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY)
                 ): int,
             }
         )
+
+    def _get_value(self, param: str, default: str | None = None):
+        """Get current value for configuration parameter
+
+        :param param: str: parameter name for getting value
+        :param default: str|None: default value for parameter, defaults to None
+        :returns: parameter value, or default value or None
+        """
+        return self.config_entry.options.get(param, self.config_entry.data.get(param, default))
 
 
 async def _is_online(api_key, lat, lon) -> bool:
