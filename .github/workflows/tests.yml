@@ -28,5 +28,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
 
+      - run: pip install homeassistant
+
       - name: Run ${{ matrix.type }} tests
         run: python -m unittest discover -s tests/${{ matrix.type }} -v
