@@ -1,0 +1,30 @@
+{
+  "options": {
+    "step": {
+      "init": {
+        "title": "Yandex.Weather settings",
+        "description": "Settings for Yandex Weather integration. Check [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
+        "data": {
+          "api_key": "Weather API key",
+          "updates_per_day": "Updates per day"
+        }
+      }
+    }
+  },
+  "config": {
+    "step": {
+      "user": {
+        "title": "Yandex.Weather settings",
+        "description": "Settings for Yandex Weather integration. Check [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
+        "data": {
+          "api_key": "Weather API key",
+          "name": "Name",
+          "latitude": "Latitude for weather info (default is HA latitude)",
+          "longitude": "Longitude for weather info (default is HA longitude)",
+          "updates_per_day": "Updates per day"
+        }
+      }
+    }
+  },
+  "title": "Yandex Weather"
+}
