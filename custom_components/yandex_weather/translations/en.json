@@ -3,7 +3,7 @@
     "step": {
       "init": {
         "title": "Yandex.Weather settings",
-        "description": "Settings for Yandex Weather integration. Check [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
+        "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
         "data": {
           "api_key": "Weather API key",
           "updates_per_day": "Updates per day"
@@ -15,7 +15,7 @@
     "step": {
       "user": {
         "title": "Yandex.Weather settings",
-        "description": "Settings for Yandex Weather integration. Check [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
+        "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
         "data": {
           "api_key": "Weather API key",
           "name": "Name",
