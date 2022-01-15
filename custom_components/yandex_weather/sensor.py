@@ -48,7 +48,6 @@ async def async_setup_entry(
 
 class YandexWeatherSensor(SensorEntity):
     _attr_should_poll = False
-    _attr_entity_registry_enabled_default = False
     _attr_attribution = ATTRIBUTION
 
     def __init__(

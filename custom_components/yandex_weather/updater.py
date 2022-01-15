@@ -5,13 +5,12 @@ import json
 import logging
 import math
 from typing import Dict
-from datetime import timedelta
+from datetime import timedelta, datetime, timezone
 from functools import cached_property
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import DOMAIN
-
+from .const import DOMAIN, ATTR_API_WEATHER_TIME
 
 API_URL = 'https://api.weather.yandex.ru'
 API_VERSION = '2'
@@ -50,7 +49,13 @@ class WeatherUpdater(DataUpdateCoordinator):
         timeout = aiohttp.ClientTimeout(total=20)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             response = await self.request(session, self.__api_key, self._lat, self._lon, 'en_US')
-            return json.loads(response)
+            r = json.loads(response)
+
+            server_utc_time = datetime.strptime(r["now_dt"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(microsecond=0)
+            server_unix_time = datetime.fromtimestamp(r["now"])
+            _tz = timezone(server_unix_time-server_utc_time)
+            r["fact"][ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(r["fact"][ATTR_API_WEATHER_TIME], tz=_tz)
+            return r
 
     @staticmethod
     async def request(session: aiohttp.ClientSession, api_key: str, lat: float, lon: float, lang: str = 'en_US'):
@@ -83,4 +88,6 @@ class WeatherUpdater(DataUpdateCoordinator):
         return self.data
 
     def __str__(self):
+        _d = self.weather_data
+        _d['fact'][ATTR_API_WEATHER_TIME] = str(_d['fact'][ATTR_API_WEATHER_TIME])
         return json.dumps(self.weather_data, indent=4, sort_keys=True)

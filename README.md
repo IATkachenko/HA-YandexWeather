@@ -32,4 +32,6 @@ This custom integration is providing weather component and set of sensors based 
 #### attributes
  * `entity_picture` -- native Yandex.Weather .svg picture for weather condition
 ### Sensors
-All sensors are disabled by default to not overload system. 
+Most sensors are disabled by default to not overload system. 
+ 
+* ![added_in_version_badge](https://img.shields.io/badge/Since-v0.3.0-red) `data update time` -- when weather data was updated (at Yandex side).

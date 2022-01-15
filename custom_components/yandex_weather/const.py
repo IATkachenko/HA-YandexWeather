@@ -29,6 +29,7 @@ ATTR_API_HUMIDITY = "humidity"
 ATTR_API_PRESSURE = "pressure_pa"
 ATTR_API_CONDITION = "condition"
 ATTR_API_IMAGE = "icon"
+ATTR_API_WEATHER_TIME = "obs_time"
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
 UPDATE_LISTENER = "update_listener"
@@ -42,6 +43,7 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False
     ),
     SensorEntityDescription(
         key=ATTR_API_FEELS_LIKE_TEMPERATURE,
@@ -49,18 +51,21 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=TEMP_CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False
     ),
     SensorEntityDescription(
         key=ATTR_API_WIND_SPEED,
         name="Wind speed",
         native_unit_of_measurement=SPEED_METERS_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False
     ),
     SensorEntityDescription(
         key=ATTR_API_WIND_BEARING,
         name="Wind bearing",
         native_unit_of_measurement="",
         state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False
     ),
     SensorEntityDescription(
         key=ATTR_API_HUMIDITY,
@@ -68,6 +73,7 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.HUMIDITY,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False
     ),
     SensorEntityDescription(
         key=ATTR_API_PRESSURE,
@@ -75,9 +81,19 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement=PRESSURE_HPA,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False
     ),
     SensorEntityDescription(
         key=ATTR_API_CONDITION,
         name="Condition",
+        entity_registry_enabled_default=False
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_WEATHER_TIME,
+        name="Data update time",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=True,
+        entity_category="diagnostic"
     ),
 )
