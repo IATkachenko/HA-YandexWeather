@@ -14,5 +14,5 @@ class WeatherUpdaterTest(unittest.IsolatedAsyncioTestCase):
     async def test_update(self):
         w = WeatherUpdater(0, 0, "", None)
         with patch("yandex_weather.updater.WeatherUpdater.request", AsyncMock(return_value=self.response)):
-            await w.update()
+            w.data = await w.update()
             print(w)

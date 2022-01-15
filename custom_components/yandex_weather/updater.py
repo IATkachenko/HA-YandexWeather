@@ -32,7 +32,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         self._lat = latitude
         self._lon = longitude
         self._updates_per_day = updates_per_day
-        self._result = {}
+
         if hass is not None:
             super().__init__(
                 hass, _LOGGER, name=DOMAIN, update_interval=self.update_interval, update_method=self.update
@@ -50,7 +50,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         timeout = aiohttp.ClientTimeout(total=20)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             response = await self.request(session, self.__api_key, self._lat, self._lon, 'en_US')
-            self._result = json.loads(response)
+            return json.loads(response)
 
     @staticmethod
     async def request(session: aiohttp.ClientSession, api_key: str, lat: float, lon: float, lang: str = 'en_US'):
@@ -80,7 +80,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
     @property
     def weather_data(self) -> Dict:
-        return self._result
+        return self.data
 
     def __str__(self):
         return json.dumps(self.weather_data, indent=4, sort_keys=True)
