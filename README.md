@@ -29,4 +29,6 @@ This custom integration is providing weather component and set of sensors based 
 
 ## Usage
 ### Weather
+#### attributes
+ * `entity_picture` -- native Yandex.Weather .svg picture for weather condition
 ### Sensors
