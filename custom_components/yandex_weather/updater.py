@@ -54,6 +54,18 @@ class WeatherUpdater(DataUpdateCoordinator):
 
     @staticmethod
     async def request(session: aiohttp.ClientSession, api_key: str, lat: float, lon: float, lang: str = 'en_US'):
+        """
+        Make request to API endpoint
+
+        :param session: aiohttp.ClientSession: HTTP session for request
+        :param api_key: str: API key
+        :param lat: float: latitude of location where we getting weather data
+        :param lon: float: longitude of location where we getting weather data
+        :param lang: str: Language for request, defaults to 'en_US'
+
+        :returns: dict with response data
+        :raises AssertionError: when response.status is not 200
+        """
         headers = {"X-Yandex-API-Key": api_key}
         url = f"{API_URL}/v{API_VERSION}/informers?lat={lat}&lon={lon}&lang={lang}"
         _LOGGER.info(f"Sending API request")
