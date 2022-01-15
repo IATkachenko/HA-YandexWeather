@@ -8,15 +8,20 @@ sys.path.append(os.path.join(sys.path[0], "../../custom_components"))
 class TranslationsTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
-        _translations_location = os.path.normpath(os.path.join(
-            sys.path[0].replace('\\\\', '/'),
+
+        if sys.path[0].split("\\")[-1] == "functional":
+            p = os.path.join(sys.path[0], '../..')
+        else:
+            p = sys.path[0]
+        cls._translations_location = os.path.normpath(os.path.join(
+            p,
             "custom_components/yandex_weather/translations"
         ))
         cls._config = []
         cls._weather = []
         cls._sensor = []
 
-        for i in os.listdir(_translations_location):
+        for i in os.listdir(cls._translations_location):
             if i.startswith('sensor'):
                 cls._sensor.append(i)
             elif i.startswith('weather'):
