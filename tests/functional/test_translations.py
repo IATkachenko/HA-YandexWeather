@@ -1,3 +1,4 @@
+from __future__ import annotations
 import unittest
 import sys
 import os
@@ -33,6 +34,37 @@ class TranslationsTest(unittest.TestCase):
     def _have_en(self, where: []):
         """Make sure that we have English language file"""
         self.assertIn('en.json', where)
+
+    def _compare_keys(self, d1: {}, d2: {}) -> list[str] | None:
+        """
+        :returns: True if d1 and d2 have same keys
+        """
+
+        for k in d1.keys():
+            d2_keys = d2.keys()
+            if k not in d2_keys:
+                return k
+            if isinstance(d1[k], dict):
+                s = self._compare_keys(d1[k], d2[k])
+                if s is not None:
+                    return f"{k}/{s}"
+        return None
+
+    def test_config_all_defined(self):
+        """Make sure thar translation have all fields like English version"""
+
+        en_name = 'en.json'
+        with open(f"{self._translations_location}/{en_name}") as en:
+            en_json = json.load(en)
+            for t in self._config:
+                if t == en_name:  # skip English itself
+                    continue
+                with self.subTest(translation=t.removesuffix('.json')):
+                    with open(f"{self._translations_location}/{t}") as tr:
+                        tr_json = json.load(tr)
+
+                        if (d := self._compare_keys(en_json, tr_json)) is not None:
+                            self.fail(f"{d} is missed for {t}")
 
     def test_config_same_values(self):
         """Make sure that we have same description for config and options dialogs"""
