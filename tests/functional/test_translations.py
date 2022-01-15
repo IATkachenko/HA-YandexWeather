@@ -1,6 +1,7 @@
 import unittest
 import sys
 import os
+import json
 
 sys.path.append(os.path.join(sys.path[0], "../../custom_components"))
 
@@ -32,6 +33,19 @@ class TranslationsTest(unittest.TestCase):
     def _have_en(self, where: []):
         """Make sure that we have English language file"""
         self.assertIn('en.json', where)
+
+    def test_config_same_values(self):
+        """Make sure that we have same description for config and options dialogs"""
+        for i in self._config:
+            with open(f"{self._translations_location}/{i}") as f:
+                content = json.load(f)
+                c_keys = content['config']['step']['user']['data'].keys()
+                o_keys = content['options']['step']['init']['data'].keys()
+                for k in set(c_keys).intersection(o_keys):
+                    with self.subTest(translation=i.removesuffix('.json'), key=k):
+                        config_value = content['config']['step']['user']['data'].get(k)
+                        option_value = content['options']['step']['init']['data'].get(k)
+                        self.assertEqual(config_value, option_value)
 
     def test_config_have_en(self):
         self._have_en(self._config)
