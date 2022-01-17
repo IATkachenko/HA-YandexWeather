@@ -40,8 +40,6 @@ class YandexWeather(WeatherEntity):
         self._attr_unique_id = unique_id
         self._attr_wind_speed_unit = SPEED_METERS_PER_SECOND if self.hass.config.units.name == CONF_UNIT_SYSTEM_METRIC \
             else SPEED_MILES_PER_HOUR
-        self._attr_pressure_unit = PRESSURE_HPA if self.hass.config.units.name == CONF_UNIT_SYSTEM_METRIC \
-            else PRESSURE_INHG
         self._attr_temperature_unit = TEMP_CELSIUS
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
