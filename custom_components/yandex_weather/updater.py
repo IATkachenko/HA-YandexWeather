@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from enum import IntEnum
 
-from .const import DOMAIN, ATTR_API_WEATHER_TIME, ATTR_API_WIND_BEARING
+from .const import DOMAIN, ATTR_API_WEATHER_TIME, ATTR_API_WIND_BEARING, ATTR_API_CONDITION
 
 API_URL = 'https://api.weather.yandex.ru'
 API_VERSION = '2'
@@ -31,6 +31,47 @@ class WindDirection(IntEnum):
     @classmethod
     def _missing_(cls, value):
         return 0
+
+
+WEATHER_STATES_CONVERSION = {
+    # "clear": "clear-night or sunny",
+    "partly-cloudy": "partlycloudy",
+    "cloudy": "cloudy",
+    "overcast": "cloudy",
+    "drizzle": "fog",
+    "light-rain": "rainy",
+    "rain": "rainy",
+    "moderate-rain": "rainy",
+    "heavy-rain": "pouring",
+    "continuous-heavy-rain": "pouring",
+    "showers": "pouring",
+    "wet-snow": "snowy-rainy",
+    "light-snow": "snowy",
+    "snow": "snowy",
+    "snow-showers": "snowy",
+    "hail": "hail",
+    "thunderstorm": "lightning",
+    "thunderstorm-with-rain": "lightning-rainy",
+    "thunderstorm-with-hail": "lightning-rainy",
+}
+"""Map rich Yandex weather condition to ordinary HA"""
+
+
+def map_state(state: str, is_day: bool = True) -> str:
+    """
+    Map weather condition based on WEATHER_STATES_CONVERSION
+    :param state: str: Yandex weather state
+    :param is_day: bool: Is it day? Used for 'clear' state
+    :return: str: Home Assistant weather state
+    """
+    try:
+        state = WEATHER_STATES_CONVERSION[state]
+    except KeyError:
+        pass
+    if state == 'clear':
+        state = 'sunny' if is_day else 'clear-night'
+
+    return state
 
 
 class WeatherUpdater(DataUpdateCoordinator):
@@ -72,6 +113,7 @@ class WeatherUpdater(DataUpdateCoordinator):
             _tz = timezone(server_unix_time-server_utc_time)
             r["fact"][ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(r["fact"][ATTR_API_WEATHER_TIME], tz=_tz)
             r["fact"][ATTR_API_WIND_BEARING] = WindDirection[r["fact"][ATTR_API_WIND_BEARING]]
+            r["fact"][ATTR_API_CONDITION] = map_state(r["fact"][ATTR_API_CONDITION], r["fact"]['daytime'] == 'd')
 
             return r
 
