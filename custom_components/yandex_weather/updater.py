@@ -110,7 +110,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
             server_utc_time = datetime.strptime(r["now_dt"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(microsecond=0)
             server_unix_time = datetime.fromtimestamp(r["now"])
-            _tz = timezone(server_unix_time-server_utc_time)
+            _tz = timezone(server_utc_time-server_unix_time)
             r["fact"][ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(r["fact"][ATTR_API_WEATHER_TIME], tz=_tz)
             r["fact"][ATTR_API_WIND_BEARING] = WindDirection[r["fact"][ATTR_API_WIND_BEARING]]
             r["fact"][ATTR_API_CONDITION] = map_state(r["fact"][ATTR_API_CONDITION], r["fact"]['daytime'] == 'd')
