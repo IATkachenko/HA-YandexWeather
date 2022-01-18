@@ -12,6 +12,7 @@ from homeassistant.const import (
     CONF_NAME,
 )
 from homeassistant.core import callback
+from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
 
 from .const import (
@@ -42,7 +43,7 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(f"{latitude}-{longitude}")
             self._abort_if_unique_id_configured()
 
-            if await _is_online(user_input[CONF_API_KEY], latitude, longitude):
+            if await _is_online(user_input[CONF_API_KEY], latitude, longitude, self.hass):
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
                 )
@@ -104,7 +105,7 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
         return self.config_entry.options.get(param, self.config_entry.data.get(param, default))
 
 
-async def _is_online(api_key, lat, lon) -> bool:
-    weather = WeatherUpdater(lat, lon, api_key, None)
-    await weather.update()
+async def _is_online(api_key, lat, lon, hass: HomeAssistant) -> bool:
+    weather = WeatherUpdater(lat, lon, api_key, hass)
+    await weather.async_request_refresh()
     return True if 'fact' in weather.weather_data.keys() else False
