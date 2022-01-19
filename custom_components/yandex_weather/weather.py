@@ -2,13 +2,11 @@ from __future__ import annotations
 
 from homeassistant.components.weather import WeatherEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PRESSURE_HPA, PRESSURE_INHG, TEMP_CELSIUS, SPEED_MILES_PER_HOUR, \
-    SPEED_METERS_PER_SECOND, CONF_UNIT_SYSTEM_IMPERIAL, CONF_UNIT_SYSTEM_METRIC
+from homeassistant.const import TEMP_CELSIUS, SPEED_METERS_PER_SECOND, PRESSURE_HPA
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.util.pressure import convert as pressure_convert
 
 from .const import (DOMAIN, ENTRY_NAME, UPDATER, MANUFACTURER, DEFAULT_NAME, ATTR_API_CONDITION, ATTR_API_TEMPERATURE,
                     ATTR_API_PRESSURE, ATTR_API_HUMIDITY, ATTR_API_WIND_SPEED, ATTR_API_WIND_BEARING, ATTR_API_IMAGE, )
@@ -38,8 +36,8 @@ class YandexWeather(WeatherEntity):
         self._updater = updater
         self._attr_name = name
         self._attr_unique_id = unique_id
-        self._attr_wind_speed_unit = SPEED_METERS_PER_SECOND if self.hass.config.units.name == CONF_UNIT_SYSTEM_METRIC \
-            else SPEED_MILES_PER_HOUR
+        self._attr_wind_speed_unit = SPEED_METERS_PER_SECOND
+        self._attr_pressure_unit = PRESSURE_HPA
         self._attr_temperature_unit = TEMP_CELSIUS
         self._attr_device_info = DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
@@ -66,10 +64,7 @@ class YandexWeather(WeatherEntity):
     @property
     def pressure(self) -> float | None:
         """:returns: The pressure."""
-        pressure = self._updater.weather_data['fact'][ATTR_API_PRESSURE]
-        if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
-            return pressure_convert(pressure, PRESSURE_HPA, PRESSURE_INHG)
-        return pressure
+        return self._updater.weather_data['fact'][ATTR_API_PRESSURE]
 
     @property
     def humidity(self) -> float | None:
@@ -79,10 +74,7 @@ class YandexWeather(WeatherEntity):
     @property
     def wind_speed(self) -> float | None:
         """:returns: The wind speed."""
-        wind_speed = self._updater.weather_data['fact'][ATTR_API_WIND_SPEED]
-        if self.hass.config.units.name == CONF_UNIT_SYSTEM_IMPERIAL:
-            return round(wind_speed * 2.24, 2)
-        return wind_speed
+        return self._updater.weather_data['fact'][ATTR_API_WIND_SPEED]
 
     @property
     def wind_bearing(self) -> float | str | None:
