@@ -25,6 +25,20 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 
+def get_value(config_entry: config_entries | None, param: str, default=None):
+    """Get current value for configuration parameter
+
+    :param config_entry: config_entries|None: config entry from Flow
+    :param param: str: parameter name for getting value
+    :param default: default value for parameter, defaults to None
+    :returns: parameter value, or default value or None
+    """
+    if config_entry is not None:
+        return config_entry.options.get(param, config_entry.data.get(param, default))
+    else:
+        return default
+
+
 class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     @staticmethod
     @callback
@@ -87,22 +101,13 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
             {
                 vol.Required(
                     CONF_API_KEY,
-                    default=self._get_value(CONF_API_KEY)): str,
+                    default=get_value(CONF_API_KEY)): str,
                 vol.Optional(
                     CONF_UPDATES_PER_DAY,
-                    default=self._get_value(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY)
+                    default=get_value(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY)
                 ): int,
             }
         )
-
-    def _get_value(self, param: str, default: str | None = None):
-        """Get current value for configuration parameter
-
-        :param param: str: parameter name for getting value
-        :param default: str|None: default value for parameter, defaults to None
-        :returns: parameter value, or default value or None
-        """
-        return self.config_entry.options.get(param, self.config_entry.data.get(param, default))
 
 
 async def _is_online(api_key, lat, lon, hass: HomeAssistant) -> bool:

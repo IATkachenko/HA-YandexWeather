@@ -18,18 +18,20 @@ from .const import (
     UPDATES_PER_DAY,
     PLATFORMS,
     UPDATE_LISTENER,
+    DEFAULT_UPDATES_PER_DAY,
 )
 from .updater import WeatherUpdater
+from .config_flow import get_value
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    name = entry.data[CONF_NAME]
-    api_key = entry.data[CONF_API_KEY]
-    latitude = entry.data.get(CONF_LATITUDE, hass.config.latitude)
-    longitude = entry.data.get(CONF_LONGITUDE, hass.config.longitude)
-    updates_per_day = entry.data[UPDATES_PER_DAY]
+    name = get_value(entry, CONF_NAME)
+    api_key = get_value(entry, CONF_API_KEY)
+    latitude = get_value(entry, CONF_LATITUDE, hass.config.latitude)
+    longitude = get_value(entry, CONF_LONGITUDE, hass.config.longitude)
+    updates_per_day = get_value(entry, UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY)
 
     weather_updater = WeatherUpdater(
         latitude, longitude, api_key, hass, updates_per_day
