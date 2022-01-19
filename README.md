@@ -3,6 +3,7 @@
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yadex.ru) service.
 
 ## Installation
+### HACS
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration) [![HACS Action](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml) [![Validate with hassfest](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml)
 1. Go to HACS
 2. Three dots -> User repositories
@@ -13,7 +14,11 @@ This custom integration is providing weather component and set of sensors based 
 4. Start typing "Yandex weather" in search field
 5. Click at repository
 6. Press "Download with HACS" button
- 
+### Manual
+1. Download [yandex_weather.zip](https://github.com/IATkachenko/HA-YandexWeather/releases/download/latest/yandex_weather.zip) from the latest release
+2. Unpack to `cunstom_components` folder _(it should look like `custom_componets/yandex_weather/<files>`)_
+3. Restart Home Assistant
+
 ## Configuration
 1. Go to Yandex [developer page](https://developer.tech.yandex.ru/services)
 2. Add Weather API with "Test tariff" _(3000 requests for 30 days for free)_
