@@ -3,7 +3,7 @@
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yadex.ru) service.
 
 ## Installation
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
+[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration) [![HACS Action](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml) [![Validate with hassfest](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml)
 1. Go to HACS
 2. Three dots -> User repositories
    * **Repository**: https://github.com/IATkachenko/HA-YandexWeather.git
