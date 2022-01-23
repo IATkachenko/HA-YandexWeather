@@ -1,6 +1,7 @@
 # Make new release based on conventional commits
 name: Create release
 
+# yamllint disable-line rule:truthy
 on:
   workflow_dispatch:
   push:
