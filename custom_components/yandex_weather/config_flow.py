@@ -1,32 +1,23 @@
+"""Configuration flows."""
+
 from __future__ import annotations
 
-import voluptuous as vol
 import logging
-from .updater import WeatherUpdater
 
 from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_API_KEY,
-    CONF_LATITUDE,
-    CONF_LONGITUDE,
-    CONF_NAME,
-)
-from homeassistant.core import callback
-from homeassistant.core import HomeAssistant
+from homeassistant.const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_NAME
+from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
+import voluptuous as vol
 
-from .const import (
-    CONF_UPDATES_PER_DAY,
-    DEFAULT_UPDATES_PER_DAY,
-    DEFAULT_NAME,
-    DOMAIN,
-)
+from .const import CONF_UPDATES_PER_DAY, DEFAULT_NAME, DEFAULT_UPDATES_PER_DAY, DOMAIN
+from .updater import WeatherUpdater
 
 _LOGGER = logging.getLogger(__name__)
 
 
 def get_value(config_entry: config_entries | None, param: str, default=None):
-    """Get current value for configuration parameter
+    """Get current value for configuration parameter.
 
     :param config_entry: config_entries|None: config entry from Flow
     :param param: str: parameter name for getting value
@@ -40,6 +31,8 @@ def get_value(config_entry: config_entries | None, param: str, default=None):
 
 
 class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """First time set up flow."""
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
@@ -57,7 +50,9 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             await self.async_set_unique_id(f"{latitude}-{longitude}")
             self._abort_if_unique_id_configured()
 
-            if await _is_online(user_input[CONF_API_KEY], latitude, longitude, self.hass):
+            if await _is_online(
+                user_input[CONF_API_KEY], latitude, longitude, self.hass
+            ):
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
                 )
@@ -72,7 +67,9 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(
                     CONF_LONGITUDE, default=self.hass.config.longitude
                 ): cv.longitude,
-                vol.Optional(CONF_UPDATES_PER_DAY, default=DEFAULT_UPDATES_PER_DAY): int,
+                vol.Optional(
+                    CONF_UPDATES_PER_DAY, default=DEFAULT_UPDATES_PER_DAY
+                ): int,
             }
         )
 
@@ -80,7 +77,7 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
 
 class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
-    """Handle options."""
+    """Changing options flow."""
 
     def __init__(self, config_entry):
         """Initialize options flow."""
@@ -99,12 +96,10 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
     def _get_options_schema(self):
         return vol.Schema(
             {
-                vol.Required(
-                    CONF_API_KEY,
-                    default=get_value(CONF_API_KEY)): str,
+                vol.Required(CONF_API_KEY, default=get_value(CONF_API_KEY)): str,
                 vol.Optional(
                     CONF_UPDATES_PER_DAY,
-                    default=get_value(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY)
+                    default=get_value(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY),
                 ): int,
             }
         )
@@ -113,4 +108,4 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
 async def _is_online(api_key, lat, lon, hass: HomeAssistant) -> bool:
     weather = WeatherUpdater(lat, lon, api_key, hass)
     await weather.async_request_refresh()
-    return True if 'fact' in weather.weather_data.keys() else False
+    return True if "fact" in weather.weather_data.keys() else False
