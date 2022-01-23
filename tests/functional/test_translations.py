@@ -97,7 +97,7 @@ class TestTranslations:
             with open(f"{translations.location}/{translation}") as tr:
                 tr_json = json.load(tr)
                 if (d := self._compare_keys(en_json, tr_json)) is not None:
-                    pytest.fail(f"{d} is missed for {t}")
+                    pytest.fail(f"{d} is missed for {tr}")
 
     @pytest.mark.parametrize("translation", get_translations().config)
     def test_config_same_values(self, translations, translation):
