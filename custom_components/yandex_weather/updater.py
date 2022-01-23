@@ -168,8 +168,8 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         :param session: aiohttp.ClientSession: HTTP session for request
         :param api_key: str: API key
-        :param lat: float: latitude of location where we getting weather data
-        :param lon: float: longitude of location where we getting weather data
+        :param lat: float: latitude of location where we are getting weather data
+        :param lon: float: longitude of location where we ate getting weather data
         :param lang: str: Language for request, defaults to 'en_US'
 
         :returns: dict with response data
