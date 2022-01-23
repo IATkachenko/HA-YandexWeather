@@ -17,18 +17,18 @@ jobs:
       tag: ${{ steps.changelog.outputs.tag }}
 
     steps:
-    - name: checkout
-      uses: actions/checkout@v2
-      id: checkout
+      - name: checkout
+        uses: actions/checkout@v2
+        id: checkout
 
-    - name: Conventional Changelog Action
-      id: changelog
-      uses: TriPSs/conventional-changelog-action@v3
-      with:
-        github-token: ${{ secrets.github_token }}
-        output-file: "false"
-        skip-version-file:   "true"
-        skip-commit: "true"
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.github_token }}
+          output-file: "false"
+          skip-version-file: "true"
+          skip-commit: "true"
 
   version:
     name: "Update version in manifest"
@@ -61,41 +61,41 @@ jobs:
 
   release:
     name: "Create release"
-    needs: [ changes, version ]
-    if: ${{ needs.changes.outputs.skipped == 'false' }}
+    needs: [changes, version]
+    if: ${{needs.changes.outputs.skipped == 'false'}}
     runs-on: ubuntu-latest
 
     steps:
-    - name: "Check out repository"
-      uses: actions/checkout@v2
-      with:
+      - name: "Check out repository"
+        uses: actions/checkout@v2
+        with:
           ref: ${{ needs.changes.outputs.tag }}
 
-    - name: "Set package name"
-      working-directory: ./custom_components
-      run: |
-        echo "package=$(ls -F | grep \/$ | sed -n "s/\///g;1p")" >> $GITHUB_ENV
+      - name: "Set package name"
+        working-directory: ./custom_components
+        run: |
+          echo "package=$(ls -F | grep \/$ | sed -n "s/\///g;1p")" >> $GITHUB_ENV
 
-    - name: "Set variables"
-      working-directory: ./custom_components
-      run: |
-        echo "archive=${{ env.package }}.zip" >> $GITHUB_ENV
-        echo "basedir=$(pwd)/${{ env.package }}" >> $GITHUB_ENV
+      - name: "Set variables"
+        working-directory: ./custom_components
+        run: |
+          echo "archive=${{ env.package }}.zip" >> $GITHUB_ENV
+          echo "basedir=$(pwd)/${{ env.package }}" >> $GITHUB_ENV
 
-    - name: "Zip component dir"
-      working-directory: ./custom_components/${{ env.package }}
-      run: |
-        rm -f manifest.json.tpl
-        zip ${{ env.archive }} -r ./
+      - name: "Zip component dir"
+        working-directory: ./custom_components/${{ env.package }}
+        run: |
+          rm -f manifest.json.tpl
+          zip ${{ env.archive }} -r ./
 
-    - name: Create Release
-      id: release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ needs.changes.outputs.tag }}
-        name: ${{ needs.changes.outputs.tag }}
-        draft: true
-        files: ${{ env.basedir }}/${{ env.archive }}
-        body: |
-          [![GitHub release (by tag)](https://img.shields.io/github/downloads/${{ github.repository }}/${{ needs.changes.outputs.tag }}/total?style=plastic)](https://github.com/${{ github.repository }}/releases/tag/${{ needs.changes.outputs.tag }})
-          ${{ needs.changes.outputs.clean_changelog }}
+      - name: Create Release
+        id: release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.changes.outputs.tag }}
+          name: ${{ needs.changes.outputs.tag }}
+          draft: true
+          files: ${{ env.basedir }}/${{ env.archive }}
+          body: |
+            [![GitHub release (by tag)](https://img.shields.io/github/downloads/${{ github.repository }}/${{ needs.changes.outputs.tag }}/total?style=plastic)](https://github.com/${{ github.repository }}/releases/tag/${{ needs.changes.outputs.tag }})
+            ${{ needs.changes.outputs.clean_changelog }}

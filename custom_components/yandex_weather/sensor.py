@@ -1,9 +1,10 @@
+"""Sensor component."""
+
 from __future__ import annotations
+
 import logging
-from homeassistant.components.sensor import (
-    SensorEntity,
-    SensorEntityDescription,
-)
+
+from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
@@ -16,8 +17,8 @@ from .const import (
     DEFAULT_NAME,
     DOMAIN,
     ENTRY_NAME,
-    UPDATER,
     MANUFACTURER,
+    UPDATER,
     WEATHER_SENSOR_TYPES,
 )
 from .updater import WeatherUpdater
@@ -30,6 +31,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Set up weather "Yandex.Weather" sensor entry."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     name = domain_data[ENTRY_NAME]
     updater = domain_data[UPDATER]
@@ -47,6 +49,8 @@ async def async_setup_entry(
 
 
 class YandexWeatherSensor(SensorEntity):
+    """Yandex.Weather sensor entry."""
+
     _attr_should_poll = False
     _attr_attribution = ATTRIBUTION
 
@@ -57,6 +61,7 @@ class YandexWeatherSensor(SensorEntity):
         description: SensorEntityDescription,
         updater: WeatherUpdater,
     ) -> None:
+        """Initialize sensor."""
         self.entity_description = description
         self._updater = updater
 
@@ -72,7 +77,7 @@ class YandexWeatherSensor(SensorEntity):
 
     @property
     def available(self) -> bool:
-        """:returns: True if entity is available."""
+        """Is entity available."""
         return self._updater.last_update_success
 
     async def async_added_to_hass(self) -> None:
@@ -82,10 +87,11 @@ class YandexWeatherSensor(SensorEntity):
         )
 
     async def async_update(self) -> None:
+        """Update sensor data."""
         await self._updater.async_request_refresh()
 
     @property
     def native_value(self) -> StateType:
-        """:returns: the state of the device."""
+        """Sensor state in native units of measurement."""
 
-        return self._updater.weather_data['fact'].get(self.entity_description.key, None)
+        return self._updater.weather_data["fact"].get(self.entity_description.key, None)

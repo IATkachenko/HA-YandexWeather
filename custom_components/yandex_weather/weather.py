@@ -1,15 +1,29 @@
+"""Weather component."""
+
 from __future__ import annotations
 
 from homeassistant.components.weather import WeatherEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import TEMP_CELSIUS, SPEED_METERS_PER_SECOND, PRESSURE_HPA
+from homeassistant.const import PRESSURE_HPA, SPEED_METERS_PER_SECOND, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-from .const import (DOMAIN, ENTRY_NAME, UPDATER, MANUFACTURER, DEFAULT_NAME, ATTR_API_CONDITION, ATTR_API_TEMPERATURE,
-                    ATTR_API_PRESSURE, ATTR_API_HUMIDITY, ATTR_API_WIND_SPEED, ATTR_API_WIND_BEARING, ATTR_API_IMAGE, )
+from .const import (
+    ATTR_API_CONDITION,
+    ATTR_API_HUMIDITY,
+    ATTR_API_IMAGE,
+    ATTR_API_PRESSURE,
+    ATTR_API_TEMPERATURE,
+    ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_SPEED,
+    DEFAULT_NAME,
+    DOMAIN,
+    ENTRY_NAME,
+    MANUFACTURER,
+    UPDATER,
+)
 from .updater import WeatherUpdater
 
 
@@ -18,6 +32,7 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
+    """Set up weather "Yandex.Weather" weather entry."""
     domain_data = hass.data[DOMAIN][config_entry.entry_id]
     name = domain_data[ENTRY_NAME]
     updater = domain_data[UPDATER]
@@ -28,9 +43,12 @@ async def async_setup_entry(
 
 
 class YandexWeather(WeatherEntity):
+    """Yandex.Weather entry."""
+
     _attr_should_poll = False
 
     def __init__(self, name, unique_id, updater: WeatherUpdater, hass: HomeAssistant):
+        """Initialize entry."""
         super().__init__()
         self.hass = hass
         self._updater = updater
@@ -44,46 +62,47 @@ class YandexWeather(WeatherEntity):
             identifiers={(DOMAIN, unique_id)},
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
-            configuration_url=self._updater.weather_data['info']['url']
+            configuration_url=self._updater.weather_data["info"]["url"],
         )
 
     @property
     def entity_picture(self):
+        """Entity picture from Yandex."""
         return f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.weather_data['fact'][ATTR_API_IMAGE]}.svg"
 
     @property
     def condition(self) -> str | None:
-        """:returns: the current condition."""
-        return self._updater.weather_data['fact'][ATTR_API_CONDITION]
+        """Return current condition."""
+        return self._updater.weather_data["fact"][ATTR_API_CONDITION]
 
     @property
     def temperature(self) -> float | None:
-        """:returns: The temperature."""
-        return self._updater.weather_data['fact'][ATTR_API_TEMPERATURE]
+        """Return current temperature."""
+        return self._updater.weather_data["fact"][ATTR_API_TEMPERATURE]
 
     @property
     def pressure(self) -> float | None:
-        """:returns: The pressure."""
-        return self._updater.weather_data['fact'][ATTR_API_PRESSURE]
+        """Return current pressure."""
+        return self._updater.weather_data["fact"][ATTR_API_PRESSURE]
 
     @property
     def humidity(self) -> float | None:
-        """:returns: The humidity."""
-        return self._updater.weather_data['fact'][ATTR_API_HUMIDITY]
+        """Return current humidity."""
+        return self._updater.weather_data["fact"][ATTR_API_HUMIDITY]
 
     @property
     def wind_speed(self) -> float | None:
-        """:returns: The wind speed."""
-        return self._updater.weather_data['fact'][ATTR_API_WIND_SPEED]
+        """Return current wind speed."""
+        return self._updater.weather_data["fact"][ATTR_API_WIND_SPEED]
 
     @property
     def wind_bearing(self) -> float | str | None:
-        """Return the wind bearing."""
-        return self._updater.weather_data['fact'][ATTR_API_WIND_BEARING]
+        """Return current wind direction."""
+        return self._updater.weather_data["fact"][ATTR_API_WIND_BEARING]
 
     @property
     def available(self) -> bool:
-        """:returns: True if entity is available."""
+        """Is entity available."""
         return self._updater.last_update_success
 
     async def async_added_to_hass(self) -> None:
