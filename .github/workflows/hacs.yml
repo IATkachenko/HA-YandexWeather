@@ -1,6 +1,7 @@
-#https://github.com/hacs/action
+# https://github.com/hacs/action
 name: HACS Action
 
+# yamllint disable-line rule:truthy
 on:
   workflow_dispatch:
   push:
