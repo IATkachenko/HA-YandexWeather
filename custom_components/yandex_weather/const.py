@@ -31,6 +31,7 @@ ATTR_API_PRESSURE = "pressure_pa"
 ATTR_API_CONDITION = "condition"
 ATTR_API_IMAGE = "icon"
 ATTR_API_WEATHER_TIME = "obs_time"
+ATTR_API_YA_CONDITION = "original_condition"
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
 UPDATE_LISTENER = "update_listener"
@@ -94,5 +95,10 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=True,
         entity_category="diagnostic",
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_YA_CONDITION,
+        name="Condition",
+        entity_registry_enabled_default=True,
     ),
 )
