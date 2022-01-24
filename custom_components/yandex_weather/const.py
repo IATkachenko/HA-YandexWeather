@@ -102,3 +102,27 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
         entity_registry_enabled_default=True,
     ),
 )
+
+
+WEATHER_STATES_CONVERSION = {
+    # "clear": "clear-night or sunny",
+    "partly-cloudy": "partlycloudy",
+    "cloudy": "cloudy",
+    "overcast": "cloudy",
+    "drizzle": "fog",
+    "light-rain": "rainy",
+    "rain": "rainy",
+    "moderate-rain": "rainy",
+    "heavy-rain": "pouring",
+    "continuous-heavy-rain": "pouring",
+    "showers": "pouring",
+    "wet-snow": "snowy-rainy",
+    "light-snow": "snowy",
+    "snow": "snowy",
+    "snow-showers": "snowy",
+    "hail": "hail",
+    "thunderstorm": "lightning",
+    "thunderstorm-with-rain": "lightning-rainy",
+    "thunderstorm-with-hail": "lightning-rainy",
+}
+"""Map rich Yandex weather condition to ordinary HA"""

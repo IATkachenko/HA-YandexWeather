@@ -19,7 +19,9 @@ from .const import (
     ATTR_API_WIND_BEARING,
     ATTR_API_YA_CONDITION,
     DOMAIN,
+    WEATHER_STATES_CONVERSION,
 )
+from .device_trigger import TRIGGERS
 
 API_URL = "https://api.weather.yandex.ru"
 API_VERSION = "2"
@@ -41,30 +43,6 @@ class WindDirection(IntEnum):
     @classmethod
     def _missing_(cls, value):
         return 0
-
-
-WEATHER_STATES_CONVERSION = {
-    # "clear": "clear-night or sunny",
-    "partly-cloudy": "partlycloudy",
-    "cloudy": "cloudy",
-    "overcast": "cloudy",
-    "drizzle": "fog",
-    "light-rain": "rainy",
-    "rain": "rainy",
-    "moderate-rain": "rainy",
-    "heavy-rain": "pouring",
-    "continuous-heavy-rain": "pouring",
-    "showers": "pouring",
-    "wet-snow": "snowy-rainy",
-    "light-snow": "snowy",
-    "snow": "snowy",
-    "snow-showers": "snowy",
-    "hail": "hail",
-    "thunderstorm": "lightning",
-    "thunderstorm-with-rain": "lightning-rainy",
-    "thunderstorm-with-hail": "lightning-rainy",
-}
-"""Map rich Yandex weather condition to ordinary HA"""
 
 
 def map_state(state: str, is_day: bool = True) -> str:
@@ -94,6 +72,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         longitude: float,
         api_key: str,
         hass: HomeAssistant,
+        device_id: str,
         updates_per_day: int = 50,
     ):
         """Initialize updater.
@@ -103,12 +82,14 @@ class WeatherUpdater(DataUpdateCoordinator):
         :param api_key: Yandex weather API. MUST be weather for site tariff plan
         :param hass: Home Assistant object
         :param updates_per_day: int: how many updates per day we should do?
+        :param device_id: ID of integration Device in Home Assistant
         """
 
         self.__api_key = api_key
         self._lat = latitude
         self._lon = longitude
         self._updates_per_day = updates_per_day
+        self._device_id = device_id
 
         if hass is not None:
             super().__init__(
@@ -154,7 +135,21 @@ class WeatherUpdater(DataUpdateCoordinator):
             r["fact"][ATTR_API_CONDITION] = map_state(
                 r["fact"][ATTR_API_CONDITION], r["fact"]["daytime"] == "d"
             )
+            if (
+                self.data
+                and r["fact"][ATTR_API_CONDITION]
+                != self.data["fact"][ATTR_API_CONDITION]
+                and self.hass is not None
+                and r["fact"][ATTR_API_CONDITION] in TRIGGERS
+            ):
 
+                self.hass.bus.async_fire(
+                    DOMAIN + "_event",
+                    {
+                        "device_id": self._device_id,
+                        "type": r["fact"][ATTR_API_CONDITION],
+                    },
+                )
             return r
 
     @staticmethod
