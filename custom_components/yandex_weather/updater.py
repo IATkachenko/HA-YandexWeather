@@ -17,6 +17,7 @@ from .const import (
     ATTR_API_CONDITION,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
+    ATTR_API_YA_CONDITION,
     DOMAIN,
 )
 
@@ -149,6 +150,7 @@ class WeatherUpdater(DataUpdateCoordinator):
             r["fact"][ATTR_API_WIND_BEARING] = WindDirection[
                 r["fact"][ATTR_API_WIND_BEARING]
             ]
+            r["fact"][ATTR_API_YA_CONDITION] = r["fact"][ATTR_API_CONDITION]
             r["fact"][ATTR_API_CONDITION] = map_state(
                 r["fact"][ATTR_API_CONDITION], r["fact"]["daytime"] == "d"
             )
