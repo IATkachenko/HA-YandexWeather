@@ -106,6 +106,6 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
 
 
 async def _is_online(api_key, lat, lon, hass: HomeAssistant) -> bool:
-    weather = WeatherUpdater(lat, lon, api_key, hass)
+    weather = WeatherUpdater(lat, lon, api_key, hass, "config_flow_test_id")
     await weather.async_request_refresh()
     return True if "fact" in weather.weather_data.keys() else False
