@@ -40,3 +40,6 @@ This custom integration is providing weather component and set of sensors based 
 Most sensors are disabled by default to not overload system. 
  
 * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.3.0-red) `data update time` -- when weather data was updated (at Yandex side).
+
+### Events
+![added_in_version_badge](https://img.shields.io/badge/Since-v0.4.0-red) integration will fire events on weather condition changes. This events may be used for triggering automatizations.
