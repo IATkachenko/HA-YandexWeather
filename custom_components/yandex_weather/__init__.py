@@ -32,7 +32,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     updates_per_day = get_value(entry, UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY)
 
     weather_updater = WeatherUpdater(
-        latitude, longitude, api_key, hass, updates_per_day
+        latitude, longitude, api_key, hass, entry.unique_id, updates_per_day
     )
 
     await weather_updater.async_config_entry_first_refresh()
