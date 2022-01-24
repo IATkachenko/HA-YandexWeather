@@ -15,7 +15,7 @@ from homeassistant.const import (
 
 DOMAIN = "yandex_weather"
 DEFAULT_NAME = "Yandex Weather"
-DEFAULT_UPDATES_PER_DAY = 50
+DEFAULT_UPDATES_PER_DAY = 48
 ATTRIBUTION = "Data provided by Yandex Weather"
 MANUFACTURER = "Yandex"
 ENTRY_NAME = "name"
