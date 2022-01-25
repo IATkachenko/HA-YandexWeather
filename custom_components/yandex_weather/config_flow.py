@@ -87,12 +87,20 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
+        errors = {}
         if user_input is not None:
-            return self.async_create_entry(title="", data=user_input)
+            if await _is_online(
+                user_input[CONF_API_KEY],
+                get_value(self.config_entry, CONF_LATITUDE),
+                get_value(self.config_entry, CONF_LONGITUDE),
+                self.hass,
+            ):
+                return self.async_create_entry(title="", data=user_input)
+            else:
+                errors["base"] = "could_not_get_data"
 
         return self.async_show_form(
-            step_id="init",
-            data_schema=self._get_options_schema(),
+            step_id="init", data_schema=self._get_options_schema(), errors=errors
         )
 
     def _get_options_schema(self):
