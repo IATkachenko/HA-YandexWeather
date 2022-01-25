@@ -1,5 +1,11 @@
 {
   "options": {
+    "abort": {
+      "already_configured": "This location is already used for Yandex.Weather."
+    },
+    "error": {
+      "could_not_get_data": "Could not get data. Check API key in Yandex developer zone and make sure that 'Weather for website' tariff is used."
+    },
     "step": {
       "init": {
         "title": "Yandex.Weather settings",
@@ -12,6 +18,12 @@
     }
   },
   "config": {
+    "abort": {
+      "already_configured": "This location is already used for Yandex.Weather."
+    },
+    "error": {
+      "could_not_get_data": "Could not get data. Check API key in Yandex developer zone and make sure that 'Weather for website' tariff is used."
+    },
     "step": {
       "user": {
         "title": "Yandex.Weather settings",

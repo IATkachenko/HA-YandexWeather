@@ -56,6 +56,8 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=user_input[CONF_NAME], data=user_input
                 )
+            else:
+                errors["base"] = "could_not_get_data"
 
         schema = vol.Schema(
             {
@@ -108,4 +110,4 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
 async def _is_online(api_key, lat, lon, hass: HomeAssistant) -> bool:
     weather = WeatherUpdater(lat, lon, api_key, hass, "config_flow_test_id")
     await weather.async_request_refresh()
-    return True if "fact" in weather.weather_data.keys() else False
+    return weather.last_update_success

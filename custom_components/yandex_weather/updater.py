@@ -176,10 +176,11 @@ class WeatherUpdater(DataUpdateCoordinator):
         url = f"{API_URL}/v{API_VERSION}/informers?lat={lat}&lon={lon}&lang={lang}"
         _LOGGER.info("Sending API request")
         async with session.get(url, headers=headers) as response:
-            _LOGGER.debug(response)
             try:
                 assert response.status == 200
+                _LOGGER.debug(f"{await response.text()}")
             except AssertionError as e:
+                _LOGGER.error(f"Could not get data from API: {response}")
                 raise aiohttp.ClientError(response.status, await response.text()) from e
 
             return await response.text()
