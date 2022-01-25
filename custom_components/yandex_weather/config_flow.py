@@ -98,10 +98,14 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
     def _get_options_schema(self):
         return vol.Schema(
             {
-                vol.Required(CONF_API_KEY, default=get_value(CONF_API_KEY)): str,
+                vol.Required(
+                    CONF_API_KEY, default=get_value(self.config_entry, CONF_API_KEY)
+                ): str,
                 vol.Optional(
                     CONF_UPDATES_PER_DAY,
-                    default=get_value(CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY),
+                    default=get_value(
+                        self.config_entry, CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY
+                    ),
                 ): int,
             }
         )
