@@ -10,11 +10,21 @@ from homeassistant.const import CONF_DEVICE_ID, CONF_DOMAIN, CONF_PLATFORM, CONF
 from homeassistant.core import HomeAssistant
 import voluptuous as vol
 
-from .const import DOMAIN, WEATHER_STATES_CONVERSION
+from .const import DOMAIN, WEATHER_STATES_CONVERSION, map_state
+
+
+def generate_triggers() -> list:
+    result = []
+    for s in WEATHER_STATES_CONVERSION.keys():
+        for d in [True, False]:
+            result.append(map_state(src=s, is_day=d, mapping=WEATHER_STATES_CONVERSION))
+
+    return list(set(result))
+
 
 _LOGGER = logging.getLogger(__name__)
 
-TRIGGERS = set(list(WEATHER_STATES_CONVERSION.values()) + ["clear-night", "sunny"])
+TRIGGERS = generate_triggers()
 
 TRIGGER_SCHEMA = HA_TRIGGER_BASE_SCHEMA.extend(
     {

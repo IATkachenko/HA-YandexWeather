@@ -20,6 +20,7 @@ from .const import (
     ATTR_API_YA_CONDITION,
     DOMAIN,
     WEATHER_STATES_CONVERSION,
+    map_state,
 )
 from .device_trigger import TRIGGERS
 
@@ -43,24 +44,6 @@ class WindDirection(IntEnum):
     @classmethod
     def _missing_(cls, value):
         return 0
-
-
-def map_state(state: str, is_day: bool = True) -> str:
-    """
-    Map weather condition based on WEATHER_STATES_CONVERSION.
-
-    :param state: str: Yandex weather state
-    :param is_day: bool: Is it day? Used for 'clear' state
-    :return: str: Home Assistant weather state
-    """
-    try:
-        state = WEATHER_STATES_CONVERSION[state]
-    except KeyError:
-        pass
-    if state == "clear":
-        state = "sunny" if is_day else "clear-night"
-
-    return state
 
 
 class WeatherUpdater(DataUpdateCoordinator):
@@ -133,7 +116,9 @@ class WeatherUpdater(DataUpdateCoordinator):
             ]
             r["fact"][ATTR_API_YA_CONDITION] = r["fact"][ATTR_API_CONDITION]
             r["fact"][ATTR_API_CONDITION] = map_state(
-                r["fact"][ATTR_API_CONDITION], r["fact"]["daytime"] == "d"
+                r["fact"][ATTR_API_CONDITION],
+                r["fact"]["daytime"] == "d",
+                WEATHER_STATES_CONVERSION,
             )
             if (
                 self.data

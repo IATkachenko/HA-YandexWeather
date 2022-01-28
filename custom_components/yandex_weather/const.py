@@ -1,4 +1,5 @@
 """General constants."""
+from __future__ import annotations
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -105,7 +106,10 @@ WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
 
 
 WEATHER_STATES_CONVERSION = {
-    # "clear": "clear-night or sunny",
+    "clear": {
+        "day": "sunny",
+        "night": "clear-night",
+    },
     "partly-cloudy": "partlycloudy",
     "cloudy": "cloudy",
     "overcast": "cloudy",
@@ -126,3 +130,26 @@ WEATHER_STATES_CONVERSION = {
     "thunderstorm-with-hail": "lightning-rainy",
 }
 """Map rich Yandex weather condition to ordinary HA"""
+
+
+def map_state(src: str, is_day: bool = True, mapping: dict | None = None) -> str:
+    """
+    Map weather condition based on WEATHER_STATES_CONVERSION.
+
+    :param src: str: Yandex weather state
+    :param is_day: bool: Is it day? Used for 'clear' state
+    :param mapping: use this dict for mapping
+    :return: str: Home Assistant weather state
+    """
+    if mapping is None:
+        mapping = {}
+    try:
+        result: str | dict[str, str] = mapping[src]
+    except KeyError:
+        result = src
+
+    if type(result) == dict:
+        t = "day" if is_day else "night"
+        result = result[t]
+
+    return result
