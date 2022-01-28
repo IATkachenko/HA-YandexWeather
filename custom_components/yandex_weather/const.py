@@ -131,6 +131,35 @@ WEATHER_STATES_CONVERSION = {
 }
 """Map rich Yandex weather condition to ordinary HA"""
 
+CONDITION_ICONS = {
+    "clear": {
+        "day": "mdi:weather-sunny",
+        "night": "mdi:weather-night",
+    },
+    "partly-cloudy": {
+        "day": "mdi:weather-partly-cloudy",
+        "night": "mdi:weather-night-partly-cloudy",
+    },
+    "cloudy": "mdi:weather-cloudy",
+    "overcast": "mdi:weather-cloudy",
+    "drizzle": "mdi:weather-fog",
+    "light-rain": "mdi:weather-rainy",
+    "rain": "mdi:weather-rainy",
+    "moderate-rain": "mdi:weather-rainy",
+    "heavy-rain": "mdi:weather-pouring",
+    "continuous-heavy-rain": "mdi:weather-pouring",
+    "showers": "mdi:weather-pouring",
+    "wet-snow": "mdi:weather-snowy-rainy",
+    "light-snow": "mdi:weather-snowy",
+    "snow": "mdi:weather-snowy",
+    "snow-showers": "mdi:weather-snowy-heavy",
+    "hail": "mdi:weather-hail",
+    "thunderstorm": "mdi:weather-lightning",
+    "thunderstorm-with-rain": "mdi:weather-lightning-rainy",
+    "thunderstorm-with-hail": "mdi:weather-lightning-rainy",
+}
+"""Mapping for state icon"""
+
 
 def map_state(src: str, is_day: bool = True, mapping: dict | None = None) -> str:
     """

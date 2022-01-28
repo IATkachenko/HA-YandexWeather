@@ -13,6 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from .const import (
+    ATTR_API_YA_CONDITION,
     ATTRIBUTION,
     DEFAULT_NAME,
     DOMAIN,
@@ -95,3 +96,13 @@ class YandexWeatherSensor(SensorEntity):
         """Sensor state in native units of measurement."""
 
         return self._updater.weather_data["fact"].get(self.entity_description.key, None)
+
+    @property
+    def icon(self):
+        """Sensor icon."""
+        if self.entity_description.key == ATTR_API_YA_CONDITION:
+            return self._updater.weather_data["fact"].get(
+                f"{ATTR_API_YA_CONDITION}_icon", None
+            )
+        else:
+            return super().icon

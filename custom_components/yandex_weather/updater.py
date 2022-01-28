@@ -18,6 +18,7 @@ from .const import (
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
     ATTR_API_YA_CONDITION,
+    CONDITION_ICONS,
     DOMAIN,
     WEATHER_STATES_CONVERSION,
     map_state,
@@ -115,6 +116,11 @@ class WeatherUpdater(DataUpdateCoordinator):
                 r["fact"][ATTR_API_WIND_BEARING]
             ]
             r["fact"][ATTR_API_YA_CONDITION] = r["fact"][ATTR_API_CONDITION]
+            r["fact"][f"{ATTR_API_YA_CONDITION}_icon"] = map_state(
+                r["fact"][ATTR_API_YA_CONDITION],
+                r["fact"]["daytime"] == "d",
+                CONDITION_ICONS,
+            )
             r["fact"][ATTR_API_CONDITION] = map_state(
                 r["fact"][ATTR_API_CONDITION],
                 r["fact"]["daytime"] == "d",
