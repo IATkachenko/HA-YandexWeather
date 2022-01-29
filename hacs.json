@@ -1,7 +1,7 @@
 {
   "name": "Yandex weather",
   "country": "RU",
-  "render_readme": true,
+  "render_readme": false,
   "domains": ["yandexweather"],
   "zip_release": true,
   "filename": "yandex_weather.zip",
