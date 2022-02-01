@@ -16,7 +16,7 @@ This custom integration is providing weather component and set of sensors based 
 ## Configuration
 1. Go to Yandex [developer page](https://developer.tech.yandex.ru/services)
 2. Add Weather API with "Test tariff" _(3000 requests for 30 days for free)_
-3. Switch to "Weather for web-site tariff" _(50 requests per day for free)_. It may requre up to 30 minutes for activating key.
+3. Switch to "Weather for web-site tariff" _(50 requests per day for free)_. It may require up to 30 minutes for activating key.
 4. Save API key
 5. Go to Home Assistant settings
     * Integrations
