@@ -14,6 +14,7 @@ from .const import DOMAIN, WEATHER_STATES_CONVERSION, map_state
 
 
 def generate_triggers() -> list:
+    """Generate triggers list."""
     result = []
     for s in WEATHER_STATES_CONVERSION.keys():
         for d in [True, False]:
