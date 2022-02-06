@@ -4,8 +4,19 @@ from __future__ import annotations
 
 import logging
 
-from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorEntityDescription,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import (
+    PERCENTAGE,
+    PRESSURE_HPA,
+    SPEED_METERS_PER_SECOND,
+    TEMP_CELSIUS,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -13,6 +24,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 
 from .const import (
+    ATTR_API_CONDITION,
+    ATTR_API_FEELS_LIKE_TEMPERATURE,
+    ATTR_API_HUMIDITY,
+    ATTR_API_PRESSURE,
+    ATTR_API_TEMPERATURE,
+    ATTR_API_WEATHER_TIME,
+    ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTRIBUTION,
     DEFAULT_NAME,
@@ -20,9 +39,73 @@ from .const import (
     ENTRY_NAME,
     MANUFACTURER,
     UPDATER,
-    WEATHER_SENSOR_TYPES,
 )
 from .updater import WeatherUpdater
+
+WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
+    SensorEntityDescription(
+        key=ATTR_API_TEMPERATURE,
+        name="Temperature",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_FEELS_LIKE_TEMPERATURE,
+        name="Feels like temperature",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_WIND_SPEED,
+        name="Wind speed",
+        native_unit_of_measurement=SPEED_METERS_PER_SECOND,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_WIND_BEARING,
+        name="Wind bearing",
+        native_unit_of_measurement="",
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_HUMIDITY,
+        name="Humidity",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_PRESSURE,
+        name="Pressure",
+        native_unit_of_measurement=PRESSURE_HPA,
+        device_class=SensorDeviceClass.PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_CONDITION, name="Condition", entity_registry_enabled_default=False
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_WEATHER_TIME,
+        name="Data update time",
+        device_class=SensorDeviceClass.TIMESTAMP,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=True,
+        entity_category="diagnostic",
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_YA_CONDITION,
+        name="Condition",
+        entity_registry_enabled_default=True,
+    ),
+)
 
 _LOGGER = logging.getLogger(__name__)
 
