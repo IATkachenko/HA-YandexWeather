@@ -22,6 +22,7 @@ ATTR_API_CONDITION = "condition"
 ATTR_API_IMAGE = "icon"
 ATTR_API_WEATHER_TIME = "obs_time"
 ATTR_API_YA_CONDITION = "original_condition"
+ATTR_API_PRESSURE_MMHG = "pressure_mm"
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
 UPDATE_LISTENER = "update_listener"

@@ -14,6 +14,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
     PRESSURE_HPA,
+    PRESSURE_MMHG,
     SPEED_METERS_PER_SECOND,
     TEMP_CELSIUS,
 )
@@ -28,6 +29,7 @@ from .const import (
     ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_HUMIDITY,
     ATTR_API_PRESSURE,
+    ATTR_API_PRESSURE_MMHG,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
@@ -103,6 +105,15 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_YA_CONDITION,
         name="Condition",
+        entity_registry_enabled_default=True,
+    ),
+    SensorEntityDescription(
+        key=ATTR_API_PRESSURE_MMHG,
+        name="Pressure mmHg",
+        native_unit_of_measurement=PRESSURE_MMHG,
+        icon="mdi:gauge",
+        # should not define device_class, because HA will try to convert pressure to system units.
+        state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=True,
     ),
 )
