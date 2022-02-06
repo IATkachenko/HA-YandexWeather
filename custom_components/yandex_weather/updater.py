@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from enum import IntEnum
 from functools import cached_property
 import json
 import logging
@@ -30,21 +29,18 @@ API_VERSION = "2"
 _LOGGER = logging.getLogger(__name__)
 
 
-class WindDirection(IntEnum):
-    """Wind directions mapping."""
-
-    nw = 315
-    n = 360
-    ne = 45
-    e = 90
-    se = 135
-    s = 180
-    sw = 225
-    w = 270
-
-    @classmethod
-    def _missing_(cls, value):
-        return 0
+WIND_DIRECTION_MAPPING: dict[str, int | None] = {
+    "nw": 315,
+    "n": 360,
+    "ne": 45,
+    "e": 90,
+    "se": 135,
+    "s": 180,
+    "sw": 225,
+    "w": 270,
+    "c": None,
+}
+"""Wind directions mapping."""
 
 
 class WeatherUpdater(DataUpdateCoordinator):
@@ -112,9 +108,10 @@ class WeatherUpdater(DataUpdateCoordinator):
             r["fact"][ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(
                 r["fact"][ATTR_API_WEATHER_TIME], tz=_tz
             )
-            r["fact"][ATTR_API_WIND_BEARING] = WindDirection[
-                r["fact"][ATTR_API_WIND_BEARING]
-            ]
+            r["fact"][ATTR_API_WIND_BEARING] = map_state(
+                src=r["fact"][ATTR_API_WIND_BEARING],
+                mapping=WIND_DIRECTION_MAPPING,
+            )
             r["fact"][ATTR_API_YA_CONDITION] = r["fact"][ATTR_API_CONDITION]
             r["fact"][f"{ATTR_API_YA_CONDITION}_icon"] = map_state(
                 r["fact"][ATTR_API_YA_CONDITION],
