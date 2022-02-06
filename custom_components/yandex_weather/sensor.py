@@ -42,7 +42,7 @@ from .const import (
 )
 from .updater import WeatherUpdater
 
-WEATHER_SENSOR_TYPES: tuple[SensorEntityDescription, ...] = (
+WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_TEMPERATURE,
         name="Temperature",
@@ -127,7 +127,7 @@ async def async_setup_entry(
             description,
             updater,
         )
-        for description in WEATHER_SENSOR_TYPES
+        for description in WEATHER_SENSORS
     ]
     async_add_entities(entities)
 
