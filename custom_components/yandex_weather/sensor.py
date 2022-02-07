@@ -23,6 +23,7 @@ from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_API_CONDITION,
@@ -143,10 +144,9 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class YandexWeatherSensor(SensorEntity):
+class YandexWeatherSensor(SensorEntity, CoordinatorEntity):
     """Yandex.Weather sensor entry."""
 
-    _attr_should_poll = False
     _attr_attribution = ATTRIBUTION
 
     def __init__(
@@ -157,6 +157,7 @@ class YandexWeatherSensor(SensorEntity):
         updater: WeatherUpdater,
     ) -> None:
         """Initialize sensor."""
+        CoordinatorEntity.__init__(self, coordinator=updater)
         self.entity_description = description
         self._updater = updater
 
@@ -169,21 +170,6 @@ class YandexWeatherSensor(SensorEntity):
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
         )
-
-    @property
-    def available(self) -> bool:
-        """Is entity available."""
-        return self._updater.last_update_success
-
-    async def async_added_to_hass(self) -> None:
-        """Connect to dispatcher listening for entity data notifications."""
-        self.async_on_remove(
-            self._updater.async_add_listener(self.async_write_ha_state)
-        )
-
-    async def async_update(self) -> None:
-        """Update sensor data."""
-        await self._updater.async_request_refresh()
 
     @property
     def native_value(self) -> StateType:
