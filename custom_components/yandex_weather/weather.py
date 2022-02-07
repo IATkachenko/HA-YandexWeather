@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     ATTR_API_CONDITION,
@@ -42,14 +43,14 @@ async def async_setup_entry(
     async_add_entities([YandexWeather(name, unique_id, updater, hass)], False)
 
 
-class YandexWeather(WeatherEntity):
+class YandexWeather(WeatherEntity, CoordinatorEntity):
     """Yandex.Weather entry."""
-
-    _attr_should_poll = False
 
     def __init__(self, name, unique_id, updater: WeatherUpdater, hass: HomeAssistant):
         """Initialize entry."""
-        super().__init__()
+        WeatherEntity.__init__(self)
+        CoordinatorEntity.__init__(self, coordinator=updater)
+
         self.hass = hass
         self._updater = updater
         self._attr_name = name
@@ -99,18 +100,3 @@ class YandexWeather(WeatherEntity):
     def wind_bearing(self) -> float | str | None:
         """Return current wind direction."""
         return self._updater.weather_data["fact"][ATTR_API_WIND_BEARING]
-
-    @property
-    def available(self) -> bool:
-        """Is entity available."""
-        return self._updater.last_update_success
-
-    async def async_added_to_hass(self) -> None:
-        """Connect to dispatcher listening for entity data notifications."""
-        self.async_on_remove(
-            self._updater.async_add_listener(self.async_write_ha_state)
-        )
-
-    async def async_update(self) -> None:
-        """Get the latest data from and updates the states."""
-        await self._updater.async_request_refresh()
