@@ -10,7 +10,7 @@ This custom integration is providing weather component and set of sensors based 
 5. Go to Home Assistant settings
     * Integrations
     * Add
-    * Start typing "Yandex weather"
+    * Start typing "Yandex weather" _(clean browser cache if nothing found)_
     * Add integration
     * Put API key into API key field
 

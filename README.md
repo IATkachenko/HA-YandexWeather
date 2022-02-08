@@ -8,6 +8,7 @@ This custom integration is providing weather component and set of sensors based 
 1. Go to HACS
 2. Start typing "Yandex weather" in search field
 3. Press "Download" button
+4. Restart Home Assistant
 ### Manual
 1. Download [yandex_weather.zip](https://github.com/IATkachenko/HA-YandexWeather/releases/download/latest/yandex_weather.zip) from the latest release
 2. Unpack to `cunstom_components` folder _(it should look like `custom_componets/yandex_weather/<files>`)_
@@ -21,7 +22,7 @@ This custom integration is providing weather component and set of sensors based 
 5. Go to Home Assistant settings
     * Integrations
     * Add
-    * Start typing "Yandex weather"
+    * Start typing "Yandex weather" _(clean browser cache if nothing found)_
     * Add integration
     * Put API key into API key field
 
