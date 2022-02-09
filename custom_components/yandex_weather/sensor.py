@@ -19,8 +19,6 @@ from homeassistant.const import (
     TEMP_CELSIUS,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import StateType
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -37,10 +35,8 @@ from .const import (
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTRIBUTION,
-    DEFAULT_NAME,
     DOMAIN,
     ENTRY_NAME,
-    MANUFACTURER,
     UPDATER,
 )
 from .updater import WeatherUpdater
@@ -163,13 +159,7 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity):
 
         self._attr_name = f"{name} {description.name}"
         self._attr_unique_id = unique_id
-        split_unique_id = unique_id.split("-")
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, f"{split_unique_id[0]}-{split_unique_id[1]}")},
-            manufacturer=MANUFACTURER,
-            name=DEFAULT_NAME,
-        )
+        self._attr_device_info = self._updater.device_info
 
     @property
     def native_value(self) -> StateType:
