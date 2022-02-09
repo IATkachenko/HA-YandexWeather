@@ -181,4 +181,5 @@ class WeatherUpdater(DataUpdateCoordinator):
 
     @property
     def url(self) -> str:
+        """Weather URL."""
         return f"https://yandex.com/weather/?lat={self._lat}&lon={self._lon}"
