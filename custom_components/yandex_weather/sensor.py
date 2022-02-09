@@ -166,6 +166,8 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
         await RestoreEntity.async_added_to_hass(self)
+        await CoordinatorEntity.async_added_to_hass(self)
+
         state = await self.async_get_last_state()
         if not state:
             return
@@ -176,11 +178,11 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
             self._attr_native_value = state.state
         self.async_write_ha_state()
 
-    async def async_update(self) -> None:
-        """Update the entity."""
-        await CoordinatorEntity.async_update(self)
+    def _handle_coordinator_update(self) -> None:
         self._attr_native_value = self._updater.data.get(
             self.entity_description.key, None
         )
         if self.entity_description.key == ATTR_API_YA_CONDITION:
             self._attr_icon = self._updater.data.get(f"{ATTR_API_YA_CONDITION}_icon")
+
+        self.async_write_ha_state()
