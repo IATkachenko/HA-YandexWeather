@@ -213,6 +213,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
     @property
     def device_info(self):
+        """Device info."""
         return DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
             identifiers={(DOMAIN, self._device_id)},
