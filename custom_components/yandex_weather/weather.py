@@ -60,10 +60,10 @@ class YandexWeather(WeatherEntity, CoordinatorEntity):
         """Update the entity."""
         await CoordinatorEntity.async_update(self)
 
-        self._attr_temperature = self._updater.data["fact"].get(ATTR_API_TEMPERATURE)
-        self._attr_condition = self._updater.data["fact"].get(ATTR_API_CONDITION)
-        self._attr_pressure = self._updater.data["fact"].get(ATTR_API_PRESSURE)
-        self._attr_humidity = self._updater.data["fact"].get(ATTR_API_HUMIDITY)
-        self._attr_wind_speed = self._updater.data["fact"].get(ATTR_API_WIND_SPEED)
-        self._attr_wind_bearing = self._updater.data["fact"].get(ATTR_API_WIND_BEARING)
-        self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data['fact'].get(ATTR_API_IMAGE)}.svg"
+        self._attr_temperature = self._updater.data.get(ATTR_API_TEMPERATURE)
+        self._attr_condition = self._updater.data.get(ATTR_API_CONDITION)
+        self._attr_pressure = self._updater.data.get(ATTR_API_PRESSURE)
+        self._attr_humidity = self._updater.data.get(ATTR_API_HUMIDITY)
+        self._attr_wind_speed = self._updater.data.get(ATTR_API_WIND_SPEED)
+        self._attr_wind_bearing = self._updater.data.get(ATTR_API_WIND_BEARING)
+        self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data.get(ATTR_API_IMAGE)}.svg"

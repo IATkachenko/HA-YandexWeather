@@ -16,8 +16,15 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
     ATTR_API_CONDITION,
+    ATTR_API_FEELS_LIKE_TEMPERATURE,
+    ATTR_API_HUMIDITY,
+    ATTR_API_IMAGE,
+    ATTR_API_PRESSURE,
+    ATTR_API_PRESSURE_MMHG,
+    ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     CONDITION_ICONS,
     DOMAIN,
@@ -84,6 +91,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 update_interval=self.update_interval,
                 update_method=self.update,
             )
+        self.data = {}
 
     @cached_property
     def update_interval(self) -> timedelta:
@@ -98,6 +106,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         :returns: dict with weather data.
         """
+        result = {}
         timeout = aiohttp.ClientTimeout(total=20)
         async with aiohttp.ClientSession(timeout=timeout) as session:
             response = await self.request(
@@ -130,8 +139,7 @@ class WeatherUpdater(DataUpdateCoordinator):
             )
             if (
                 self.data
-                and r["fact"][ATTR_API_CONDITION]
-                != self.data["fact"][ATTR_API_CONDITION]
+                and r["fact"][ATTR_API_CONDITION] != self.data[ATTR_API_CONDITION]
                 and self.hass is not None
                 and r["fact"][ATTR_API_CONDITION] in TRIGGERS
             ):
@@ -143,7 +151,21 @@ class WeatherUpdater(DataUpdateCoordinator):
                         "type": r["fact"][ATTR_API_CONDITION],
                     },
                 )
-            return r
+            for i in [
+                ATTR_API_CONDITION,
+                ATTR_API_FEELS_LIKE_TEMPERATURE,
+                ATTR_API_HUMIDITY,
+                ATTR_API_IMAGE,
+                ATTR_API_PRESSURE,
+                ATTR_API_PRESSURE_MMHG,
+                ATTR_API_TEMPERATURE,
+                ATTR_API_WEATHER_TIME,
+                ATTR_API_WIND_BEARING,
+                ATTR_API_WIND_SPEED,
+                ATTR_API_YA_CONDITION,
+            ]:
+                result[i] = r["fact"][i]
+            return result
 
     @staticmethod
     async def request(
@@ -181,7 +203,7 @@ class WeatherUpdater(DataUpdateCoordinator):
     def __str__(self):
         """Show as pretty look data json."""
         _d = dict(self.data)
-        _d["fact"][ATTR_API_WEATHER_TIME] = str(_d["fact"][ATTR_API_WEATHER_TIME])
+        _d[ATTR_API_WEATHER_TIME] = str(_d[ATTR_API_WEATHER_TIME])
         return json.dumps(_d, indent=4, sort_keys=True)
 
     @property
@@ -198,4 +220,3 @@ class WeatherUpdater(DataUpdateCoordinator):
             name=self._name,
             configuration_url=self.url,
         )
-
