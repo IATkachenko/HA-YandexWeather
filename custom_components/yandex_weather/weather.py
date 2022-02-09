@@ -66,10 +66,15 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
         await RestoreEntity.async_added_to_hass(self)
+        await CoordinatorEntity.async_added_to_hass(self)
+
         state = await self.async_get_last_state()
         if not state:
+            _LOGGER.debug("Have no state for restore!")
+            await self._updater.async_config_entry_first_refresh()
             return
 
+        _LOGGER.debug(f"state for restore: {state}")
         self._attr_temperature = state.attributes.get("temperature")
         self._attr_condition = state.state
         self._attr_pressure = state.attributes.get("pressure")
@@ -94,10 +99,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                 offset=self._updater.update_interval - since_last_update
             )
 
-    async def async_update(self) -> None:
-        """Update the entity."""
-        await CoordinatorEntity.async_update(self)
-
+    def _handle_coordinator_update(self) -> None:
         self._attr_temperature = self._updater.data.get(ATTR_API_TEMPERATURE)
         self._attr_condition = self._updater.data.get(ATTR_API_CONDITION)
         self._attr_pressure = self._updater.data.get(ATTR_API_PRESSURE)
@@ -105,3 +107,5 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_speed = self._updater.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self._updater.data.get(ATTR_API_WIND_BEARING)
         self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data.get(ATTR_API_IMAGE)}.svg"
+
+        self.async_write_ha_state()
