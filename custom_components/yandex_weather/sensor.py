@@ -164,12 +164,8 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity):
     async def async_update(self) -> None:
         """Update the entity."""
         await CoordinatorEntity.async_update(self)
-        self._attr_native_value = self._updater.data["fact"].get(
+        self._attr_native_value = self._updater.data.get(
             self.entity_description.key, None
         )
         if self.entity_description.key == ATTR_API_YA_CONDITION:
-            return self._updater.data["fact"].get(
-                f"{ATTR_API_YA_CONDITION}_icon", None
-            )
-        else:
-            return super().icon
+            self._attr_icon = self._updater.data.get(f"{ATTR_API_YA_CONDITION}_icon")
