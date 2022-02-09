@@ -63,7 +63,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity):
             identifiers={(DOMAIN, unique_id)},
             manufacturer=MANUFACTURER,
             name=DEFAULT_NAME,
-            configuration_url=self._updater.data["info"]["url"],
+            configuration_url=self._updater.url,
         )
 
     @property

@@ -178,3 +178,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         _d = dict(self.data)
         _d["fact"][ATTR_API_WEATHER_TIME] = str(_d["fact"][ATTR_API_WEATHER_TIME])
         return json.dumps(_d, indent=4, sort_keys=True)
+
+    @property
+    def url(self) -> str:
+        return f"https://yandex.com/weather/?lat={self._lat}&lon={self._lon}"
