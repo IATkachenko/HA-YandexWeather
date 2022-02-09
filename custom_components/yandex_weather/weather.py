@@ -6,8 +6,6 @@ from homeassistant.components.weather import WeatherEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PRESSURE_HPA, SPEED_METERS_PER_SECOND, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.device_registry import DeviceEntryType
-from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -19,10 +17,8 @@ from .const import (
     ATTR_API_TEMPERATURE,
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
-    DEFAULT_NAME,
     DOMAIN,
     ENTRY_NAME,
-    MANUFACTURER,
     UPDATER,
 )
 from .updater import WeatherUpdater
@@ -58,13 +54,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity):
         self._attr_wind_speed_unit = SPEED_METERS_PER_SECOND
         self._attr_pressure_unit = PRESSURE_HPA
         self._attr_temperature_unit = TEMP_CELSIUS
-        self._attr_device_info = DeviceInfo(
-            entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, unique_id)},
-            manufacturer=MANUFACTURER,
-            name=DEFAULT_NAME,
-            configuration_url=self._updater.url,
-        )
+        self._attr_device_info = self._updater.device_info
 
     @property
     def entity_picture(self):

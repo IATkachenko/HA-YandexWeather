@@ -10,6 +10,8 @@ import math
 
 import aiohttp
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceEntryType
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
@@ -19,6 +21,7 @@ from .const import (
     ATTR_API_YA_CONDITION,
     CONDITION_ICONS,
     DOMAIN,
+    MANUFACTURER,
     WEATHER_STATES_CONVERSION,
     map_state,
 )
@@ -54,6 +57,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         hass: HomeAssistant,
         device_id: str,
         updates_per_day: int = 50,
+        name="Yandex Weather",
     ):
         """Initialize updater.
 
@@ -70,12 +74,13 @@ class WeatherUpdater(DataUpdateCoordinator):
         self._lon = longitude
         self._updates_per_day = updates_per_day
         self._device_id = device_id
+        self._name = name
 
         if hass is not None:
             super().__init__(
                 hass,
                 _LOGGER,
-                name=DOMAIN,
+                name=f"{self._name} updater",
                 update_interval=self.update_interval,
                 update_method=self.update,
             )
@@ -183,3 +188,14 @@ class WeatherUpdater(DataUpdateCoordinator):
     def url(self) -> str:
         """Weather URL."""
         return f"https://yandex.com/weather/?lat={self._lat}&lon={self._lon}"
+
+    @property
+    def device_info(self):
+        return DeviceInfo(
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, self._device_id)},
+            manufacturer=MANUFACTURER,
+            name=self._name,
+            configuration_url=self.url,
+        )
+
