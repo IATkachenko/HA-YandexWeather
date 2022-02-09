@@ -10,9 +10,11 @@ import math
 
 import aiohttp
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import event
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.util import utcnow
 
 from .const import (
     ATTR_API_CONDITION,
@@ -220,4 +222,16 @@ class WeatherUpdater(DataUpdateCoordinator):
             manufacturer=MANUFACTURER,
             name=self._name,
             configuration_url=self.url,
+        )
+
+    def schedule_refresh(self, offset: timedelta):
+        """Schedule refresh."""
+        if self._unsub_refresh:
+            self._unsub_refresh()
+            self._unsub_refresh = None
+
+        self._unsub_refresh = event.async_track_point_in_utc_time(
+            self.hass,
+            self._job,
+            utcnow().replace(microsecond=0) + offset,
         )

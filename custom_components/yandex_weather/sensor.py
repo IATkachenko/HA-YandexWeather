@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 import logging
 
 from homeassistant.components.sensor import (
@@ -20,7 +21,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import StateType
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -140,7 +141,7 @@ async def async_setup_entry(
     async_add_entities(entities)
 
 
-class YandexWeatherSensor(SensorEntity, CoordinatorEntity):
+class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
     """Yandex.Weather sensor entry."""
 
     _attr_attribution = ATTRIBUTION
@@ -154,12 +155,26 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity):
     ) -> None:
         """Initialize sensor."""
         CoordinatorEntity.__init__(self, coordinator=updater)
+        RestoreEntity.__init__(self)
         self.entity_description = description
         self._updater = updater
 
         self._attr_name = f"{name} {description.name}"
         self._attr_unique_id = unique_id
         self._attr_device_info = self._updater.device_info
+
+    async def async_added_to_hass(self) -> None:
+        """When entity is added to hass."""
+        await RestoreEntity.async_added_to_hass(self)
+        state = await self.async_get_last_state()
+        if not state:
+            return
+
+        if self.entity_description.key == ATTR_API_WEATHER_TIME:
+            self._attr_native_value = datetime.fromisoformat(state.state)
+        else:
+            self._attr_native_value = state.state
+        self.async_write_ha_state()
 
     async def async_update(self) -> None:
         """Update the entity."""
