@@ -173,13 +173,8 @@ class WeatherUpdater(DataUpdateCoordinator):
 
             return await response.text()
 
-    @property
-    def weather_data(self) -> dict:
-        """Weather data."""
-        return self.data
-
     def __str__(self):
         """Show as pretty look data json."""
-        _d = self.weather_data
+        _d = dict(self.data)
         _d["fact"][ATTR_API_WEATHER_TIME] = str(_d["fact"][ATTR_API_WEATHER_TIME])
-        return json.dumps(self.weather_data, indent=4, sort_keys=True)
+        return json.dumps(_d, indent=4, sort_keys=True)
