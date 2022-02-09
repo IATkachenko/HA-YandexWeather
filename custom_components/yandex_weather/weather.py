@@ -56,37 +56,14 @@ class YandexWeather(WeatherEntity, CoordinatorEntity):
         self._attr_temperature_unit = TEMP_CELSIUS
         self._attr_device_info = self._updater.device_info
 
-    @property
-    def entity_picture(self):
-        """Entity picture from Yandex."""
-        return f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data['fact'][ATTR_API_IMAGE]}.svg"
+    async def async_update(self) -> None:
+        """Update the entity."""
+        await CoordinatorEntity.async_update(self)
 
-    @property
-    def condition(self) -> str | None:
-        """Return current condition."""
-        return self._updater.data["fact"][ATTR_API_CONDITION]
-
-    @property
-    def temperature(self) -> float | None:
-        """Return current temperature."""
-        return self._updater.data["fact"][ATTR_API_TEMPERATURE]
-
-    @property
-    def pressure(self) -> float | None:
-        """Return current pressure."""
-        return self._updater.data["fact"][ATTR_API_PRESSURE]
-
-    @property
-    def humidity(self) -> float | None:
-        """Return current humidity."""
-        return self._updater.data["fact"][ATTR_API_HUMIDITY]
-
-    @property
-    def wind_speed(self) -> float | None:
-        """Return current wind speed."""
-        return self._updater.data["fact"][ATTR_API_WIND_SPEED]
-
-    @property
-    def wind_bearing(self) -> float | str | None:
-        """Return current wind direction."""
-        return self._updater.data["fact"][ATTR_API_WIND_BEARING]
+        self._attr_temperature = self._updater.data["fact"].get(ATTR_API_TEMPERATURE)
+        self._attr_condition = self._updater.data["fact"].get(ATTR_API_CONDITION)
+        self._attr_pressure = self._updater.data["fact"].get(ATTR_API_PRESSURE)
+        self._attr_humidity = self._updater.data["fact"].get(ATTR_API_HUMIDITY)
+        self._attr_wind_speed = self._updater.data["fact"].get(ATTR_API_WIND_SPEED)
+        self._attr_wind_bearing = self._updater.data["fact"].get(ATTR_API_WIND_BEARING)
+        self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data['fact'].get(ATTR_API_IMAGE)}.svg"

@@ -161,15 +161,12 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity):
         self._attr_unique_id = unique_id
         self._attr_device_info = self._updater.device_info
 
-    @property
-    def native_value(self) -> StateType:
-        """Sensor state in native units of measurement."""
-
-        return self._updater.data["fact"].get(self.entity_description.key, None)
-
-    @property
-    def icon(self):
-        """Sensor icon."""
+    async def async_update(self) -> None:
+        """Update the entity."""
+        await CoordinatorEntity.async_update(self)
+        self._attr_native_value = self._updater.data["fact"].get(
+            self.entity_description.key, None
+        )
         if self.entity_description.key == ATTR_API_YA_CONDITION:
             return self._updater.data["fact"].get(
                 f"{ATTR_API_YA_CONDITION}_icon", None
