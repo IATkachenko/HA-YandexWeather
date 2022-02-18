@@ -21,6 +21,7 @@ from .const import (
     ATTR_API_TEMPERATURE,
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
+    ATTRIBUTION,
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
@@ -62,6 +63,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_pressure_unit = PRESSURE_HPA
         self._attr_temperature_unit = TEMP_CELSIUS
         self._attr_device_info = self._updater.device_info
+        self._attr_attribution = ATTRIBUTION
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
