@@ -79,7 +79,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         _LOGGER.debug(f"state for restore: {state}")
         self._attr_temperature = state.attributes.get("temperature")
         self._attr_condition = state.state
-        self._attr_pressure = state.attributes.get("pressure")
+        self._attr_pressure = state.attributes.get("pressure") / 100
         self._attr_humidity = state.attributes.get("humidity")
         self._attr_wind_speed = state.attributes.get("wind_speed")
         self._attr_wind_bearing = state.attributes.get("wind_bearing")
