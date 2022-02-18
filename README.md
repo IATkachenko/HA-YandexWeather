@@ -28,6 +28,7 @@ This custom integration is providing weather component and set of sensors based 
 
 ## Usage
 ### Weather
+![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 
 #### attributes
  * `entity_picture` -- native Yandex.Weather .svg picture for weather condition
 ### Sensors
