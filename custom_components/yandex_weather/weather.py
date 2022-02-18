@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import logging
 
-from homeassistant.components.weather import WeatherEntity
+from homeassistant.components.weather import ATTR_FORECAST, WeatherEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import PRESSURE_HPA, SPEED_METERS_PER_SECOND, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
@@ -84,6 +84,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_speed = state.attributes.get("wind_speed")
         self._attr_wind_bearing = state.attributes.get("wind_bearing")
         self._attr_entity_picture = state.attributes.get("entity_picture")
+        self._attr_forecast = state.attributes.get(ATTR_FORECAST)
         self.async_write_ha_state()
 
         # last_updated is last call of self.async_write_ha_state(), not a real last update
@@ -109,5 +110,5 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_speed = self._updater.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self._updater.data.get(ATTR_API_WIND_BEARING)
         self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data.get(ATTR_API_IMAGE)}.svg"
-
+        self._attr_forecast = self._updater.data.get(ATTR_FORECAST)
         self.async_write_ha_state()
