@@ -72,6 +72,12 @@ jobs:
         with:
           ref: ${{ needs.changes.outputs.tag }}
 
+      - name: Get footer
+        id: footer
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./docs/feedback.md
+
       - name: "Set package name"
         working-directory: ./custom_components
         run: |
@@ -100,3 +106,4 @@ jobs:
           body: |
             [![GitHub release (by tag)](https://img.shields.io/github/downloads/${{ github.repository }}/${{ needs.changes.outputs.tag }}/total?style=plastic)](https://github.com/${{ github.repository }}/releases/tag/${{ needs.changes.outputs.tag }})
             ${{ needs.changes.outputs.clean_changelog }}
+            ${{ steps.footer.outputs.content }}
