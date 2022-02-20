@@ -176,11 +176,10 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
 
         if self.entity_description.key == ATTR_API_WEATHER_TIME:
             self._attr_native_value = datetime.fromisoformat(state.state)
+        elif self.entity_description.key == ATTR_API_PRESSURE:
+            self._attr_native_value = int(state.state) / 100
         else:
-            if self.entity_description.key == ATTR_API_PRESSURE:
-                self._attr_native_value = int(state.state) / 100
-            else:
-                self._attr_native_value = state.state
+            self._attr_native_value = state.state
         # ToDo: restore icon for ATTR_API_YA_CONDITION
         self.async_write_ha_state()
 
