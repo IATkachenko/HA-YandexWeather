@@ -73,6 +73,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         native_unit_of_measurement="",
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
+        icon="mdi:compass-rose",
     ),
     SensorEntityDescription(
         key=ATTR_API_HUMIDITY,
