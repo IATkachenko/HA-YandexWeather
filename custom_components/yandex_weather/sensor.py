@@ -147,6 +147,7 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
     """Yandex.Weather sensor entry."""
 
     _attr_attribution = ATTRIBUTION
+    coordinator: WeatherUpdater
 
     def __init__(
         self,
@@ -159,11 +160,10 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
         CoordinatorEntity.__init__(self, coordinator=updater)
         RestoreEntity.__init__(self)
         self.entity_description = description
-        self._updater = updater
 
         self._attr_name = f"{name} {description.name}"
         self._attr_unique_id = unique_id
-        self._attr_device_info = self._updater.device_info
+        self._attr_device_info = self.coordinator.device_info
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
@@ -184,10 +184,10 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
         self.async_write_ha_state()
 
     def _handle_coordinator_update(self) -> None:
-        self._attr_native_value = self._updater.data.get(
+        self._attr_native_value = self.coordinator.data.get(
             self.entity_description.key, None
         )
         if self.entity_description.key == ATTR_API_YA_CONDITION:
-            self._attr_icon = self._updater.data.get(f"{ATTR_API_YA_CONDITION}_icon")
+            self._attr_icon = self.coordinator.data.get(f"{ATTR_API_YA_CONDITION}_icon")
 
         self.async_write_ha_state()

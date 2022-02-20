@@ -53,6 +53,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     _attr_wind_speed_unit = SPEED_METERS_PER_SECOND
     _attr_pressure_unit = PRESSURE_HPA
     _attr_temperature_unit = TEMP_CELSIUS
+    coordinator: WeatherUpdater
 
     def __init__(self, name, unique_id, updater: WeatherUpdater, hass: HomeAssistant):
         """Initialize entry."""
@@ -61,10 +62,9 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         RestoreEntity.__init__(self)
 
         self.hass = hass
-        self._updater = updater
         self._attr_name = name
         self._attr_unique_id = unique_id
-        self._attr_device_info = self._updater.device_info
+        self._attr_device_info = self.coordinator.device_info
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
@@ -74,7 +74,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         state = await self.async_get_last_state()
         if not state:
             _LOGGER.debug("Have no state for restore!")
-            await self._updater.async_config_entry_first_refresh()
+            await self.coordinator.async_config_entry_first_refresh()
             return
 
         _LOGGER.debug(f"state for restore: {state}")
@@ -94,22 +94,22 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         )
         _LOGGER.debug(
             f"Time since last update: {since_last_update} ({state.last_updated}), "
-            f"update interval is {self._updater.update_interval}"
+            f"update interval is {self.coordinator.update_interval}"
         )
-        if since_last_update > self._updater.update_interval:
-            await self._updater.async_config_entry_first_refresh()
+        if since_last_update > self.coordinator.update_interval:
+            await self.coordinator.async_config_entry_first_refresh()
         else:
-            self._updater.schedule_refresh(
-                offset=self._updater.update_interval - since_last_update
+            self.coordinator.schedule_refresh(
+                offset=self.coordinator.update_interval - since_last_update
             )
 
     def _handle_coordinator_update(self) -> None:
-        self._attr_temperature = self._updater.data.get(ATTR_API_TEMPERATURE)
-        self._attr_condition = self._updater.data.get(ATTR_API_CONDITION)
-        self._attr_pressure = self._updater.data.get(ATTR_API_PRESSURE)
-        self._attr_humidity = self._updater.data.get(ATTR_API_HUMIDITY)
-        self._attr_wind_speed = self._updater.data.get(ATTR_API_WIND_SPEED)
-        self._attr_wind_bearing = self._updater.data.get(ATTR_API_WIND_BEARING)
-        self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self._updater.data.get(ATTR_API_IMAGE)}.svg"
-        self._attr_forecast = self._updater.data.get(ATTR_FORECAST)
+        self._attr_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
+        self._attr_condition = self.coordinator.data.get(ATTR_API_CONDITION)
+        self._attr_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
+        self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
+        self._attr_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
+        self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
+        self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self.coordinator.data.get(ATTR_API_IMAGE)}.svg"
+        self._attr_forecast = self.coordinator.data.get(ATTR_FORECAST)
         self.async_write_ha_state()
