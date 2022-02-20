@@ -56,7 +56,7 @@ jobs:
         working-directory: ./custom_components/yandex_weather/
         run: |
           sed -e "s/%%%VERSION%%%/${{ env.NEW_VERSION }}/" manifest.json.tpl >manifest.json
-          git commit -m "chore(release) ${{ needs.changes.outputs.tag }}" manifest.json
+          git commit -m "chore(release): ${{ needs.changes.outputs.tag }}" manifest.json
           git push origin main
           git tag -f -a -m "v${{ env.NEW_VERSION }}" v${{ env.NEW_VERSION }} && git push -f --tags || true
 
