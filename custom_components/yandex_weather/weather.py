@@ -49,6 +49,11 @@ async def async_setup_entry(
 class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     """Yandex.Weather entry."""
 
+    _attr_attribution = ATTRIBUTION
+    _attr_wind_speed_unit = SPEED_METERS_PER_SECOND
+    _attr_pressure_unit = PRESSURE_HPA
+    _attr_temperature_unit = TEMP_CELSIUS
+
     def __init__(self, name, unique_id, updater: WeatherUpdater, hass: HomeAssistant):
         """Initialize entry."""
         WeatherEntity.__init__(self)
@@ -59,11 +64,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._updater = updater
         self._attr_name = name
         self._attr_unique_id = unique_id
-        self._attr_wind_speed_unit = SPEED_METERS_PER_SECOND
-        self._attr_pressure_unit = PRESSURE_HPA
-        self._attr_temperature_unit = TEMP_CELSIUS
         self._attr_device_info = self._updater.device_info
-        self._attr_attribution = ATTRIBUTION
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
