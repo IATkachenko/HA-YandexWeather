@@ -7,7 +7,7 @@ import logging
 
 from homeassistant.components.weather import ATTR_FORECAST, WeatherEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import PRESSURE_HPA, SPEED_METERS_PER_SECOND, TEMP_CELSIUS
+from homeassistant.const import SPEED_METERS_PER_SECOND, TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -51,7 +51,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
     _attr_attribution = ATTRIBUTION
     _attr_wind_speed_unit = SPEED_METERS_PER_SECOND
-    _attr_pressure_unit = PRESSURE_HPA
+    _attr_pressure_unit = None
     _attr_temperature_unit = TEMP_CELSIUS
     coordinator: WeatherUpdater
 
@@ -80,7 +80,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         _LOGGER.debug(f"state for restore: {state}")
         self._attr_temperature = state.attributes.get("temperature")
         self._attr_condition = state.state
-        self._attr_pressure = state.attributes.get("pressure") / 100
+        self._attr_pressure = state.attributes.get("pressure")
         self._attr_humidity = state.attributes.get("humidity")
         self._attr_wind_speed = state.attributes.get("wind_speed")
         self._attr_wind_bearing = state.attributes.get("wind_bearing")
