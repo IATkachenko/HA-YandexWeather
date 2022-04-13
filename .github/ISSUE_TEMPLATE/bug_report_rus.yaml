@@ -2,6 +2,7 @@ name: Сообщить о проблеме
 description: Если вы столкнулись с проблемой -- расскажите, мы постараемся помочь
 body:
   - type: textarea
+    id: issue
     validations:
       required: true
     attributes:
@@ -24,7 +25,7 @@ body:
       label: При использовании какой версии интеграции возникает проблема?
       
   - type: input
-    id: version
+    id: ha_version
     validations:
       required: true
     attributes:
@@ -32,6 +33,9 @@ body:
       placeholder: core-
       description: >
         Можно посмотреть: Конфигурация -> Настройки -> О системе  - type: dropdown
+     
+  - type: input
+    id: installation_method
     validations:
       required: true
     attributes:
@@ -50,14 +54,16 @@ body:
         # Детали
         
   - type: textarea
+    id: log
     attributes:
       label: Есть что-нибудь полезное в логе?
       description: Cообщение об ошибке, trace итд.
       render: txt
       
   - type: textarea
+    id: additional_info
     attributes:
       label: Дополнительная информация
       description: >
-        Если нужно что-то добавиь, напишите здесь.
+        Если нужно что-то добавить, напишите здесь.
         
