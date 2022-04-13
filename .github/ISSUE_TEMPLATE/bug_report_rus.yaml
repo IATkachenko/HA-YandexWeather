@@ -51,8 +51,8 @@ body:
         
   - type: textarea
     attributes:
-      label: Есть что-нибудь полезно в логе?
-      description: Например: сообщение об ошибке, trace итд.
+      label: Есть что-нибудь полезное в логе?
+      description: Cообщение об ошибке, trace итд.
       render: txt
       
   - type: textarea
