@@ -34,7 +34,7 @@ body:
       description: >
         Можно посмотреть: Конфигурация -> Настройки -> О системе  - type: dropdown
      
-  - type: input
+  - type: dropdown
     id: installation_method
     validations:
       required: true
@@ -42,11 +42,11 @@ body:
       label: Какой способ установки Home Assistant используется?
       description: >
          Можно посмотреть: Конфигурация -> Настройки -> О системе
-      options:
-        - Home Assistant OS
-        - Home Assistant Container
-        - Home Assistant Supervised
-        - Home Assistant Core
+    options:
+      - Home Assistant OS
+      - Home Assistant Container
+      - Home Assistant Supervised
+      - Home Assistant Core
         
   - type: markdown
     attributes:
