@@ -1,0 +1,63 @@
+name: Сообщить о проблеме
+description: Если вы столкнулись с проблемой -- расскажите, мы постараемся помочь
+body:
+  - type: textarea
+    validations:
+      required: true
+    attributes:
+      label: В чем проблема?
+      description: >-
+        Опишите проблему, с которой вы столкнулись. Расскажите что делаете, что происходит, какое поведенеи вы ожидаете.
+        
+        Постарайтесь описать проблему четко и лаконично.       
+        
+  - type: markdown
+    attributes:
+      value: |
+        ## Информация об установке
+        
+  - type: input
+    id: integration_version
+    validations:
+      required: true
+    attributes:
+      label: При использовании какой версии интеграции возникает проблема?
+      
+  - type: input
+    id: version
+    validations:
+      required: true
+    attributes:
+      label: Какая версия Home Assistant используется?
+      placeholder: core-
+      description: >
+        Можно посмотреть: Конфигурация -> Настройки -> О системе  - type: dropdown
+    validations:
+      required: true
+    attributes:
+      label: Какой способ установки Home Assistant используется?
+      description: >
+         Можно посмотреть: Конфигурация -> Настройки -> О системе
+      options:
+        - Home Assistant OS
+        - Home Assistant Container
+        - Home Assistant Supervised
+        - Home Assistant Core
+        
+  - type: markdown
+    attributes:
+      value: |
+        # Детали
+        
+  - type: textarea
+    attributes:
+      label: Есть что-нибудь полезно в логе?
+      description: Например: сообщение об ошибке, trace итд.
+      render: txt
+      
+  - type: textarea
+    attributes:
+      label: Дополнительная информация
+      description: >
+        Если нужно что-то добавиь, напишите здесь.
+        
