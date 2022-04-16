@@ -36,6 +36,7 @@ from .const import (
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
+    ATTR_MIN_FORECAST_TEMPERATURE,
     ATTRIBUTION,
     DOMAIN,
     ENTRY_NAME,
@@ -116,6 +117,15 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         # should not define device_class, because HA will try to convert pressure to system units.
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=True,
+    ),
+    SensorEntityDescription(
+        key=ATTR_MIN_FORECAST_TEMPERATURE,
+        name="Minimal forecast temperature",
+        native_unit_of_measurement=TEMP_CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        entity_registry_enabled_default=False,
+        icon="mdi:thermometer-chevron-down",
     ),
 )
 

@@ -41,6 +41,7 @@ from .const import (
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
+    ATTR_MIN_FORECAST_TEMPERATURE,
     CONDITION_ICONS,
     DOMAIN,
     MANUFACTURER,
@@ -204,6 +205,11 @@ class WeatherUpdater(DataUpdateCoordinator):
                     is_day=f["daytime"] == "d",
                 )
                 forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f["prec_prob"]  # type: ignore
+                result.setdefault(ATTR_MIN_FORECAST_TEMPERATURE, forecast[ATTR_FORECAST_TEMP_LOW])  # type: ignore
+                result[ATTR_MIN_FORECAST_TEMPERATURE] = min(
+                    result[ATTR_MIN_FORECAST_TEMPERATURE],
+                    forecast[ATTR_FORECAST_TEMP_LOW],  # type: ignore
+                )
                 result[ATTR_FORECAST].append(forecast)
 
             return result
