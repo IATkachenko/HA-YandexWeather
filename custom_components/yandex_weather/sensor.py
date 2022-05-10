@@ -49,6 +49,7 @@ from .updater import WeatherUpdater
 class YandexWeatherDeviceClass(StrEnum):
     """State class for weather sensors."""
 
+    WIND_BEARING = f"{DOMAIN}__wind_bearing"
     CONDITION_YA = f"{DOMAIN}__condition_ya"
     CONDITION_HA = f"{DOMAIN}__condition_ha"
 
@@ -81,9 +82,8 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_WIND_BEARING,
         name="Wind bearing",
-        native_unit_of_measurement="",
-        state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
+        device_class=YandexWeatherDeviceClass.WIND_BEARING,
         icon="mdi:compass-rose",
     ),
     SensorEntityDescription(

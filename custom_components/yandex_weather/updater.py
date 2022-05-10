@@ -64,7 +64,7 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
     "s": 180,
     "sw": 225,
     "w": 270,
-    "c": None,
+    "c": 0,
 }
 """Wind directions mapping."""
 
