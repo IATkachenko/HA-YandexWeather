@@ -94,7 +94,9 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         entity_registry_enabled_default=False,
     ),
     SensorEntityDescription(
-        key=ATTR_API_CONDITION, name="Condition", entity_registry_enabled_default=False
+        key=ATTR_API_CONDITION,
+        name="Condition HomeAssistant",
+        entity_registry_enabled_default=False,
     ),
     SensorEntityDescription(
         key=ATTR_API_WEATHER_TIME,
@@ -106,7 +108,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     ),
     SensorEntityDescription(
         key=ATTR_API_YA_CONDITION,
-        name="Condition",
+        name="Condition Yandex",
         entity_registry_enabled_default=True,
     ),
     SensorEntityDescription(
