@@ -1,0 +1,42 @@
+{
+  "state": {
+    "yandex_weather__condition_ya": {
+      "clear": "Ясно",
+      "partly-cloudy": "Малооблачно",
+      "cloudy": "Облачно с прояснениями",
+      "overcast": "Пасмурно",
+      "drizzle": "Морось",
+      "light-rain": "Небольшой дождь",
+      "rain": "Дождь",
+      "moderate-rain": "Умеренно сильный дождь",
+      "heavy-rain": "Сильный дождь",
+      "continuous-heavy-rain": "Длительный сильный дождь",
+      "showers": "Ливень",
+      "wet-snow": "Дождь со снегом",
+      "light-snow": "Небольшой снег",
+      "snow": "Снег",
+      "snow-showers": "Снегопад",
+      "hail": "Град",
+      "thunderstorm": "Гроза",
+      "thunderstorm-with-rain": "Дождь с грозой",
+      "thunderstorm-with-hail": "Гроза с градом"
+    },
+    "yandex_weather__condition_ha": {
+      "clear-night": "Ясно, ночь", 
+      "cloudy": "Облачно", 
+      "exceptional": "Предупреждение", 
+      "fog": "Туман", 
+      "hail": "Град", 
+      "lightning": "Молния", 
+      "lightning-rainy": "Молния, дождь", 
+      "partlycloudy": "Переменная облачность", 
+      "pouring": "Ливень", 
+      "rainy": "Дождь", 
+      "snowy": "Снег", 
+      "snowy-rainy": "Снег с дождем", 
+      "sunny": "Ясно", 
+      "windy": "Ветрено", 
+      "windy-variant": "Ветрено"
+    }
+  }
+}
