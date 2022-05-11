@@ -13,6 +13,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from .config_flow import get_value
 from .const import (
     ATTR_API_CONDITION,
     ATTR_API_HUMIDITY,
@@ -22,6 +23,7 @@ from .const import (
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTRIBUTION,
+    CONF_IMAGE_SOURCE,
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
@@ -70,6 +72,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_name = name
         self._attr_unique_id = config_entry.unique_id
         self._attr_device_info = self.coordinator.device_info
+        self._image_source = get_value(config_entry, CONF_IMAGE_SOURCE, "Yandex")
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
@@ -116,9 +119,9 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
         self._attr_entity_picture = get_image(
-            image_source='Yandex',
+            image_source=self._image_source,
             condition=self.coordinator.data.get(ATTR_API_CONDITION),
-            is_day=self.coordinator.data.get("daytime") == 'd',
+            is_day=self.coordinator.data.get("daytime") == "d",
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
         self._attr_forecast = self.coordinator.data.get(ATTR_FORECAST)
