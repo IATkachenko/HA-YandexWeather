@@ -12,7 +12,8 @@
         "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
         "data": {
           "api_key": "Weather API key",
-          "updates_per_day": "Updates per day"
+          "updates_per_day": "Updates per day",
+          "image_source": "Weather condition images"
         }
       }
     }
@@ -33,7 +34,8 @@
           "name": "Name",
           "latitude": "Latitude for weather info (default is HA latitude)",
           "longitude": "Longitude for weather info (default is HA longitude)",
-          "updates_per_day": "Updates per day"
+          "updates_per_day": "Updates per day",
+          "image_source": "Weather condition images"
         }
       }
     }

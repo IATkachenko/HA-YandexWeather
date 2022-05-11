@@ -86,10 +86,51 @@ CONDITION_ICONS = {
 }
 """Mapping for state icon"""
 
+CUSTOM_WEATHER_CARD_MAPPING = {
+    "clear": {
+        "day": "day",
+        "night": "night",
+    },
+    "partly-cloudy": {
+        "day": "cloudy-day-1",
+        "night": "cloudy-night-1",
+    },
+    "cloudy": {
+        "day": "cloudy-day-2",
+        "night": "cloudy-night-2",
+    },
+    "overcast": {"day": "cloudy-day-3", "night": "cloudy-night-3"},
+    "drizzle": "rainy-1",
+    "light-rain": "rainy-2",
+    "rain": "rainy-3",
+    "moderate-rain": "rainy-4",
+    "heavy-rain": "rainy-5",
+    "continuous-heavy-rain": "rainy-6",
+    "showers": "rainy-7",
+    "wet-snow": "snowy-2",
+    "light-snow": "snowy-1",
+    "snow": "snowy-4",
+    "snow-showers": "snowy-5",
+    "hail": "snowy-6",
+    "thunderstorm": "thunder",
+    "thunderstorm-with-rain": "thunder",
+    "thunderstorm-with-hail": "thunder",
+}
+"""Condition mapping for images from https://github.com/bramkragten/weather-card"""
+
 CONDITION_IMAGE = {
+    "HomeAssistant": {"link": None},
     "Yandex": {
         "link": "https://yastatic.net/weather/i/icons/funky/dark/{}.svg",
         "mapping": None,
+    },
+    "Custom weather card animated": {
+        "link": "https://cdn.jsdelivr.net/gh/bramkragten/weather-card/dist/icons/{}.svg",
+        "mapping": CUSTOM_WEATHER_CARD_MAPPING,
+    },
+    "Custom weather card static": {
+        "link": "https://cdn.jsdelivr.net/gh/bramkragten/weather-card/icons/static/{}.svg",
+        "mapping": CUSTOM_WEATHER_CARD_MAPPING,
     },
 }
 

@@ -10,7 +10,14 @@ from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 
-from .const import CONF_UPDATES_PER_DAY, DEFAULT_NAME, DEFAULT_UPDATES_PER_DAY, DOMAIN
+from .const import (
+    CONDITION_IMAGE,
+    CONF_IMAGE_SOURCE,
+    CONF_UPDATES_PER_DAY,
+    DEFAULT_NAME,
+    DEFAULT_UPDATES_PER_DAY,
+    DOMAIN,
+)
 from .updater import WeatherUpdater
 
 _LOGGER = logging.getLogger(__name__)
@@ -72,6 +79,9 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(
                     CONF_UPDATES_PER_DAY, default=DEFAULT_UPDATES_PER_DAY
                 ): int,
+                vol.Optional(CONF_IMAGE_SOURCE, default="Yandex"): vol.In(
+                    CONDITION_IMAGE.keys()
+                ),
             }
         )
 
@@ -115,6 +125,10 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
                         self.config_entry, CONF_UPDATES_PER_DAY, DEFAULT_UPDATES_PER_DAY
                     ),
                 ): int,
+                vol.Optional(
+                    CONF_IMAGE_SOURCE,
+                    default=get_value(self.config_entry, CONF_IMAGE_SOURCE, "Yandex"),
+                ): vol.In(CONDITION_IMAGE.keys()),
             }
         )
 

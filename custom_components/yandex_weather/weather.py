@@ -22,6 +22,7 @@ from .const import (
     ATTR_API_TEMPERATURE,
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
+    ATTR_API_YA_CONDITION,
     ATTRIBUTION,
     CONF_IMAGE_SOURCE,
     DOMAIN,
@@ -120,7 +121,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
         self._attr_entity_picture = get_image(
             image_source=self._image_source,
-            condition=self.coordinator.data.get(ATTR_API_CONDITION),
+            condition=self.coordinator.data.get(ATTR_API_YA_CONDITION),
             is_day=self.coordinator.data.get("daytime") == "d",
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
