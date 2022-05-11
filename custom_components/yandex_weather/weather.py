@@ -42,9 +42,7 @@ async def async_setup_entry(
     name = domain_data[ENTRY_NAME]
     updater = domain_data[UPDATER]
 
-    unique_id = f"{config_entry.unique_id}"
-
-    async_add_entities([YandexWeather(name, unique_id, updater, hass)], False)
+    async_add_entities([YandexWeather(name, config_entry, updater, hass)], False)
 
 
 class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
@@ -56,7 +54,13 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     _attr_temperature_unit = TEMP_CELSIUS
     coordinator: WeatherUpdater
 
-    def __init__(self, name, unique_id, updater: WeatherUpdater, hass: HomeAssistant):
+    def __init__(
+        self,
+        name,
+        config_entry: ConfigEntry,
+        updater: WeatherUpdater,
+        hass: HomeAssistant,
+    ):
         """Initialize entry."""
         WeatherEntity.__init__(self)
         CoordinatorEntity.__init__(self, coordinator=updater)
@@ -64,7 +68,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
         self.hass = hass
         self._attr_name = name
-        self._attr_unique_id = unique_id
+        self._attr_unique_id = config_entry.unique_id
         self._attr_device_info = self.coordinator.device_info
 
     async def async_added_to_hass(self) -> None:
