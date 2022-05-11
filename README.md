@@ -30,7 +30,14 @@ This custom integration is providing weather component and set of sensors based 
 ### Weather
 ![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 
 #### attributes
- * `entity_picture` -- native Yandex.Weather .svg picture for weather condition
+ * `entity_picture`:
+   * ![added_in_version_badge](https://img.shields.io/badge/Before-v0.10.0-gray) native Yandex.Weather .svg picture for weather condition 
+   * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.10.0-red) picture based on one of selected source  (see [#30](https://github.com/IATkachenko/HA-YandexWeather/issues/30) for details):
+     * native Home Assistant, based on condition
+     * native Yandex (like before v0.10.0)
+     * animated from [Custom weather card](https://github.com/bramkragten/weather-card)
+     * static from [Custom weather card](https://github.com/bramkragten/weather-card)
+ 
 ### Sensors
 Most sensors are disabled by default to not overload system. 
  
