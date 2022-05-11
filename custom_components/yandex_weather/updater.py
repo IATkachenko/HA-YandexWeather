@@ -179,6 +179,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_WIND_BEARING,
                 ATTR_API_WIND_SPEED,
                 ATTR_API_YA_CONDITION,
+                "daytime",
             ]:
                 result[i] = r["fact"][i]
 

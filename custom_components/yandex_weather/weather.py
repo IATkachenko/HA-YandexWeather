@@ -25,6 +25,7 @@ from .const import (
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
+    get_image,
 )
 from .updater import WeatherUpdater
 
@@ -110,6 +111,11 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
         self._attr_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
-        self._attr_entity_picture = f"https://yastatic.net/weather/i/icons/funky/dark/{self.coordinator.data.get(ATTR_API_IMAGE)}.svg"
+        self._attr_entity_picture = get_image(
+            image_source='Yandex',
+            condition=self.coordinator.data.get(ATTR_API_CONDITION),
+            is_day=self.coordinator.data.get("daytime") == 'd',
+            image=self.coordinator.data.get(ATTR_API_IMAGE),
+        )
         self._attr_forecast = self.coordinator.data.get(ATTR_FORECAST)
         self.async_write_ha_state()

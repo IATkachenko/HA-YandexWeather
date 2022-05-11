@@ -85,6 +85,13 @@ CONDITION_ICONS = {
 }
 """Mapping for state icon"""
 
+CONDITION_IMAGE = {
+    "Yandex": {
+        "link": "https://yastatic.net/weather/i/icons/funky/dark/{}.svg",
+        "mapping": None,
+    },
+}
+
 
 def map_state(src: str, is_day: bool = True, mapping: dict | None = None) -> str:
     """
@@ -107,3 +114,29 @@ def map_state(src: str, is_day: bool = True, mapping: dict | None = None) -> str
         result = result[t]
 
     return result
+
+
+def get_image(
+    image_source: str, condition: str, image: str, is_day: bool = True
+) -> str | None:
+    """Get image for current condition.
+
+    :return: str|None: url for current condition image
+    """
+
+    if image_source not in CONDITION_IMAGE.keys():
+        return None
+    if CONDITION_IMAGE[image_source] is None:
+        return None
+
+    mapped_image = (
+        image
+        if CONDITION_IMAGE[image_source]["mapping"] is None
+        else map_state(
+            src=condition,
+            is_day=is_day,
+            mapping=CONDITION_IMAGE[image_source]["mapping"],
+        )
+    )
+
+    return CONDITION_IMAGE[image_source]["link"].format(mapped_image)
