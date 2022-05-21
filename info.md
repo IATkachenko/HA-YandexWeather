@@ -18,12 +18,20 @@ This custom integration is providing weather component and set of sensors based 
 ### Weather
 ![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night)
 #### attributes
- * `entity_picture` -- native Yandex.Weather .svg picture for weather condition
+ * `entity_picture`:
+   * ![added_in_version_badge](https://img.shields.io/badge/Before-v0.10.0-gray) native Yandex.Weather .svg picture for weather condition 
+   * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.10.0-red) picture based on one of selected source  (see [#30](https://github.com/IATkachenko/HA-YandexWeather/issues/30) for details):
+     * native Home Assistant, based on condition
+     * native Yandex (like before v0.10.0)
+     * animated from [Custom weather card](https://github.com/bramkragten/weather-card)
+     * static from [Custom weather card](https://github.com/bramkragten/weather-card)
+ 
 ### Sensors
 Most sensors are disabled by default to not overload system. 
  
 * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.3.0-red) `data update time` -- when weather data was updated (at Yandex side).
 * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.4.0-red) `original_condition` -- native Yandex.Weather condition. Because Yandex weather conditions is richer than Home Assistant, some different Yandex.Weather conditions is mapped to same Home Assistant. This sensor will keep original condition.  
-* ![added_in_version_badge](https://img.shields.io/badge/Since-v0.6.0-red) `pressure_mmhg` -- pressure in mmHg units. Home Asistant is prefer Pa as pressure units, but mmHg is more familiar for some countries. This sensor is enabled by default. 
+* ![added_in_version_badge](https://img.shields.io/badge/Since-v0.6.0-red) `pressure_mmhg` -- pressure in mmHg units. Home Asistant is prefer Pa as pressure units, but mmHg is more familiar for some countries. This sensor is enabled by default.
+* ![added_in_version_badge](https://img.shields.io/badge/Since-v0.9.0-red) `minimal_forecast_temperature` -- minimal temperature for all forecast periods.
 ### Events
 ![added_in_version_badge](https://img.shields.io/badge/Since-v0.4.0-red) integration will fire events on weather condition changes. This events may be used for triggering automatizations.
