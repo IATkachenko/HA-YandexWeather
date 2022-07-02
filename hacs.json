@@ -2,7 +2,6 @@
   "name": "Yandex weather",
   "country": "RU",
   "render_readme": false,
-  "domains": ["yandex_weather"],
   "zip_release": true,
   "filename": "yandex_weather.zip",
   "homeassistant":  "2021.12.0"
