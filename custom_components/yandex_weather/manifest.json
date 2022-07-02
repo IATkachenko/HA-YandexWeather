@@ -6,7 +6,7 @@
   "codeowners": ["@IATkachenko"],
   "config_flow": true,
   "quality_scale": "silver",
-  "version": "0.10.0",
+  "version": "0.9.2",
   "iot_class": "cloud_polling",
   "requirements": []
 }
