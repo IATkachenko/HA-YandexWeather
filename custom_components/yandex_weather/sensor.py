@@ -198,14 +198,19 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
         if not state:
             return
 
-        if self.entity_description.key == ATTR_API_WEATHER_TIME:
-            self._attr_native_value = datetime.fromisoformat(state.state)
+        if state == "unavailable":
+            self._attr_available = False
         else:
-            self._attr_native_value = state.state
-        # ToDo: restore icon for ATTR_API_YA_CONDITION
+            self._attr_available = True
+            if self.entity_description.key == ATTR_API_WEATHER_TIME:
+                self._attr_native_value = datetime.fromisoformat(state.state)
+            else:
+                self._attr_native_value = state.state
+            # ToDo: restore icon for ATTR_API_YA_CONDITION
         self.async_write_ha_state()
 
     def _handle_coordinator_update(self) -> None:
+        self._attr_available = True
         self._attr_native_value = self.coordinator.data.get(
             self.entity_description.key, None
         )

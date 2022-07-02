@@ -86,33 +86,39 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             await self.coordinator.async_config_entry_first_refresh()
             return
 
-        _LOGGER.debug(f"state for restore: {state}")
-        self._attr_temperature = state.attributes.get("temperature")
-        self._attr_condition = state.state
-        self._attr_pressure = state.attributes.get("pressure")
-        self._attr_humidity = state.attributes.get("humidity")
-        self._attr_wind_speed = state.attributes.get("wind_speed")
-        self._attr_wind_bearing = state.attributes.get("wind_bearing")
-        self._attr_entity_picture = state.attributes.get("entity_picture")
-        self._attr_forecast = state.attributes.get(ATTR_FORECAST)
-        self.async_write_ha_state()
-
-        # last_updated is last call of self.async_write_ha_state(), not a real last update
-        since_last_update = datetime.now(timezone.utc) - state.last_updated.replace(
-            tzinfo=timezone.utc
-        )
-        _LOGGER.debug(
-            f"Time since last update: {since_last_update} ({state.last_updated}), "
-            f"update interval is {self.coordinator.update_interval}"
-        )
-        if since_last_update > self.coordinator.update_interval:
+        if state == "unavailable":
+            self._attr_available = False
             await self.coordinator.async_config_entry_first_refresh()
         else:
-            self.coordinator.schedule_refresh(
-                offset=self.coordinator.update_interval - since_last_update
+            _LOGGER.debug(f"state for restore: {state}")
+            self._attr_available = True
+            self._attr_temperature = state.attributes.get("temperature")
+            self._attr_condition = state.state
+            self._attr_pressure = state.attributes.get("pressure")
+            self._attr_humidity = state.attributes.get("humidity")
+            self._attr_wind_speed = state.attributes.get("wind_speed")
+            self._attr_wind_bearing = state.attributes.get("wind_bearing")
+            self._attr_entity_picture = state.attributes.get("entity_picture")
+            self._attr_forecast = state.attributes.get(ATTR_FORECAST)
+
+            # last_updated is last call of self.async_write_ha_state(), not a real last update
+            since_last_update = datetime.now(timezone.utc) - state.last_updated.replace(
+                tzinfo=timezone.utc
             )
+            _LOGGER.debug(
+                f"Time since last update: {since_last_update} ({state.last_updated}), "
+                f"update interval is {self.coordinator.update_interval}"
+            )
+            if since_last_update > self.coordinator.update_interval:
+                await self.coordinator.async_config_entry_first_refresh()
+            else:
+                self.coordinator.schedule_refresh(
+                    offset=self.coordinator.update_interval - since_last_update
+                )
+        self.async_write_ha_state()
 
     def _handle_coordinator_update(self) -> None:
+        self._attr_available = True
         self._attr_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
         self._attr_condition = self.coordinator.data.get(ATTR_API_CONDITION)
         self._attr_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
