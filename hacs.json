@@ -4,5 +4,5 @@
   "render_readme": false,
   "zip_release": true,
   "filename": "yandex_weather.zip",
-  "homeassistant":  "2021.12.0"
+  "homeassistant":  "2022.7.0"
 }
