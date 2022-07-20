@@ -12,14 +12,14 @@ import aiohttp
 from homeassistant.components.weather import (
     ATTR_FORECAST,
     ATTR_FORECAST_CONDITION,
-    ATTR_FORECAST_PRECIPITATION,
+    ATTR_FORECAST_NATIVE_PRECIPITATION,
     ATTR_FORECAST_PRECIPITATION_PROBABILITY,
-    ATTR_FORECAST_PRESSURE,
-    ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
+    ATTR_FORECAST_NATIVE_PRESSURE,
+    ATTR_FORECAST_NATIVE_TEMP,
+    ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_BEARING,
-    ATTR_FORECAST_WIND_SPEED,
+    ATTR_FORECAST_NATIVE_WIND_SPEED,
     Forecast,
 )
 from homeassistant.core import HomeAssistant
@@ -195,21 +195,21 @@ class WeatherUpdater(DataUpdateCoordinator):
                     mapping=WIND_DIRECTION_MAPPING,
                     is_day=f["daytime"] == "d",
                 )
-                forecast[ATTR_FORECAST_TEMP] = f["temp_avg"]  # type: ignore
-                forecast[ATTR_FORECAST_TEMP_LOW] = f["temp_min"]  # type: ignore
-                forecast[ATTR_FORECAST_PRESSURE] = f["pressure_pa"]  # type: ignore
-                forecast[ATTR_FORECAST_WIND_SPEED] = f["wind_speed"]  # type: ignore
-                forecast[ATTR_FORECAST_PRECIPITATION] = f["prec_mm"]  # type: ignore
+                forecast[ATTR_FORECAST_NATIVE_TEMP] = f["temp_avg"]  # type: ignore
+                forecast[ATTR_FORECAST_NATIVE_TEMP_LOW] = f["temp_min"]  # type: ignore
+                forecast[ATTR_FORECAST_NATIVE_PRESSURE] = f["pressure_pa"]  # type: ignore
+                forecast[ATTR_FORECAST_NATIVE_WIND_SPEED] = f["wind_speed"]  # type: ignore
+                forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = f["prec_mm"]  # type: ignore
                 forecast[ATTR_FORECAST_CONDITION] = map_state(  # type: ignore
                     src=f["condition"],
                     mapping=WEATHER_STATES_CONVERSION,
                     is_day=f["daytime"] == "d",
                 )
                 forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f["prec_prob"]  # type: ignore
-                result.setdefault(ATTR_MIN_FORECAST_TEMPERATURE, forecast[ATTR_FORECAST_TEMP_LOW])  # type: ignore
+                result.setdefault(ATTR_MIN_FORECAST_TEMPERATURE, forecast[ATTR_FORECAST_NATIVE_TEMP_LOW])  # type: ignore
                 result[ATTR_MIN_FORECAST_TEMPERATURE] = min(
                     result[ATTR_MIN_FORECAST_TEMPERATURE],
-                    forecast[ATTR_FORECAST_TEMP_LOW],  # type: ignore
+                    forecast[ATTR_FORECAST_NATIVE_TEMP_LOW],  # type: ignore
                 )
                 result[ATTR_FORECAST].append(forecast)
 
