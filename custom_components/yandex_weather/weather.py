@@ -7,7 +7,12 @@ import logging
 
 from homeassistant.components.weather import ATTR_FORECAST, WeatherEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import SPEED_METERS_PER_SECOND, TEMP_CELSIUS, LENGTH_MILLIMETERS, PRESSURE_HPA
+from homeassistant.const import (
+    LENGTH_MILLIMETERS,
+    PRESSURE_HPA,
+    SPEED_METERS_PER_SECOND,
+    TEMP_CELSIUS,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
