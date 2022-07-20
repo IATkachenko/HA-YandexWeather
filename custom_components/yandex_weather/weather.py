@@ -5,7 +5,15 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import logging
 
-from homeassistant.components.weather import ATTR_FORECAST, WeatherEntity
+from homeassistant.components.weather import (
+    ATTR_FORECAST,
+    ATTR_WEATHER_PRECIPITATION_UNIT,
+    ATTR_WEATHER_PRESSURE_UNIT,
+    ATTR_WEATHER_TEMPERATURE_UNIT,
+    ATTR_WEATHER_WIND_SPEED_UNIT,
+    UNIT_CONVERSIONS,
+    WeatherEntity,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     LENGTH_MILLIMETERS,
@@ -98,14 +106,44 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         else:
             _LOGGER.debug(f"state for restore: {state}")
             self._attr_available = True
-            self._attr_native_temperature = state.attributes.get("temperature")
             self._attr_condition = state.state
-            self._attr_native_pressure = state.attributes.get("pressure")
+            for (attribute, converter) in [
+                ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
+                ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
+                ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
+            ]:
+                setattr(
+                    self,
+                    f"_attr_native_{attribute}",
+                    converter(
+                        state.attributes.get(attribute),
+                        state.attributes.get(
+                            f"{attribute}_unit",
+                            getattr(self, f"_attr_native_{attribute}_unit"),
+                        ),
+                        getattr(self, f"_attr_native_{attribute}_unit"),
+                    ),
+                )
+
             self._attr_humidity = state.attributes.get("humidity")
-            self._attr_native_wind_speed = state.attributes.get("wind_speed")
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
             self._attr_forecast = state.attributes.get(ATTR_FORECAST)
+            for f in self._attr_forecast:
+                for (attribute, converter) in [
+                    ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
+                    ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
+                    ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
+                    (
+                        "precipitation",
+                        UNIT_CONVERSIONS[ATTR_WEATHER_PRECIPITATION_UNIT],
+                    ),
+                ]:
+                    f[attribute] = converter(
+                        f.get(attribute),
+                        getattr(self, f"_weather_option_{attribute}_unit"),
+                        getattr(self, f"_attr_native_{attribute}_unit"),
+                    )
 
             # last_updated is last call of self.async_write_ha_state(), not a real last update
             since_last_update = datetime.now(timezone.utc) - state.last_updated.replace(
