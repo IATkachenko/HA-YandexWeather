@@ -105,30 +105,25 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         else:
             _LOGGER.debug(f"state for restore: {state}")
             self._attr_available = True
-            self._attr_native_temperature = UNIT_CONVERSIONS[
-                ATTR_WEATHER_TEMPERATURE_UNIT
-            ](
-                state.attributes.get("temperature"),
-                state.attributes.get(
-                    "temperature_unit", self._attr_native_temperature_unit
-                ),
-                self._attr_native_temperature_unit,
-            )
             self._attr_condition = state.state
-            self._attr_native_pressure = UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT](
-                state.attributes.get("pressure"),
-                state.attributes.get("pressure_unit", self._attr_native_pressure_unit),
-                self._attr_native_pressure_unit,
-            )
+            for (attribute, converter) in [
+                ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
+                ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
+                ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
+            ]:
+                self.__setattr__(
+                    name=f"_attr_native_{attribute}",
+                    value=converter(
+                        state.attributes.get(attribute),
+                        state.attributes.get(
+                            f"{attribute}_unit",
+                            self.__getattribute__(f"_attr_native_{attribute}_unit")
+                        ),
+                        self.__getattribute__(f"_attr_native_{attribute}_unit")
+                    )
+                )
 
             self._attr_humidity = state.attributes.get("humidity")
-            self._attr_native_wind_speed = UNIT_CONVERSIONS[
-                ATTR_WEATHER_WIND_SPEED_UNIT
-            ](
-                state.attributes.get("wind_speed"),
-                state.attributes.get("wind_speed_unit"),
-                self._attr_native_wind_speed_unit,
-            )
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
             self._attr_forecast = state.attributes.get(ATTR_FORECAST)
