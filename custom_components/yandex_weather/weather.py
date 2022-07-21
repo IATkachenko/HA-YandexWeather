@@ -7,6 +7,7 @@ import logging
 
 from homeassistant.components.weather import (
     ATTR_FORECAST,
+    ATTR_WEATHER_PRECIPITATION_UNIT,
     ATTR_WEATHER_PRESSURE_UNIT,
     ATTR_WEATHER_TEMPERATURE_UNIT,
     ATTR_WEATHER_WIND_SPEED_UNIT,
@@ -127,6 +128,21 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
             self._attr_forecast = state.attributes.get(ATTR_FORECAST)
+            for f in self._attr_forecast:
+                for (attribute, converter) in [
+                    ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
+                    ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
+                    ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
+                    ("precipitation", UNIT_CONVERSIONS[ATTR_WEATHER_PRECIPITATION_UNIT])
+                ]:
+                    f[attribute] = converter(
+                        f.get(attribute),
+                        f.get(
+                            f"{attribute}_unit",
+                            self.__getattribute__(f"_attr_native_{attribute}_unit")
+                        ),
+                        self.__getattribute__(f"_attr_native_{attribute}_unit")
+                    )
 
             # last_updated is last call of self.async_write_ha_state(), not a real last update
             since_last_update = datetime.now(timezone.utc) - state.last_updated.replace(
