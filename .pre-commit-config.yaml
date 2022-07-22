@@ -69,3 +69,16 @@ repos:
           - --force
           - --keep-updates
         files: ^(custom_components|tests)/.+\.py$
+  - repo: https://github.com/cdce8p/python-typing-update
+    rev: v0.4.2
+    hooks:
+      # Run `python-typing-update` hook manually from time to time
+      # to update python typing syntax.
+      # Will require manual work, before submitting changes!
+      - id: python-typing-update
+        stages: [manual]
+        args:
+          - --py39-plus
+          - --force
+          - --keep-updates
+        files: ^(custom_components|tests|script)/.+\.py$
