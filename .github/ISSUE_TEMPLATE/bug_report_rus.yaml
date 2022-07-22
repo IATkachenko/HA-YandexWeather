@@ -9,21 +9,21 @@ body:
       label: В чем проблема?
       description: >-
         Опишите проблему, с которой вы столкнулись. Расскажите что делаете, что происходит, какое поведенеи вы ожидаете.
-        
-        Постарайтесь описать проблему четко и лаконично.       
-        
+
+        Постарайтесь описать проблему четко и лаконично.
+
   - type: markdown
     attributes:
       value: |
         ## Информация об установке
-        
+
   - type: input
     id: integration_version
     validations:
       required: true
     attributes:
       label: При использовании какой версии интеграции возникает проблема?
-      
+
   - type: input
     id: ha_version
     validations:
@@ -33,7 +33,7 @@ body:
       placeholder: core-
       description: >
         Можно посмотреть: Конфигурация -> Настройки -> О системе  - type: dropdown
-     
+
   - type: dropdown
     id: installation_method
     validations:
@@ -47,23 +47,22 @@ body:
         - Home Assistant Container
         - Home Assistant Supervised
         - Home Assistant Core
-        
+
   - type: markdown
     attributes:
       value: |
         # Детали
-        
+
   - type: textarea
     id: log
     attributes:
       label: Есть что-нибудь полезное в логе?
       description: Cообщение об ошибке, trace итд.
       render: txt
-      
+
   - type: textarea
     id: additional_info
     attributes:
       label: Дополнительная информация
       description: >
         Если нужно что-то добавить, напишите здесь.
-        
