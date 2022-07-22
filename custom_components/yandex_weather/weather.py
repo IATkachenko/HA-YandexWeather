@@ -5,9 +5,21 @@ from __future__ import annotations
 from datetime import datetime, timezone
 import logging
 
-from homeassistant.components.weather import ATTR_FORECAST, WeatherEntity
+from homeassistant.components.weather import (
+    ATTR_FORECAST,
+    ATTR_WEATHER_PRESSURE_UNIT,
+    ATTR_WEATHER_TEMPERATURE_UNIT,
+    ATTR_WEATHER_WIND_SPEED_UNIT,
+    UNIT_CONVERSIONS,
+    WeatherEntity,
+)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import SPEED_METERS_PER_SECOND, TEMP_CELSIUS
+from homeassistant.const import (
+    LENGTH_MILLIMETERS,
+    PRESSURE_HPA,
+    SPEED_METERS_PER_SECOND,
+    TEMP_CELSIUS,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
@@ -52,9 +64,10 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     """Yandex.Weather entry."""
 
     _attr_attribution = ATTRIBUTION
-    _attr_wind_speed_unit = SPEED_METERS_PER_SECOND
-    _attr_pressure_unit = None
-    _attr_temperature_unit = TEMP_CELSIUS
+    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
+    _attr_native_pressure_unit = PRESSURE_HPA
+    _attr_native_temperature_unit = TEMP_CELSIUS
+    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
     coordinator: WeatherUpdater
 
     def __init__(
@@ -92,11 +105,30 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         else:
             _LOGGER.debug(f"state for restore: {state}")
             self._attr_available = True
-            self._attr_temperature = state.attributes.get("temperature")
+            self._attr_native_temperature = UNIT_CONVERSIONS[
+                ATTR_WEATHER_TEMPERATURE_UNIT
+            ](
+                state.attributes.get("temperature"),
+                state.attributes.get(
+                    "temperature_unit", self._attr_native_temperature_unit
+                ),
+                self._attr_native_temperature_unit,
+            )
             self._attr_condition = state.state
-            self._attr_pressure = state.attributes.get("pressure")
+            self._attr_native_pressure = UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT](
+                state.attributes.get("pressure"),
+                state.attributes.get("pressure_unit", self._attr_native_pressure_unit),
+                self._attr_native_pressure_unit,
+            )
+
             self._attr_humidity = state.attributes.get("humidity")
-            self._attr_wind_speed = state.attributes.get("wind_speed")
+            self._attr_native_wind_speed = UNIT_CONVERSIONS[
+                ATTR_WEATHER_WIND_SPEED_UNIT
+            ](
+                state.attributes.get("wind_speed"),
+                state.attributes.get("wind_speed_unit"),
+                self._attr_native_wind_speed_unit,
+            )
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
             self._attr_forecast = state.attributes.get(ATTR_FORECAST)
@@ -119,11 +151,11 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
     def _handle_coordinator_update(self) -> None:
         self._attr_available = True
-        self._attr_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
+        self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
         self._attr_condition = self.coordinator.data.get(ATTR_API_CONDITION)
-        self._attr_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
-        self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
-        self._attr_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
+        self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
+        self._attr_native_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
+        self._attr_native_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
         self._attr_entity_picture = get_image(
             image_source=self._image_source,

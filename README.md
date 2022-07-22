@@ -1,4 +1,4 @@
-![version_badge](https://img.shields.io/badge/minimum%20HA%20version-2021.12-red)
+![version_badge](https://img.shields.io/badge/minimum%20HA%20version-2022.7-red)
 # Yandex weather data provider for Home Assistant
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yandex.ru) service.
 
@@ -28,7 +28,8 @@ This custom integration is providing weather component and set of sensors based 
 
 ## Usage
 ### Weather
-![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 
+ * ![added_in_version_badge](https://img.shields.io/badge/Since-v1.0.0-red) pressure, wind speed and other unit may be customized
+ * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 
 #### attributes
  * `entity_picture`:
    * ![added_in_version_badge](https://img.shields.io/badge/Before-v0.10.0-gray) native Yandex.Weather .svg picture for weather condition 
