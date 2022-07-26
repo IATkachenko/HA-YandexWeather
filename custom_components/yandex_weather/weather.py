@@ -171,7 +171,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
         self._attr_forecast = self.coordinator.data.get(ATTR_FORECAST)
-        self._attr_native_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
+        self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
         self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
         self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
         self._attr_native_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
