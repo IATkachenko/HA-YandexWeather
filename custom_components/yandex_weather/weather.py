@@ -163,12 +163,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
     def _handle_coordinator_update(self) -> None:
         self._attr_available = True
-        self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
         self._attr_condition = self.coordinator.data.get(ATTR_API_CONDITION)
-        self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
-        self._attr_native_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
-        self._attr_native_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
-        self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
         self._attr_entity_picture = get_image(
             image_source=self._image_source,
             condition=self.coordinator.data.get(ATTR_API_YA_CONDITION),
@@ -176,4 +171,10 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
         self._attr_forecast = self.coordinator.data.get(ATTR_FORECAST)
+        self._attr_native_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
+        self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
+        self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
+        self._attr_native_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
+        self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
+
         self.async_write_ha_state()
