@@ -118,7 +118,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                     converter(
                         state.attributes.get(attribute),
                         state.attributes.get(
-                            f"{attribute}_unit",
+                            f"_{attribute}_unit",
                             getattr(self, f"_attr_native_{attribute}_unit"),
                         ),
                         getattr(self, f"_attr_native_{attribute}_unit"),
@@ -141,7 +141,11 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                 ]:
                     f[attribute] = converter(
                         f.get(attribute),
-                        getattr(self, f"_weather_option_{attribute}_unit"),
+                        getattr(
+                            self,
+                            f"_{attribute}_unit",
+                            getattr(self, f"_attr_native_{attribute}_unit"),
+                        ),
                         getattr(self, f"_attr_native_{attribute}_unit"),
                     )
 
