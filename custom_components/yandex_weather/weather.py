@@ -29,11 +29,14 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .config_flow import get_value
 from .const import (
     ATTR_API_CONDITION,
+    ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_HUMIDITY,
     ATTR_API_IMAGE,
     ATTR_API_PRESSURE,
+    ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTRIBUTION,
@@ -180,5 +183,11 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
         self._attr_native_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
+        self._attr_extra_state_attributes = {
+            "feels_like": self.coordinator.data.get(ATTR_API_FEELS_LIKE_TEMPERATURE),
+            "temp_water": self.coordinator.data.get(ATTR_API_TEMP_WATER),
+            "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
+            "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
+        }
 
         self.async_write_ha_state()
