@@ -185,7 +185,11 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_YA_CONDITION,
                 "daytime",
             ]:
-                result[i] = r["fact"][i]
+                try:
+                    result[i] = r["fact"][i]
+                except KeyError:
+                    # may have no some values
+                    pass
 
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:

@@ -185,9 +185,12 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
         self._attr_extra_state_attributes = {
             "feels_like": self.coordinator.data.get(ATTR_API_FEELS_LIKE_TEMPERATURE),
-            "temp_water": self.coordinator.data.get(ATTR_API_TEMP_WATER),
             "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
         }
+        try:
+            self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(ATTR_API_TEMP_WATER)
+        except KeyError:
+            self.coordinator.logger.debug(f"data have no temp_water. Skipping.")
 
         self.async_write_ha_state()
