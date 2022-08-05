@@ -36,9 +36,11 @@ from .const import (
     ATTR_API_IMAGE,
     ATTR_API_PRESSURE,
     ATTR_API_PRESSURE_MMHG,
+    ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTR_MIN_FORECAST_TEMPERATURE,
@@ -174,14 +176,20 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_IMAGE,
                 ATTR_API_PRESSURE,
                 ATTR_API_PRESSURE_MMHG,
+                ATTR_API_TEMP_WATER,
                 ATTR_API_TEMPERATURE,
                 ATTR_API_WEATHER_TIME,
                 ATTR_API_WIND_BEARING,
+                ATTR_API_WIND_GUST,
                 ATTR_API_WIND_SPEED,
                 ATTR_API_YA_CONDITION,
                 "daytime",
             ]:
-                result[i] = r["fact"][i]
+                try:
+                    result[i] = r["fact"][i]
+                except KeyError:
+                    # may have no some values
+                    pass
 
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:

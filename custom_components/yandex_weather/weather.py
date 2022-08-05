@@ -29,11 +29,14 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .config_flow import get_value
 from .const import (
     ATTR_API_CONDITION,
+    ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_HUMIDITY,
     ATTR_API_IMAGE,
     ATTR_API_PRESSURE,
+    ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WIND_BEARING,
+    ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTRIBUTION,
@@ -148,6 +151,16 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                         ),
                         getattr(self, f"_attr_native_{attribute}_unit"),
                     )
+            self._attr_extra_state_attributes = {}
+            for attribute in [
+                "feels_like",
+                "wind_gust",
+                "yandex_condition",
+                "temp_water",
+            ]:
+                value = state.attributes.get(attribute)
+                if value is not None:
+                    self._attr_extra_state_attributes[attribute] = value
 
             # last_updated is last call of self.async_write_ha_state(), not a real last update
             since_last_update = datetime.now(timezone.utc) - state.last_updated.replace(
@@ -180,5 +193,16 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
         self._attr_native_wind_speed = self.coordinator.data.get(ATTR_API_WIND_SPEED)
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
+        self._attr_extra_state_attributes = {
+            "feels_like": self.coordinator.data.get(ATTR_API_FEELS_LIKE_TEMPERATURE),
+            "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
+            "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
+        }
+        try:
+            self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(
+                ATTR_API_TEMP_WATER
+            )
+        except KeyError:
+            self.coordinator.logger.debug("data have no temp_water. Skipping.")
 
         self.async_write_ha_state()
