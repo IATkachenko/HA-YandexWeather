@@ -189,8 +189,10 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
         }
         try:
-            self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(ATTR_API_TEMP_WATER)
+            self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(
+                ATTR_API_TEMP_WATER
+            )
         except KeyError:
-            self.coordinator.logger.debug(f"data have no temp_water. Skipping.")
+            self.coordinator.logger.debug("data have no temp_water. Skipping.")
 
         self.async_write_ha_state()
