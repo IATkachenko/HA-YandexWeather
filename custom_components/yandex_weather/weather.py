@@ -151,6 +151,11 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                         ),
                         getattr(self, f"_attr_native_{attribute}_unit"),
                     )
+            self._attr_extra_state_attributes = {}
+            for attribute in ["feels_like", "wind_gust", "yandex_condition", "temp_water"]:
+                value = state.attributes.get(attribute)
+                if value is not None:
+                    self._attr_extra_state_attributes[attribute] = value
 
             # last_updated is last call of self.async_write_ha_state(), not a real last update
             since_last_update = datetime.now(timezone.utc) - state.last_updated.replace(
