@@ -152,7 +152,12 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                         getattr(self, f"_attr_native_{attribute}_unit"),
                     )
             self._attr_extra_state_attributes = {}
-            for attribute in ["feels_like", "wind_gust", "yandex_condition", "temp_water"]:
+            for attribute in [
+                "feels_like",
+                "wind_gust",
+                "yandex_condition",
+                "temp_water",
+            ]:
                 value = state.attributes.get(attribute)
                 if value is not None:
                     self._attr_extra_state_attributes[attribute] = value
