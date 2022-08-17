@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import os
 from datetime import datetime, timedelta, timezone
 from functools import cached_property
 import json
 import logging
 import math
+import os
 
 import aiohttp
 from homeassistant.components.weather import (
@@ -71,10 +71,13 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
 
 
 def translate_condition(value: str, _language: str) -> str:
+    """Translate Yandex condition."""
     _my_location = os.path.dirname(os.path.realpath(__file__))
-    _translation_location = f"{_my_location}/translations/sensor.{_language.lower()}.json"
+    _translation_location = (
+        f"{_my_location}/translations/sensor.{_language.lower()}.json"
+    )
     try:
-        with open(_translation_location, "r") as f:
+        with open(_translation_location) as f:
             value = json.loads(f.read())["state"]["yandex_weather__condition_ya"][value]
     except FileNotFoundError:
         _LOGGER.debug(f"We have no translation for {_language=} in {_my_location}")
@@ -302,5 +305,3 @@ class WeatherUpdater(DataUpdateCoordinator):
             self._job,
             utcnow().replace(microsecond=0) + offset,
         )
-
-
