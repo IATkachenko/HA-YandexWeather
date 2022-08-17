@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import datetime
 import logging
 
-from homeassistant.backports.enum import StrEnum
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -43,17 +42,9 @@ from .const import (
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
+    YandexWeatherDeviceClass,
 )
 from .updater import WeatherUpdater
-
-
-class YandexWeatherDeviceClass(StrEnum):
-    """State class for weather sensors."""
-
-    WIND_BEARING = f"{DOMAIN}__wind_bearing"
-    CONDITION_YA = f"{DOMAIN}__condition_ya"
-    CONDITION_HA = f"{DOMAIN}__condition_ha"
-
 
 WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
