@@ -69,6 +69,10 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
 """Wind directions mapping."""
 
 
+def translate_condition(value: str, _language: str) -> str:
+    return value
+
+
 class WeatherUpdater(DataUpdateCoordinator):
     """Weather data updater for interaction with Yandex.Weather API."""
 
@@ -150,6 +154,10 @@ class WeatherUpdater(DataUpdateCoordinator):
                 r["fact"][ATTR_API_YA_CONDITION],
                 r["fact"]["daytime"] == "d",
                 CONDITION_ICONS,
+            )
+            r["fact"][ATTR_API_YA_CONDITION] = translate_condition(
+                value=r["fact"][ATTR_API_YA_CONDITION],
+                _language=self._language,
             )
             r["fact"][ATTR_API_CONDITION] = map_state(
                 r["fact"][ATTR_API_CONDITION],
@@ -284,3 +292,5 @@ class WeatherUpdater(DataUpdateCoordinator):
             self._job,
             utcnow().replace(microsecond=0) + offset,
         )
+
+
