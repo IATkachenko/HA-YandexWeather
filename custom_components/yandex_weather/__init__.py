@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 
 from .config_flow import get_value
 from .const import (
+    CONF_LANGUAGE_KEY,
     DEFAULT_UPDATES_PER_DAY,
     DOMAIN,
     ENTRY_NAME,
@@ -37,6 +38,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         api_key=api_key,
         hass=hass,
         device_id=entry.unique_id,
+        language=get_value(entry, CONF_LANGUAGE_KEY, "EN"),
         updates_per_day=updates_per_day,
         name=name,
     )
