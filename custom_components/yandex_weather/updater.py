@@ -81,6 +81,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         api_key: str,
         hass: HomeAssistant,
         device_id: str,
+        language: str = "en_US",
         updates_per_day: int = 50,
         name="Yandex Weather",
     ):
@@ -90,6 +91,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         :param longitude: longitude of location for weather data
         :param api_key: Yandex weather API. MUST be weather for site tariff plan
         :param hass: Home Assistant object
+        :param language: Language for yandex_condition
         :param updates_per_day: int: how many updates per day we should do?
         :param device_id: ID of integration Device in Home Assistant
         """
@@ -100,6 +102,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         self._updates_per_day = updates_per_day
         self._device_id = device_id
         self._name = name
+        self._language = language
 
         if hass is not None:
             super().__init__(
