@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from datetime import datetime, timedelta, timezone
 from functools import cached_property
 import json
@@ -72,6 +73,15 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
 
 
 def translate_condition(value: str, _language: str) -> str:
+    _my_location = os.path.dirname(os.path.realpath(__file__))
+    _translation_location = f"{_my_location}/translations/sensor.{_language.lower()}.json"
+    try:
+        with open(_translation_location, "r") as f:
+            value = json.loads(f.read())["state"]["yandex_weather__condition_ya"][value]
+    except FileNotFoundError:
+        _LOGGER.debug(f"We have no translation for {_language=} in {_my_location}")
+    except KeyError:
+        _LOGGER.debug(f"Have no translation for {value} in {_translation_location}")
     return value
 
 
@@ -85,7 +95,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         api_key: str,
         hass: HomeAssistant,
         device_id: str,
-        language: str = "en_US",
+        language: str = "EN",
         updates_per_day: int = 50,
         name="Yandex Weather",
     ):
