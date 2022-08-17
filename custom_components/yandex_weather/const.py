@@ -1,6 +1,7 @@
 """General constants."""
 from __future__ import annotations
 
+from homeassistant.backports.enum import StrEnum
 from homeassistant.const import Platform
 
 DOMAIN = "yandex_weather"
@@ -185,3 +186,11 @@ def get_image(
     )
 
     return CONDITION_IMAGE[image_source]["link"].format(mapped_image)
+
+
+class YandexWeatherDeviceClass(StrEnum):
+    """State class for weather sensors."""
+
+    WIND_BEARING = f"{DOMAIN}__wind_bearing"
+    CONDITION_YA = f"{DOMAIN}__condition_ya"
+    CONDITION_HA = f"{DOMAIN}__condition_ha"

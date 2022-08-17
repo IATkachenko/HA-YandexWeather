@@ -49,6 +49,7 @@ from .const import (
     DOMAIN,
     MANUFACTURER,
     WEATHER_STATES_CONVERSION,
+    YandexWeatherDeviceClass,
     map_state,
 )
 from .device_trigger import TRIGGERS
@@ -80,7 +81,9 @@ def translate_condition(value: str, _language: str) -> str:
     )
     try:
         with open(_translation_location) as f:
-            value = json.loads(f.read())["state"]["yandex_weather__condition_ya"][value]
+            value = json.loads(f.read())["state"][
+                YandexWeatherDeviceClass.CONDITION_YA
+            ][value]
     except FileNotFoundError:
         _LOGGER.debug(f"We have no translation for {_language=} in {_my_location}")
     except KeyError:
