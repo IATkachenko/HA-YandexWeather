@@ -103,7 +103,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             await self.coordinator.async_config_entry_first_refresh()
             return
 
-        if state == "unavailable":
+        if state.state == "unavailable":
             self._attr_available = False
             await self.coordinator.async_config_entry_first_refresh()
         else:

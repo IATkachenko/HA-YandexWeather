@@ -190,7 +190,7 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
         if not state:
             return
 
-        if state == "unavailable" or state.state == STATE_UNKNOWN:
+        if state.state == "unavailable" or state.state == STATE_UNKNOWN:
             self._attr_available = False
         else:
             self._attr_available = True
