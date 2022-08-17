@@ -13,6 +13,7 @@ import voluptuous as vol
 from .const import (
     CONDITION_IMAGE,
     CONF_IMAGE_SOURCE,
+    CONF_LANGUAGE_KEY,
     CONF_UPDATES_PER_DAY,
     DEFAULT_NAME,
     DEFAULT_UPDATES_PER_DAY,
@@ -21,6 +22,11 @@ from .const import (
 from .updater import WeatherUpdater
 
 _LOGGER = logging.getLogger(__name__)
+
+
+def get_supported_languages() -> list[str]:
+    """Get supported translations."""
+    return ["EN", "RU"]
 
 
 def get_value(config_entry: config_entries | None, param: str, default=None):
@@ -79,6 +85,9 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 vol.Optional(
                     CONF_UPDATES_PER_DAY, default=DEFAULT_UPDATES_PER_DAY
                 ): int,
+                vol.Required(
+                    CONF_LANGUAGE_KEY, default=get_supported_languages()[0]
+                ): vol.In(get_supported_languages()),
                 vol.Optional(CONF_IMAGE_SOURCE, default="Yandex"): vol.In(
                     CONDITION_IMAGE.keys()
                 ),
@@ -119,6 +128,10 @@ class YandexWeatherOptionsFlow(config_entries.OptionsFlow):
                 vol.Required(
                     CONF_API_KEY, default=get_value(self.config_entry, CONF_API_KEY)
                 ): str,
+                vol.Required(
+                    CONF_LANGUAGE_KEY,
+                    default=get_value(self.config_entry, CONF_LANGUAGE_KEY),
+                ): vol.In(get_supported_languages()),
                 vol.Optional(
                     CONF_UPDATES_PER_DAY,
                     default=get_value(

@@ -27,6 +27,7 @@ ATTR_MIN_FORECAST_TEMPERATURE = "min_forecast_temperature"
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
 CONF_IMAGE_SOURCE = "image_source"
+CONF_LANGUAGE_KEY = "language"
 UPDATE_LISTENER = "update_listener"
 PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 
