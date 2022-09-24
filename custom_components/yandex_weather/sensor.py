@@ -17,6 +17,7 @@ from homeassistant.const import (
     PRESSURE_HPA,
     PRESSURE_MMHG,
     SPEED_METERS_PER_SECOND,
+    STATE_UNAVAILABLE,
     STATE_UNKNOWN,
     TEMP_CELSIUS,
 )
@@ -190,7 +191,7 @@ class YandexWeatherSensor(SensorEntity, CoordinatorEntity, RestoreEntity):
         if not state:
             return
 
-        if state.state == "unavailable" or state.state == STATE_UNKNOWN:
+        if state.state == STATE_UNAVAILABLE or state.state == STATE_UNKNOWN:
             self._attr_available = False
         else:
             self._attr_available = True

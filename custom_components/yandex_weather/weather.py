@@ -19,6 +19,7 @@ from homeassistant.const import (
     LENGTH_MILLIMETERS,
     PRESSURE_HPA,
     SPEED_METERS_PER_SECOND,
+    STATE_UNAVAILABLE,
     TEMP_CELSIUS,
 )
 from homeassistant.core import HomeAssistant
@@ -103,7 +104,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             await self.coordinator.async_config_entry_first_refresh()
             return
 
-        if state.state == "unavailable":
+        if state.state == STATE_UNAVAILABLE:
             self._attr_available = False
             await self.coordinator.async_config_entry_first_refresh()
         else:
