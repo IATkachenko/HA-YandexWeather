@@ -11,7 +11,7 @@ This custom integration is providing weather component and set of sensors based 
 4. Restart Home Assistant
 ### Manual
 1. Download [yandex_weather.zip](https://github.com/IATkachenko/HA-YandexWeather/releases/download/latest/yandex_weather.zip) from the latest release
-2. Unpack to `cunstom_components` folder _(it should look like `custom_componets/yandex_weather/<files>`)_
+2. Unpack to `custom_components` folder _(it should look like `custom_components/yandex_weather/<files>`)_
 3. Restart Home Assistant
 
 ## Configuration
