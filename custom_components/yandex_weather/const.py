@@ -26,6 +26,7 @@ ATTR_API_YA_CONDITION = "yandex_condition"
 ATTR_API_PRESSURE_MMHG = "pressure_mm"
 ATTR_API_TEMP_WATER = "temp_water"
 ATTR_API_WIND_GUST = "wind_gust"
+ATTR_API_ORIGINAL_CONDITION = "original_condition"
 ATTR_MIN_FORECAST_TEMPERATURE = "min_forecast_temperature"
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
