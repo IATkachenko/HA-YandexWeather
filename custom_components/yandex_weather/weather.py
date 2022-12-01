@@ -33,6 +33,7 @@ from .const import (
     ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_HUMIDITY,
     ATTR_API_IMAGE,
+    ATTR_API_ORIGINAL_CONDITION,
     ATTR_API_PRESSURE,
     ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
@@ -184,7 +185,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_condition = self.coordinator.data.get(ATTR_API_CONDITION)
         self._attr_entity_picture = get_image(
             image_source=self._image_source,
-            condition=self.coordinator.data.get(ATTR_API_YA_CONDITION),
+            condition=self.coordinator.data.get(ATTR_API_ORIGINAL_CONDITION),
             is_day=self.coordinator.data.get("daytime") == "d",
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
