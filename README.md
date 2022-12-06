@@ -1,4 +1,4 @@
-![version_badge](https://img.shields.io/badge/minimum%20HA%20version-2022.7-red)
+![version_badge](https://img.shields.io/badge/minimum%20HA%20version-2022.8-red)
 # Yandex weather data provider for Home Assistant
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yandex.ru) service.
 
