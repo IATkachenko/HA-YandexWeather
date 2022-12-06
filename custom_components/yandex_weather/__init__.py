@@ -66,7 +66,9 @@ async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Remove entry configured via user interface."""
-    unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
+    unload_ok = True
+    for platform in PLATFORMS:
+        unload_ok = unload_ok & await hass.config_entries.async_forward_entry_unload(entry=entry, domain=platform)
     if unload_ok:
         update_listener = hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER]
         update_listener()
