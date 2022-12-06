@@ -56,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener
 
-    return True
+    return result
 
 
 async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
