@@ -49,7 +49,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         UPDATER: weather_updater,
     }
 
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    result = True
+    for platform in PLATFORMS:
+        result = result & await hass.config_entries.async_forward_entry_setup(entry=entry, domain=platform)
 
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener
