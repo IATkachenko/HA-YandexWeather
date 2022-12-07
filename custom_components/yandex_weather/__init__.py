@@ -51,7 +51,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     result = True
     for platform in PLATFORMS:
-        result = result & await hass.config_entries.async_forward_entry_setup(entry=entry, domain=platform)
+        result = result & await hass.config_entries.async_forward_entry_setup(
+            entry=entry, domain=platform
+        )
 
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener
@@ -68,7 +70,9 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Remove entry configured via user interface."""
     unload_ok = True
     for platform in PLATFORMS:
-        unload_ok = unload_ok & await hass.config_entries.async_forward_entry_unload(entry=entry, domain=platform)
+        unload_ok = unload_ok & await hass.config_entries.async_forward_entry_unload(
+            entry=entry, domain=platform
+        )
     if unload_ok:
         update_listener = hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER]
         update_listener()
