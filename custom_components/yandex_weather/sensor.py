@@ -105,7 +105,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         key=ATTR_API_WEATHER_TIME,
         name="Data update time",
         device_class=SensorDeviceClass.TIMESTAMP,
-        state_class=SensorStateClass.MEASUREMENT,
+        state_class=None,
         entity_registry_enabled_default=True,
         entity_category=EntityCategory.DIAGNOSTIC,
     ),
