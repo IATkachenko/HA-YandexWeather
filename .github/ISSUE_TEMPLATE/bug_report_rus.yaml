@@ -49,7 +49,7 @@ body:
         - Home Assistant Core
         
   - type: checkboxes
-    id: installation_actions completed
+    id: key_creation
     attributes:
       label: самопроверка по созданию ключа
       description: (если интеграция до этого у вас работала -- при создании ключа вы все сделали правильно и можно не вспоминать как добавлялся ключ)
