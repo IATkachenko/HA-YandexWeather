@@ -179,6 +179,10 @@ def get_image(
 ) -> str | None:
     """Get image for current condition.
 
+    :param image_source: str: What kind of image is used
+    :param condition: str: get image for this condition
+    :param image: str: backup image that will be used if we have no mapping
+    :param is_day: bool: is it day condition or not
     :return: str|None: url for current condition image
     """
 
