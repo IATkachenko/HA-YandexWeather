@@ -1,1 +1,1 @@
-pre-commit
+-r https://raw.githubusercontent.com/home-assistant/core/dev/requirements_test_pre_commit.txt
