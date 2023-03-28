@@ -130,7 +130,7 @@ CUSTOM_WEATHER_CARD_MAPPING = {
 class ConditionImage:
     """Way to get image for weather condition."""
 
-    link: str | None = None
+    link: str
     mapping: dict | None = None
 
 
@@ -190,8 +190,6 @@ def get_image(
         return None
     if CONDITION_IMAGE[image_source] is None:
         return None
-    if (link := CONDITION_IMAGE[image_source].link) is None:
-        return None
 
     if (mapping := CONDITION_IMAGE[image_source].mapping) is not None:
         # map condition to image_source-friendly
@@ -203,7 +201,7 @@ def get_image(
     else:
         condition = image
 
-    return link.format(condition)
+    return CONDITION_IMAGE[image_source].link.format(condition)
 
 
 class YandexWeatherDeviceClass(StrEnum):
