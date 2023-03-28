@@ -190,18 +190,20 @@ def get_image(
         return None
     if CONDITION_IMAGE[image_source] is None:
         return None
+    if (link := CONDITION_IMAGE[image_source].link) is None:
+        return None
 
-    mapped_image = (
-        image
-        if CONDITION_IMAGE[image_source].mapping is None
-        else map_state(
+    if (mapping := CONDITION_IMAGE[image_source].mapping) is not None:
+        # map condition to image_source-friendly
+        condition = map_state(
             src=condition,
             is_day=is_day,
-            mapping=CONDITION_IMAGE[image_source].mapping,
+            mapping=mapping,
         )
-    )
+    else:
+        condition = image
 
-    return CONDITION_IMAGE[image_source].link.format(mapped_image)
+    return link.format(condition)
 
 
 class YandexWeatherDeviceClass(StrEnum):
