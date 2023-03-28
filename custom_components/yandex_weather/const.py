@@ -135,7 +135,7 @@ class ConditionImage:
 
 
 CONDITION_IMAGE: dict[str, ConditionImage] = {
-    "HomeAssistant": ConditionImage(link=None),
+    "HomeAssistant": None,
     "Yandex": ConditionImage(
         link="https://yastatic.net/weather/i/icons/funky/dark/{}.svg",
         mapping=None,
