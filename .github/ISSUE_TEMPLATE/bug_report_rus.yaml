@@ -47,13 +47,13 @@ body:
         - Home Assistant Container
         - Home Assistant Supervised
         - Home Assistant Core
-        
+
   - type: checkboxes
     id: key_creation
     attributes:
       label: Самопроверка по созданию ключа
       description: (если интеграция до этого у вас работала -- при создании ключа вы все сделали правильно и можно не вспоминать как добавлялся ключ, а просто проставить галочки)
-      options:      
+      options:
         - label: при добавлении ключа в кабинете разработчика он добавлялся как "тестовый"
           required: true
         - label: тип ключа в кабинете разработчика был изменен на "погода для сайта"
@@ -62,7 +62,7 @@ body:
           required: true
         - label: в кабинете разработчка я вижу что с запросы делаются именно с этим ключом
           required: true
-          
+
   - type: markdown
     attributes:
       value: |
