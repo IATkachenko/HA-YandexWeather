@@ -4,9 +4,14 @@ import pytest
 from custom_components.yandex_weather.const import map_state
 from custom_components.yandex_weather.updater import WIND_DIRECTION_MAPPING
 
+testdata = [
+    ("w", 270),
+    ("c", 0),
+]
 
+
+@pytest.mark.parametrize("direction,expected", testdata)
 @pytest.mark.asyncio
-async def test_mapping():
+async def test_mapping(direction, expected):
     """Test mapping action."""
-    assert 270 == map_state(src="w", mapping=WIND_DIRECTION_MAPPING)
-    assert 0 == map_state(src="c", mapping=WIND_DIRECTION_MAPPING)
+    assert expected == map_state(src=direction, mapping=WIND_DIRECTION_MAPPING)
