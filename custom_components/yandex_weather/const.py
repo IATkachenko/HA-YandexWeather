@@ -1,6 +1,8 @@
 """General constants."""
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from homeassistant.backports.enum import StrEnum
 from homeassistant.const import Platform
 
@@ -123,20 +125,29 @@ CUSTOM_WEATHER_CARD_MAPPING = {
 }
 """Condition mapping for images from https://github.com/bramkragten/weather-card"""
 
-CONDITION_IMAGE = {
-    "HomeAssistant": {"link": None},
-    "Yandex": {
-        "link": "https://yastatic.net/weather/i/icons/funky/dark/{}.svg",
-        "mapping": None,
-    },
-    "Custom weather card animated": {
-        "link": "https://cdn.jsdelivr.net/gh/bramkragten/weather-card/dist/icons/{}.svg",
-        "mapping": CUSTOM_WEATHER_CARD_MAPPING,
-    },
-    "Custom weather card static": {
-        "link": "https://cdn.jsdelivr.net/gh/bramkragten/weather-card/icons/static/{}.svg",
-        "mapping": CUSTOM_WEATHER_CARD_MAPPING,
-    },
+
+@dataclass
+class ConditionImage:
+    """Way to get image for weather condition."""
+
+    link: str | None = None
+    mapping: dict | None = None
+
+
+CONDITION_IMAGE: dict[str, ConditionImage] = {
+    "HomeAssistant": ConditionImage(link=None),
+    "Yandex": ConditionImage(
+        link="https://yastatic.net/weather/i/icons/funky/dark/{}.svg",
+        mapping=None,
+    ),
+    "Custom weather card animated": ConditionImage(
+        link="https://cdn.jsdelivr.net/gh/bramkragten/weather-card/dist/icons/{}.svg",
+        mapping=CUSTOM_WEATHER_CARD_MAPPING,
+    ),
+    "Custom weather card static": ConditionImage(
+        link="https://cdn.jsdelivr.net/gh/bramkragten/weather-card/icons/static/{}.svg",
+        mapping=CUSTOM_WEATHER_CARD_MAPPING,
+    ),
 }
 
 
@@ -178,15 +189,15 @@ def get_image(
 
     mapped_image = (
         image
-        if CONDITION_IMAGE[image_source]["mapping"] is None
+        if CONDITION_IMAGE[image_source].mapping is None
         else map_state(
             src=condition,
             is_day=is_day,
-            mapping=CONDITION_IMAGE[image_source]["mapping"],
+            mapping=CONDITION_IMAGE[image_source].mapping,
         )
     )
 
-    return CONDITION_IMAGE[image_source]["link"].format(mapped_image)
+    return CONDITION_IMAGE[image_source].link.format(mapped_image)
 
 
 class YandexWeatherDeviceClass(StrEnum):
