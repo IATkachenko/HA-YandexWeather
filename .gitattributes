@@ -1,0 +1,2 @@
+# Ensure "git config --global core.autocrlf input" before you clone
+*     text eol=lf
