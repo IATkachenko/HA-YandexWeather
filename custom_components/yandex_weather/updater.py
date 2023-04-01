@@ -155,6 +155,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 session, self.__api_key, self._lat, self._lon, "en_US"
             )
             r = json.loads(response)
+            # ToDo: some fields may be missed
 
             server_utc_time = datetime.strptime(
                 r["now_dt"], "%Y-%m-%dT%H:%M:%S.%fZ"
@@ -227,29 +228,31 @@ class WeatherUpdater(DataUpdateCoordinator):
                 forecast = Forecast()
                 f_datetime += timedelta(hours=24 / 4)
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
-
-                forecast[ATTR_FORECAST_WIND_BEARING] = map_state(  # type: ignore
-                    src=f["wind_dir"],
-                    mapping=WIND_DIRECTION_MAPPING,
-                    is_day=f["daytime"] == "d",
-                )
-                forecast[ATTR_FORECAST_NATIVE_TEMP] = f["temp_avg"]  # type: ignore
-                forecast[ATTR_FORECAST_NATIVE_TEMP_LOW] = f["temp_min"]  # type: ignore
-                forecast[ATTR_FORECAST_NATIVE_PRESSURE] = f["pressure_pa"]  # type: ignore
-                forecast[ATTR_FORECAST_NATIVE_WIND_SPEED] = f["wind_speed"]  # type: ignore
-                forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = f["prec_mm"]  # type: ignore
-                forecast[ATTR_FORECAST_CONDITION] = map_state(  # type: ignore
-                    src=f["condition"],
-                    mapping=WEATHER_STATES_CONVERSION,
-                    is_day=f["daytime"] == "d",
-                )
-                forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f["prec_prob"]  # type: ignore
-                result.setdefault(ATTR_MIN_FORECAST_TEMPERATURE, forecast[ATTR_FORECAST_NATIVE_TEMP_LOW])  # type: ignore
-                result[ATTR_MIN_FORECAST_TEMPERATURE] = min(
-                    result[ATTR_MIN_FORECAST_TEMPERATURE],
-                    forecast[ATTR_FORECAST_NATIVE_TEMP_LOW],  # type: ignore
-                )
-                result[ATTR_FORECAST].append(forecast)
+                try:
+                    forecast[ATTR_FORECAST_WIND_BEARING] = map_state(  # type: ignore
+                        src=f["wind_dir"],
+                        mapping=WIND_DIRECTION_MAPPING,
+                        is_day=f["daytime"] == "d",
+                    )
+                    forecast[ATTR_FORECAST_NATIVE_TEMP] = f["temp_avg"]  # type: ignore
+                    forecast[ATTR_FORECAST_NATIVE_TEMP_LOW] = f["temp_min"]  # type: ignore
+                    forecast[ATTR_FORECAST_NATIVE_PRESSURE] = f["pressure_pa"]  # type: ignore
+                    forecast[ATTR_FORECAST_NATIVE_WIND_SPEED] = f.get("wind_speed", 0)  # type: ignore
+                    forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = f.get("prec_mm", 0)  # type: ignore
+                    forecast[ATTR_FORECAST_CONDITION] = map_state(  # type: ignore
+                        src=f["condition"],
+                        mapping=WEATHER_STATES_CONVERSION,
+                        is_day=f["daytime"] == "d",
+                    )
+                    forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f.get("prec_prob", 0)  # type: ignore
+                    result.setdefault(ATTR_MIN_FORECAST_TEMPERATURE, forecast[ATTR_FORECAST_NATIVE_TEMP_LOW])  # type: ignore
+                    result[ATTR_MIN_FORECAST_TEMPERATURE] = min(
+                        result[ATTR_MIN_FORECAST_TEMPERATURE],
+                        forecast[ATTR_FORECAST_NATIVE_TEMP_LOW],  # type: ignore
+                    )
+                    result[ATTR_FORECAST].append(forecast)
+                except Exception as e:
+                    _LOGGER.critical(f"error while precessing forecast data {f}: {str(e)}")
 
             return result
 
