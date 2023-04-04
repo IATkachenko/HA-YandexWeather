@@ -244,6 +244,15 @@ class WeatherUpdater(DataUpdateCoordinator):
                 )
         return min_forecast_temperature
 
+    @staticmethod
+    def get_timezone(nows: str, nowi: int) -> timezone:
+        """Get API server timezone based on str and int time values."""
+        server_utc_time = datetime.strptime(nows, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
+            microsecond=0
+        )
+        server_unix_time = datetime.fromtimestamp(nowi)
+        return timezone(server_utc_time - server_unix_time)
+
     async def update(self):
         """Update weather information.
 
@@ -257,12 +266,7 @@ class WeatherUpdater(DataUpdateCoordinator):
             )
             r = json.loads(response)
             # ToDo: some fields may be missed
-
-            server_utc_time = datetime.strptime(
-                r["now_dt"], "%Y-%m-%dT%H:%M:%S.%fZ"
-            ).replace(microsecond=0)
-            server_unix_time = datetime.fromtimestamp(r["now"])
-            _tz = timezone(server_utc_time - server_unix_time)
+            _tz = self.get_timezone(r["now_dt"], r["now"])
             result = self.process_fact_data(r["fact"], _tz)
 
             if (
