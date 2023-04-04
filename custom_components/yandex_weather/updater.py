@@ -256,16 +256,26 @@ class WeatherUpdater(DataUpdateCoordinator):
                         is_day=f["daytime"] == "d",
                     )
                     forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f.get("prec_prob", 0)  # type: ignore
-                    result.setdefault(ATTR_MIN_FORECAST_TEMPERATURE, forecast[ATTR_FORECAST_NATIVE_TEMP_LOW])  # type: ignore
-                    result[ATTR_MIN_FORECAST_TEMPERATURE] = min(
-                        result[ATTR_MIN_FORECAST_TEMPERATURE],
-                        forecast[ATTR_FORECAST_NATIVE_TEMP_LOW],  # type: ignore
-                    )
                     result[ATTR_FORECAST].append(forecast)
                 except Exception as e:
                     _LOGGER.critical(
                         f"error while precessing forecast data {f}: {str(e)}"
                     )
+
+            min_forecast_temperature: int | None = None
+            for f in result[ATTR_FORECAST]:
+                if (
+                    forecast_min_temperature := f.get(
+                        ATTR_FORECAST_NATIVE_TEMP_LOW, None
+                    )
+                ) is not None:
+                    min_forecast_temperature = (
+                        forecast_min_temperature
+                        if min_forecast_temperature is None
+                        else min(min_forecast_temperature, forecast_min_temperature)
+                    )
+
+            result[ATTR_MIN_FORECAST_TEMPERATURE] = min_forecast_temperature
 
             return result
 
