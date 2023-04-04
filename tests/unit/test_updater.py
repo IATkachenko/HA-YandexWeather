@@ -1,6 +1,7 @@
 """Tests for updater."""
 import pytest
 
+from custom_components.yandex_weather.const import ATTR_MIN_FORECAST_TEMPERATURE
 from custom_components.yandex_weather.updater import WeatherUpdater
 
 testdata = [
@@ -18,6 +19,7 @@ testdata = [
     ("wind_gust", 13.9),
     ("wind_speed", 6.2),
     ("yandex_condition", "cloudy"),
+    (ATTR_MIN_FORECAST_TEMPERATURE, -1)
 ]
 
 
