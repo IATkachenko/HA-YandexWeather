@@ -197,6 +197,38 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         return result
 
+    @staticmethod
+    def process_forecast_data(f: dict, dt: datetime) -> Forecast:
+        """Convert Yandex API forecast weather data to HA friendly.
+
+        :param f: forecast weather data form Yandex
+        :param dt: datetime for forecast
+        :return: forecast weather data for HomeAssistant
+        """
+        forecast = Forecast()
+        forecast[ATTR_FORECAST_TIME] = dt.isoformat()  # type: ignore
+        try:
+            forecast[ATTR_FORECAST_WIND_BEARING] = map_state(  # type: ignore
+                src=f["wind_dir"],
+                mapping=WIND_DIRECTION_MAPPING,
+                is_day=f["daytime"] == "d",
+            )
+            forecast[ATTR_FORECAST_NATIVE_TEMP] = f["temp_avg"]  # type: ignore
+            forecast[ATTR_FORECAST_NATIVE_TEMP_LOW] = f["temp_min"]  # type: ignore
+            forecast[ATTR_FORECAST_NATIVE_PRESSURE] = f["pressure_pa"]  # type: ignore
+            forecast[ATTR_FORECAST_NATIVE_WIND_SPEED] = f.get("wind_speed", 0)  # type: ignore
+            forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = f.get("prec_mm", 0)  # type: ignore
+            forecast[ATTR_FORECAST_CONDITION] = map_state(  # type: ignore
+                src=f["condition"],
+                mapping=WEATHER_STATES_CONVERSION,
+                is_day=f["daytime"] == "d",
+            )
+            forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f.get("prec_prob", 0)  # type: ignore
+
+        except Exception as e:
+            _LOGGER.critical(f"error while precessing forecast data {f}: {str(e)}")
+        return forecast
+
     async def update(self):
         """Update weather information.
 
@@ -236,8 +268,9 @@ class WeatherUpdater(DataUpdateCoordinator):
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
                 result.setdefault(ATTR_FORECAST, [])
-                forecast = Forecast()
                 f_datetime += timedelta(hours=24 / 4)
+                forecast = self.process_forecast_data(f, f_datetime)
+                result[ATTR_FORECAST].append(forecast)
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
                 try:
                     forecast[ATTR_FORECAST_WIND_BEARING] = map_state(  # type: ignore
