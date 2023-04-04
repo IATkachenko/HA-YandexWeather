@@ -230,19 +230,16 @@ class WeatherUpdater(DataUpdateCoordinator):
         return forecast
 
     @staticmethod
-    def get_min_forecast_temperature(forecasts: list[dict]) -> int | None:
+    def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
         """Get minimum temperature from forecast data."""
-        min_forecast_temperature: int | None = None
+        low_fc_temperatures: list[float] = []
+
         for f in forecasts:
-            if (
-                forecast_min_temperature := f.get(ATTR_FORECAST_NATIVE_TEMP_LOW, None)
-            ) is not None:
-                min_forecast_temperature = (
-                    forecast_min_temperature
-                    if min_forecast_temperature is None
-                    else min(min_forecast_temperature, forecast_min_temperature)
-                )
-        return min_forecast_temperature
+            f_low_temperature: float = f.get(ATTR_FORECAST_NATIVE_TEMP_LOW, None)
+            if f_low_temperature is not None:
+                low_fc_temperatures.append(f_low_temperature)
+
+        return min(low_fc_temperatures) if len(low_fc_temperatures) > 0 else None
 
     @staticmethod
     def get_timezone(nows: str, nowi: int) -> timezone:
