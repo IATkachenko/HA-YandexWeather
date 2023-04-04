@@ -140,6 +140,63 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
         return timedelta(seconds=math.ceil((24 * 60 * 60) / self._updates_per_day))
 
+    def process_fact_data(self, fact_data: dict, tz: timezone) -> dict:
+        """Convert Yandex API current weather state to HA friendly.
+
+        :param fact_data: weather data form Yandex
+        :param tz: timezone for weather data
+        :return: weather data for HomeAssistant
+        """
+        result = {}
+
+        fact_data[ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(
+            fact_data[ATTR_API_WEATHER_TIME], tz=tz
+        )
+        fact_data[ATTR_API_WIND_BEARING] = map_state(
+            src=fact_data[ATTR_API_WIND_BEARING],
+            mapping=WIND_DIRECTION_MAPPING,
+        )
+        fact_data[ATTR_API_ORIGINAL_CONDITION] = fact_data[ATTR_API_CONDITION]
+
+        fact_data[f"{ATTR_API_YA_CONDITION}_icon"] = map_state(
+            fact_data[ATTR_API_ORIGINAL_CONDITION],
+            fact_data["daytime"] == "d",
+            CONDITION_ICONS,
+        )
+        fact_data[ATTR_API_YA_CONDITION] = translate_condition(
+            value=fact_data[ATTR_API_ORIGINAL_CONDITION],
+            _language=self._language,
+        )
+        fact_data[ATTR_API_CONDITION] = map_state(
+            fact_data[ATTR_API_ORIGINAL_CONDITION],
+            fact_data["daytime"] == "d",
+            WEATHER_STATES_CONVERSION,
+        )
+        for i in [
+            ATTR_API_CONDITION,
+            ATTR_API_FEELS_LIKE_TEMPERATURE,
+            ATTR_API_HUMIDITY,
+            ATTR_API_IMAGE,
+            ATTR_API_ORIGINAL_CONDITION,
+            ATTR_API_PRESSURE,
+            ATTR_API_PRESSURE_MMHG,
+            ATTR_API_TEMP_WATER,
+            ATTR_API_TEMPERATURE,
+            ATTR_API_WEATHER_TIME,
+            ATTR_API_WIND_BEARING,
+            ATTR_API_WIND_GUST,
+            ATTR_API_WIND_SPEED,
+            ATTR_API_YA_CONDITION,
+            "daytime",
+        ]:
+            try:
+                result[i] = fact_data[i]
+            except KeyError:
+                # may have no some values
+                pass
+
+        return result
+
     async def update(self):
         """Update weather information.
 
@@ -159,65 +216,22 @@ class WeatherUpdater(DataUpdateCoordinator):
             ).replace(microsecond=0)
             server_unix_time = datetime.fromtimestamp(r["now"])
             _tz = timezone(server_utc_time - server_unix_time)
-            r["fact"][ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(
-                r["fact"][ATTR_API_WEATHER_TIME], tz=_tz
-            )
-            r["fact"][ATTR_API_WIND_BEARING] = map_state(
-                src=r["fact"][ATTR_API_WIND_BEARING],
-                mapping=WIND_DIRECTION_MAPPING,
-            )
-            r["fact"][ATTR_API_ORIGINAL_CONDITION] = r["fact"][ATTR_API_CONDITION]
+            result = self.process_fact_data(r["fact"], _tz)
 
-            r["fact"][f"{ATTR_API_YA_CONDITION}_icon"] = map_state(
-                r["fact"][ATTR_API_ORIGINAL_CONDITION],
-                r["fact"]["daytime"] == "d",
-                CONDITION_ICONS,
-            )
-            r["fact"][ATTR_API_YA_CONDITION] = translate_condition(
-                value=r["fact"][ATTR_API_ORIGINAL_CONDITION],
-                _language=self._language,
-            )
-            r["fact"][ATTR_API_CONDITION] = map_state(
-                r["fact"][ATTR_API_ORIGINAL_CONDITION],
-                r["fact"]["daytime"] == "d",
-                WEATHER_STATES_CONVERSION,
-            )
             if (
                 self.data
-                and r["fact"][ATTR_API_CONDITION] != self.data[ATTR_API_CONDITION]
+                and result[ATTR_API_CONDITION] != self.data[ATTR_API_CONDITION]
                 and self.hass is not None
-                and r["fact"][ATTR_API_CONDITION] in TRIGGERS
+                and result[ATTR_API_CONDITION] in TRIGGERS
             ):
 
                 self.hass.bus.async_fire(
                     DOMAIN + "_event",
                     {
                         "device_id": self._device_id,
-                        "type": r["fact"][ATTR_API_CONDITION],
+                        "type": result[ATTR_API_CONDITION],
                     },
                 )
-            for i in [
-                ATTR_API_CONDITION,
-                ATTR_API_FEELS_LIKE_TEMPERATURE,
-                ATTR_API_HUMIDITY,
-                ATTR_API_IMAGE,
-                ATTR_API_ORIGINAL_CONDITION,
-                ATTR_API_PRESSURE,
-                ATTR_API_PRESSURE_MMHG,
-                ATTR_API_TEMP_WATER,
-                ATTR_API_TEMPERATURE,
-                ATTR_API_WEATHER_TIME,
-                ATTR_API_WIND_BEARING,
-                ATTR_API_WIND_GUST,
-                ATTR_API_WIND_SPEED,
-                ATTR_API_YA_CONDITION,
-                "daytime",
-            ]:
-                try:
-                    result[i] = r["fact"][i]
-                except KeyError:
-                    # may have no some values
-                    pass
 
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
