@@ -1,4 +1,5 @@
 """Tests for updater."""
+from homeassistant.components.weather import ATTR_FORECAST_NATIVE_TEMP_LOW
 import pytest
 
 from custom_components.yandex_weather.const import ATTR_MIN_FORECAST_TEMPERATURE
@@ -25,6 +26,26 @@ scenarios = {
 }
 
 
+forecasts_data = [
+    ([{ATTR_FORECAST_NATIVE_TEMP_LOW: 10}], 10),
+    (
+        [
+            {ATTR_FORECAST_NATIVE_TEMP_LOW: 10},
+            {ATTR_FORECAST_NATIVE_TEMP_LOW: 5},
+        ],
+        5,
+    ),
+    (
+        [
+            {ATTR_FORECAST_NATIVE_TEMP_LOW: 5},
+            {ATTR_FORECAST_NATIVE_TEMP_LOW: 10},
+        ],
+        5,
+    ),
+    ([], None),
+]
+
+
 def pytest_generate_tests(metafunc):
     tests = []
     for data, _tests in scenarios.items():
@@ -40,3 +61,9 @@ async def test_update(hass, key, value, _bypass_get_data):
     await w.async_request_refresh()
 
     assert w.data[key] == value
+
+
+@pytest.mark.parametrize("forecasts, expected", forecasts_data)
+def test_min_forecast_temperature(hass, forecasts, expected):
+    """Test min forecast temperature getter."""
+    assert WeatherUpdater.get_min_forecast_temperature(forecasts) == expected
