@@ -229,6 +229,21 @@ class WeatherUpdater(DataUpdateCoordinator):
             _LOGGER.critical(f"error while precessing forecast data {f}: {str(e)}")
         return forecast
 
+    @staticmethod
+    def get_min_forecast_temperature(forecasts: list[dict]) -> int | None:
+        """Get minimum temperature from forecast data."""
+        min_forecast_temperature: int | None = None
+        for f in forecasts:
+            if (
+                forecast_min_temperature := f.get(ATTR_FORECAST_NATIVE_TEMP_LOW, None)
+            ) is not None:
+                min_forecast_temperature = (
+                    forecast_min_temperature
+                    if min_forecast_temperature is None
+                    else min(min_forecast_temperature, forecast_min_temperature)
+                )
+        return min_forecast_temperature
+
     async def update(self):
         """Update weather information.
 
@@ -295,20 +310,9 @@ class WeatherUpdater(DataUpdateCoordinator):
                         f"error while precessing forecast data {f}: {str(e)}"
                     )
 
-            min_forecast_temperature: int | None = None
-            for f in result[ATTR_FORECAST]:
-                if (
-                    forecast_min_temperature := f.get(
-                        ATTR_FORECAST_NATIVE_TEMP_LOW, None
-                    )
-                ) is not None:
-                    min_forecast_temperature = (
-                        forecast_min_temperature
-                        if min_forecast_temperature is None
-                        else min(min_forecast_temperature, forecast_min_temperature)
-                    )
-
-            result[ATTR_MIN_FORECAST_TEMPERATURE] = min_forecast_temperature
+            result[ATTR_MIN_FORECAST_TEMPERATURE] = self.get_min_forecast_temperature(
+                result[ATTR_FORECAST]
+            )
 
             return result
 
