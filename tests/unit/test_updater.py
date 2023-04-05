@@ -47,6 +47,7 @@ forecasts_data = [
 
 
 def pytest_generate_tests(metafunc):
+    """Generate test data for different API responses."""
     tests = []
     for data, _tests in scenarios.items():
         tests += ((data, *t) for t in _tests)
