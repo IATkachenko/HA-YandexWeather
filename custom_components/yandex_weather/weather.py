@@ -48,6 +48,7 @@ from .const import (
     UPDATER,
     get_image,
 )
+from .device_trigger import TRIGGERS
 from .updater import WeatherUpdater
 
 _LOGGER = logging.getLogger(__name__)
@@ -182,7 +183,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
     def _handle_coordinator_update(self) -> None:
         self._attr_available = True
-        self._attr_condition = self.coordinator.data.get(ATTR_API_CONDITION)
+        self.condition = self.coordinator.data.get(ATTR_API_CONDITION)
         self._attr_entity_picture = get_image(
             image_source=self._image_source,
             condition=self.coordinator.data.get(ATTR_API_ORIGINAL_CONDITION),
@@ -208,3 +209,21 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             self.coordinator.logger.debug("data have no temp_water. Skipping.")
 
         self.async_write_ha_state()
+
+    @WeatherEntity.condition.setter
+    def condition(self, new_condition: str):
+        """Set new condition and fire event on change."""
+        if (
+            new_condition != self._attr_condition
+            and self.hass is not None
+            and new_condition in TRIGGERS
+        ):
+            self.hass.bus.async_fire(
+                DOMAIN + "_event",
+                {
+                    "device_id": self.coordinator.device_id,
+                    "type": new_condition,
+                },
+            )
+
+        self._attr_condition = new_condition

@@ -52,7 +52,6 @@ from .const import (
     WEATHER_STATES_CONVERSION,
     map_state,
 )
-from .device_trigger import TRIGGERS
 
 API_URL = "https://api.weather.yandex.ru"
 API_VERSION = "2"
@@ -266,21 +265,6 @@ class WeatherUpdater(DataUpdateCoordinator):
             _tz = self.get_timezone(r["now_dt"], r["now"])
             result = self.process_fact_data(r["fact"], _tz)
 
-            if (
-                self.data
-                and result[ATTR_API_CONDITION] != self.data[ATTR_API_CONDITION]
-                and self.hass is not None
-                and result[ATTR_API_CONDITION] in TRIGGERS
-            ):
-
-                self.hass.bus.async_fire(
-                    DOMAIN + "_event",
-                    {
-                        "device_id": self._device_id,
-                        "type": result[ATTR_API_CONDITION],
-                    },
-                )
-
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
                 result.setdefault(ATTR_FORECAST, [])
@@ -383,3 +367,8 @@ class WeatherUpdater(DataUpdateCoordinator):
             self._job,
             utcnow().replace(microsecond=0) + offset,
         )
+
+    @property
+    def device_id(self) -> str:
+        """Device ID."""
+        return self._device_id
