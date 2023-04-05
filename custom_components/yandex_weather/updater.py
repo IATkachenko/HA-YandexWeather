@@ -350,7 +350,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         """Device info."""
         return DeviceInfo(
             entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, self._device_id)},
+            identifiers={(DOMAIN, self.device_id)},
             manufacturer=MANUFACTURER,
             name=self._name,
             configuration_url=self.url,
