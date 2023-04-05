@@ -2,8 +2,8 @@
 
 from unittest.mock import AsyncMock, patch
 
-import pytest
 from _pytest.fixtures import SubRequest
+import pytest
 from pytest_homeassistant_custom_component.common import load_fixture
 
 
