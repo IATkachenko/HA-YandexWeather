@@ -110,6 +110,22 @@ CURRENT_WEATHER_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
 ]
 
 
+FORECAST_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
+    AttributeMapper(
+        "wind_dir", ATTR_FORECAST_WIND_BEARING, mapping=WIND_DIRECTION_MAPPING
+    ),
+    AttributeMapper("temp_avg", ATTR_FORECAST_NATIVE_TEMP),
+    AttributeMapper("temp_min", ATTR_FORECAST_NATIVE_TEMP_LOW),
+    AttributeMapper("pressure_pa", ATTR_FORECAST_NATIVE_PRESSURE),
+    AttributeMapper("wind_speed", ATTR_FORECAST_NATIVE_WIND_SPEED, default=0),
+    AttributeMapper("prec_mm", ATTR_FORECAST_NATIVE_PRECIPITATION, default=0),
+    AttributeMapper("prec_prob", ATTR_FORECAST_PRECIPITATION_PROBABILITY, default=0),
+    AttributeMapper(
+        "condition", ATTR_FORECAST_CONDITION, mapping=WEATHER_STATES_CONVERSION
+    ),
+]
+
+
 def translate_condition(value: str, _language: str) -> str:
     """Translate Yandex condition."""
     _my_location = os.path.dirname(os.path.realpath(__file__))
@@ -208,8 +224,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         return result
 
-    @staticmethod
-    def process_forecast_data(f: dict, dt: datetime) -> Forecast:
+    def process_forecast_data(self, f: dict, dt: datetime) -> Forecast:
         """Convert Yandex API forecast weather data to HA friendly.
 
         :param f: forecast weather data form Yandex
@@ -218,26 +233,22 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
         forecast = Forecast()
         forecast[ATTR_FORECAST_TIME] = dt.isoformat()  # type: ignore
-        try:
-            forecast[ATTR_FORECAST_WIND_BEARING] = map_state(  # type: ignore
-                src=f["wind_dir"],
-                mapping=WIND_DIRECTION_MAPPING,
-                is_day=f["daytime"] == "d",
-            )
-            forecast[ATTR_FORECAST_NATIVE_TEMP] = f["temp_avg"]  # type: ignore
-            forecast[ATTR_FORECAST_NATIVE_TEMP_LOW] = f["temp_min"]  # type: ignore
-            forecast[ATTR_FORECAST_NATIVE_PRESSURE] = f["pressure_pa"]  # type: ignore
-            forecast[ATTR_FORECAST_NATIVE_WIND_SPEED] = f.get("wind_speed", 0)  # type: ignore
-            forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = f.get("prec_mm", 0)  # type: ignore
-            forecast[ATTR_FORECAST_CONDITION] = map_state(  # type: ignore
-                src=f["condition"],
-                mapping=WEATHER_STATES_CONVERSION,
-                is_day=f["daytime"] == "d",
-            )
-            forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f.get("prec_prob", 0)  # type: ignore
 
-        except Exception as e:
-            _LOGGER.critical(f"error while precessing forecast data {f}: {str(e)}")
+        for attribute in FORECAST_ATTRIBUTE_TRANSLATION:
+            value = f.get(attribute.src, attribute.default)
+            if attribute.mapping is not None and value is not None:
+                value = map_state(
+                    src=value,
+                    mapping=attribute.mapping,
+                    is_day=(f["daytime"] == "d"),
+                )
+            if attribute.should_translate and value is not None:
+                value = translate_condition(
+                    value=value,
+                    _language=self._language,
+                )
+
+            forecast[attribute.dst] = value  # type: ignore
         return forecast
 
     @staticmethod
