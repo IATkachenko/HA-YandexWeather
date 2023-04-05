@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from functools import cached_property
 import json
@@ -70,6 +71,43 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
     "c": 0,
 }
 """Wind directions mapping."""
+
+
+@dataclass
+class AttributeMapper:
+    """Attribute mapper."""
+
+    src: str
+    _dst: str | None = None
+    mapping: dict | None = None
+    default: str | float | None = None
+    should_translate: bool = False
+
+    @property
+    def dst(self) -> str:
+        """Destination for mapping."""
+        return self.src if self._dst is None else self._dst
+
+
+CURRENT_WEATHER_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
+    AttributeMapper(ATTR_API_WIND_BEARING, mapping=WIND_DIRECTION_MAPPING),
+    AttributeMapper(ATTR_API_CONDITION, ATTR_API_ORIGINAL_CONDITION),
+    AttributeMapper(
+        ATTR_API_CONDITION, f"{ATTR_API_YA_CONDITION}_icon", CONDITION_ICONS
+    ),
+    AttributeMapper(ATTR_API_CONDITION, ATTR_API_YA_CONDITION, should_translate=True),
+    AttributeMapper(ATTR_API_CONDITION, mapping=WEATHER_STATES_CONVERSION),
+    AttributeMapper(ATTR_API_FEELS_LIKE_TEMPERATURE),
+    AttributeMapper(ATTR_API_HUMIDITY),
+    AttributeMapper(ATTR_API_IMAGE),
+    AttributeMapper(ATTR_API_PRESSURE),
+    AttributeMapper(ATTR_API_PRESSURE_MMHG),
+    AttributeMapper(ATTR_API_TEMP_WATER),
+    AttributeMapper(ATTR_API_TEMPERATURE),
+    AttributeMapper(ATTR_API_WIND_GUST),
+    AttributeMapper(ATTR_API_WIND_SPEED, default=0),
+    AttributeMapper("daytime"),
+]
 
 
 def translate_condition(value: str, _language: str) -> str:
@@ -146,53 +184,27 @@ class WeatherUpdater(DataUpdateCoordinator):
         :param tz: timezone for weather data
         :return: weather data for HomeAssistant
         """
-        result = {}
+        result = {
+            ATTR_API_WEATHER_TIME: datetime.fromtimestamp(
+                fact_data[ATTR_API_WEATHER_TIME], tz=tz
+            ),
+        }
 
-        fact_data[ATTR_API_WEATHER_TIME] = datetime.fromtimestamp(
-            fact_data[ATTR_API_WEATHER_TIME], tz=tz
-        )
-        fact_data[ATTR_API_WIND_BEARING] = map_state(
-            src=fact_data[ATTR_API_WIND_BEARING],
-            mapping=WIND_DIRECTION_MAPPING,
-        )
-        fact_data[ATTR_API_ORIGINAL_CONDITION] = fact_data[ATTR_API_CONDITION]
+        for attribute in CURRENT_WEATHER_ATTRIBUTE_TRANSLATION:
+            value = fact_data.get(attribute.src, attribute.default)
+            if attribute.mapping is not None and value is not None:
+                value = map_state(
+                    src=value,
+                    mapping=attribute.mapping,
+                    is_day=(fact_data["daytime"] == "d"),
+                )
+            if attribute.should_translate and value is not None:
+                value = translate_condition(
+                    value=value,
+                    _language=self._language,
+                )
 
-        fact_data[f"{ATTR_API_YA_CONDITION}_icon"] = map_state(
-            fact_data[ATTR_API_ORIGINAL_CONDITION],
-            fact_data["daytime"] == "d",
-            CONDITION_ICONS,
-        )
-        fact_data[ATTR_API_YA_CONDITION] = translate_condition(
-            value=fact_data[ATTR_API_ORIGINAL_CONDITION],
-            _language=self._language,
-        )
-        fact_data[ATTR_API_CONDITION] = map_state(
-            fact_data[ATTR_API_ORIGINAL_CONDITION],
-            fact_data["daytime"] == "d",
-            WEATHER_STATES_CONVERSION,
-        )
-        for i in [
-            ATTR_API_CONDITION,
-            ATTR_API_FEELS_LIKE_TEMPERATURE,
-            ATTR_API_HUMIDITY,
-            ATTR_API_IMAGE,
-            ATTR_API_ORIGINAL_CONDITION,
-            ATTR_API_PRESSURE,
-            ATTR_API_PRESSURE_MMHG,
-            ATTR_API_TEMP_WATER,
-            ATTR_API_TEMPERATURE,
-            ATTR_API_WEATHER_TIME,
-            ATTR_API_WIND_BEARING,
-            ATTR_API_WIND_GUST,
-            ATTR_API_WIND_SPEED,
-            ATTR_API_YA_CONDITION,
-            "daytime",
-        ]:
-            try:
-                result[i] = fact_data[i]
-            except KeyError:
-                # may have no some values
-                pass
+            result[attribute.dst] = value
 
         return result
 
@@ -261,7 +273,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 session, self.__api_key, self._lat, self._lon, "en_US"
             )
             r = json.loads(response)
-            # ToDo: some fields may be missed
+
             _tz = self.get_timezone(r["now_dt"], r["now"])
             result = self.process_fact_data(r["fact"], _tz)
 
