@@ -263,8 +263,7 @@ class WeatherUpdater(DataUpdateCoordinator):
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
                 f_datetime += timedelta(hours=24 / 4)
-                forecast = Forecast()
-                forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
+                forecast = Forecast(datetime=f_datetime.isoformat())
                 self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
                 result[ATTR_FORECAST].append(forecast)
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
