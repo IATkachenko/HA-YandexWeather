@@ -251,10 +251,10 @@ class WeatherUpdater(DataUpdateCoordinator):
             )
             r = json.loads(response)
 
-            _tz = self.get_timezone(r["now_dt"], r["now"])
             result = {
                 ATTR_API_WEATHER_TIME: datetime.fromtimestamp(
-                    r["fact"][ATTR_API_WEATHER_TIME], tz=_tz
+                    r["fact"][ATTR_API_WEATHER_TIME],
+                    tz=self.get_timezone(r["now_dt"], r["now"]),
                 ),
                 ATTR_FORECAST: [],
             }
