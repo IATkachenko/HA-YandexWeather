@@ -51,7 +51,9 @@ def pytest_generate_tests(metafunc):
     for data, _tests in scenarios.items():
         tests += ((data, *t) for t in _tests)
     if "_bypass_get_data" in metafunc.fixturenames:
-        metafunc.parametrize("_bypass_get_data, key, value", tests, indirect=["_bypass_get_data"])
+        metafunc.parametrize(
+            "_bypass_get_data, key, value", tests, indirect=["_bypass_get_data"]
+        )
 
 
 @pytest.mark.asyncio
