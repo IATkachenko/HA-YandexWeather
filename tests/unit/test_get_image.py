@@ -25,7 +25,9 @@ def test_get_none_image(source, condition):
     assert get_image(source, condition, "some", False) is None
 
 
-@pytest.mark.parametrize("_bypass_get_data, image", yandex_testdata, indirect=["_bypass_get_data"])
+@pytest.mark.parametrize(
+    "_bypass_get_data, image", yandex_testdata, indirect=["_bypass_get_data"]
+)
 @pytest.mark.asyncio
 async def test_yandex_image(hass, _bypass_get_data, image):
     """Test is image correct for Yandex image provider.
