@@ -224,15 +224,12 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         return result
 
-    def process_forecast_data(self, f: dict, dt: datetime) -> Forecast:
+    def process_forecast_data(self, forecast: Forecast, f: dict):
         """Convert Yandex API forecast weather data to HA friendly.
 
         :param f: forecast weather data form Yandex
-        :param dt: datetime for forecast
-        :return: forecast weather data for HomeAssistant
+        :param forecast: instance of HA Forecast to fill
         """
-        forecast = Forecast()
-        forecast[ATTR_FORECAST_TIME] = dt.isoformat()  # type: ignore
 
         for attribute in FORECAST_ATTRIBUTE_TRANSLATION:
             value = f.get(attribute.src, attribute.default)
@@ -249,7 +246,6 @@ class WeatherUpdater(DataUpdateCoordinator):
                 )
 
             forecast[attribute.dst] = value  # type: ignore
-        return forecast
 
     @staticmethod
     def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
@@ -292,7 +288,9 @@ class WeatherUpdater(DataUpdateCoordinator):
             for f in r["forecast"]["parts"]:
                 result.setdefault(ATTR_FORECAST, [])
                 f_datetime += timedelta(hours=24 / 4)
-                forecast = self.process_forecast_data(f, f_datetime)
+                forecast = Forecast()
+                forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
+                self.process_forecast_data(forecast, f)
                 result[ATTR_FORECAST].append(forecast)
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
                 try:
