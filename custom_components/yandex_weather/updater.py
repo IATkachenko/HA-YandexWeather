@@ -193,20 +193,21 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
         return timedelta(seconds=math.ceil((24 * 60 * 60) / self._updates_per_day))
 
-    def process_fact_data(self, result: dict, fact_data: dict):
-        """Convert Yandex API current weather state to HA friendly.
+    def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
+        """Convert Yandex API weather state to HA friendly.
 
-        :param result: weather data for HomeAssistant
-        :param fact_data: weather data form Yandex
+        :param dst: weather data for HomeAssistant
+        :param src: weather data form Yandex
+        :param attributes: how to translate src to dst
         """
 
-        for attribute in CURRENT_WEATHER_ATTRIBUTE_TRANSLATION:
-            value = fact_data.get(attribute.src, attribute.default)
+        for attribute in attributes:
+            value = src.get(attribute.src, attribute.default)
             if attribute.mapping is not None and value is not None:
                 value = map_state(
                     src=value,
                     mapping=attribute.mapping,
-                    is_day=(fact_data["daytime"] == "d"),
+                    is_day=(src["daytime"] == "d"),
                 )
             if attribute.should_translate and value is not None:
                 value = translate_condition(
@@ -214,30 +215,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     _language=self._language,
                 )
 
-            result[attribute.dst] = value
-
-    def process_forecast_data(self, forecast: Forecast, f: dict):
-        """Convert Yandex API forecast weather data to HA friendly.
-
-        :param f: forecast weather data form Yandex
-        :param forecast: instance of HA Forecast to fill
-        """
-
-        for attribute in FORECAST_ATTRIBUTE_TRANSLATION:
-            value = f.get(attribute.src, attribute.default)
-            if attribute.mapping is not None and value is not None:
-                value = map_state(
-                    src=value,
-                    mapping=attribute.mapping,
-                    is_day=(f["daytime"] == "d"),
-                )
-            if attribute.should_translate and value is not None:
-                value = translate_condition(
-                    value=value,
-                    _language=self._language,
-                )
-
-            forecast[attribute.dst] = value  # type: ignore
+            dst[attribute.dst] = value
 
     @staticmethod
     def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
@@ -279,7 +257,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     r["fact"][ATTR_API_WEATHER_TIME], tz=_tz
                 ),
             }
-            self.process_fact_data(result, r["fact"])
+            self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
 
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
@@ -287,7 +265,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 f_datetime += timedelta(hours=24 / 4)
                 forecast = Forecast()
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
-                self.process_forecast_data(forecast, f)
+                self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
                 result[ATTR_FORECAST].append(forecast)
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
                 try:
