@@ -193,18 +193,12 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
         return timedelta(seconds=math.ceil((24 * 60 * 60) / self._updates_per_day))
 
-    def process_fact_data(self, fact_data: dict, tz: timezone) -> dict:
+    def process_fact_data(self, result: dict, fact_data: dict):
         """Convert Yandex API current weather state to HA friendly.
 
+        :param result: weather data for HomeAssistant
         :param fact_data: weather data form Yandex
-        :param tz: timezone for weather data
-        :return: weather data for HomeAssistant
         """
-        result = {
-            ATTR_API_WEATHER_TIME: datetime.fromtimestamp(
-                fact_data[ATTR_API_WEATHER_TIME], tz=tz
-            ),
-        }
 
         for attribute in CURRENT_WEATHER_ATTRIBUTE_TRANSLATION:
             value = fact_data.get(attribute.src, attribute.default)
@@ -221,8 +215,6 @@ class WeatherUpdater(DataUpdateCoordinator):
                 )
 
             result[attribute.dst] = value
-
-        return result
 
     def process_forecast_data(self, forecast: Forecast, f: dict):
         """Convert Yandex API forecast weather data to HA friendly.
@@ -282,7 +274,12 @@ class WeatherUpdater(DataUpdateCoordinator):
             r = json.loads(response)
 
             _tz = self.get_timezone(r["now_dt"], r["now"])
-            result = self.process_fact_data(r["fact"], _tz)
+            result = {
+                ATTR_API_WEATHER_TIME: datetime.fromtimestamp(
+                    r["fact"][ATTR_API_WEATHER_TIME], tz=_tz
+                ),
+            }
+            self.process_fact_data(result, r["fact"])
 
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
