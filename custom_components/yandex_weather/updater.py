@@ -256,12 +256,12 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_WEATHER_TIME: datetime.fromtimestamp(
                     r["fact"][ATTR_API_WEATHER_TIME], tz=_tz
                 ),
+                ATTR_FORECAST: [],
             }
             self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
 
             f_datetime = datetime.utcnow()
             for f in r["forecast"]["parts"]:
-                result.setdefault(ATTR_FORECAST, [])
                 f_datetime += timedelta(hours=24 / 4)
                 forecast = Forecast()
                 forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
