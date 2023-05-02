@@ -50,7 +50,6 @@ from .const import (
     DOMAIN,
     MANUFACTURER,
     WEATHER_STATES_CONVERSION,
-    YandexWeatherDeviceClass,
     map_state,
 )
 from .device_trigger import TRIGGERS
@@ -77,13 +76,11 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
 def translate_condition(value: str, _language: str) -> str:
     """Translate Yandex condition."""
     _my_location = os.path.dirname(os.path.realpath(__file__))
-    _translation_location = (
-        f"{_my_location}/translations/sensor.{_language.lower()}.json"
-    )
+    _translation_location = f"{_my_location}/translations/{_language.lower()}.json"
     try:
         with open(_translation_location) as f:
-            value = json.loads(f.read())["state"][
-                YandexWeatherDeviceClass.CONDITION_YA
+            value = json.loads(f.read())["entity"]["sensor"][ATTR_API_YA_CONDITION][
+                "state"
             ][value]
     except FileNotFoundError:
         _LOGGER.debug(f"We have no translation for {_language=} in {_my_location}")

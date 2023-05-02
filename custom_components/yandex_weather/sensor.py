@@ -43,7 +43,6 @@ from .const import (
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
-    YandexWeatherDeviceClass,
 )
 from .updater import WeatherUpdater
 
@@ -76,8 +75,8 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         key=ATTR_API_WIND_BEARING,
         name="Wind bearing",
         entity_registry_enabled_default=False,
-        device_class=YandexWeatherDeviceClass.WIND_BEARING,
         icon="mdi:compass-rose",
+        translation_key=ATTR_API_WIND_BEARING,
     ),
     SensorEntityDescription(
         key=ATTR_API_HUMIDITY,
@@ -99,7 +98,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         key=ATTR_API_CONDITION,
         name="Condition HomeAssistant",
         entity_registry_enabled_default=False,
-        device_class=YandexWeatherDeviceClass.CONDITION_HA,
+        translation_key=ATTR_API_CONDITION,
     ),
     SensorEntityDescription(
         key=ATTR_API_WEATHER_TIME,
@@ -113,7 +112,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         key=ATTR_API_YA_CONDITION,
         name="Condition Yandex",
         entity_registry_enabled_default=True,
-        device_class=YandexWeatherDeviceClass.CONDITION_YA,
+        translation_key=ATTR_API_YA_CONDITION,
     ),
     SensorEntityDescription(
         key=ATTR_API_PRESSURE_MMHG,

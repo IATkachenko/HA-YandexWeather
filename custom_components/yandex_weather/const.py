@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from homeassistant.backports.enum import StrEnum
 from homeassistant.const import Platform
 
 DOMAIN = "yandex_weather"
@@ -202,11 +201,3 @@ def get_image(
         condition = image
 
     return ci.link.format(condition)
-
-
-class YandexWeatherDeviceClass(StrEnum):
-    """State class for weather sensors."""
-
-    WIND_BEARING = f"{DOMAIN}__wind_bearing"
-    CONDITION_YA = f"{DOMAIN}__condition_ya"
-    CONDITION_HA = f"{DOMAIN}__condition_ha"
