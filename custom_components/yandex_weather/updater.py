@@ -252,7 +252,9 @@ class WeatherUpdater(DataUpdateCoordinator):
                     )
                     result[ATTR_FORECAST].append(forecast)
                 except Exception as e:
-                    _LOGGER.critical(f"error while precessing forecast data {f}: {str(e)}")
+                    _LOGGER.critical(
+                        f"error while precessing forecast data {f}: {str(e)}"
+                    )
 
             return result
 
