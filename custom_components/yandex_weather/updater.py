@@ -20,7 +20,6 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_NATIVE_TEMP_LOW,
     ATTR_FORECAST_NATIVE_WIND_SPEED,
     ATTR_FORECAST_PRECIPITATION_PROBABILITY,
-    ATTR_FORECAST_TIME,
     ATTR_FORECAST_WIND_BEARING,
     Forecast,
 )
@@ -266,29 +265,6 @@ class WeatherUpdater(DataUpdateCoordinator):
                 forecast = Forecast(datetime=f_datetime.isoformat())
                 self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
                 result[ATTR_FORECAST].append(forecast)
-                forecast[ATTR_FORECAST_TIME] = f_datetime.isoformat()  # type: ignore
-                try:
-                    forecast[ATTR_FORECAST_WIND_BEARING] = map_state(  # type: ignore
-                        src=f["wind_dir"],
-                        mapping=WIND_DIRECTION_MAPPING,
-                        is_day=f["daytime"] == "d",
-                    )
-                    forecast[ATTR_FORECAST_NATIVE_TEMP] = f["temp_avg"]  # type: ignore
-                    forecast[ATTR_FORECAST_NATIVE_TEMP_LOW] = f["temp_min"]  # type: ignore
-                    forecast[ATTR_FORECAST_NATIVE_PRESSURE] = f["pressure_pa"]  # type: ignore
-                    forecast[ATTR_FORECAST_NATIVE_WIND_SPEED] = f.get("wind_speed", 0)  # type: ignore
-                    forecast[ATTR_FORECAST_NATIVE_PRECIPITATION] = f.get("prec_mm", 0)  # type: ignore
-                    forecast[ATTR_FORECAST_CONDITION] = map_state(  # type: ignore
-                        src=f["condition"],
-                        mapping=WEATHER_STATES_CONVERSION,
-                        is_day=f["daytime"] == "d",
-                    )
-                    forecast[ATTR_FORECAST_PRECIPITATION_PROBABILITY] = f.get("prec_prob", 0)  # type: ignore
-                    result[ATTR_FORECAST].append(forecast)
-                except Exception as e:
-                    _LOGGER.critical(
-                        f"error while precessing forecast data {f}: {str(e)}"
-                    )
 
             result[ATTR_MIN_FORECAST_TEMPERATURE] = self.get_min_forecast_temperature(
                 result[ATTR_FORECAST]
