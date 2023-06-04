@@ -28,6 +28,7 @@ This custom integration is providing weather component and set of sensors based 
 
 ## Usage
 ### Weather
+ * ![added_in_version_badge](https://img.shields.io/badge/Since-v3.1.0-red) attribute forecast icons with Yandex forecast weather state images (check #78 for details) 
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v1.0.0-red) pressure, wind speed and other unit may be customized
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 
 #### attributes
