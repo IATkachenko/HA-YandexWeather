@@ -33,6 +33,7 @@ from homeassistant.util import utcnow
 from .const import (
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
+    ATTR_API_FORECAST_ICONS,
     ATTR_API_HUMIDITY,
     ATTR_API_IMAGE,
     ATTR_API_ORIGINAL_CONDITION,
@@ -255,6 +256,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     r["fact"][ATTR_API_WEATHER_TIME],
                     tz=self.get_timezone(r["now_dt"], r["now"]),
                 ),
+                ATTR_API_FORECAST_ICONS: [],
                 ATTR_FORECAST: [],
             }
             self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
@@ -265,6 +267,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 forecast = Forecast(datetime=f_datetime.isoformat())
                 self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
                 result[ATTR_FORECAST].append(forecast)
+                result[ATTR_API_FORECAST_ICONS].append(f.get("icon", "no_image"))
 
             result[ATTR_MIN_FORECAST_TEMPERATURE] = self.get_min_forecast_temperature(
                 result[ATTR_FORECAST]

@@ -29,6 +29,7 @@ ATTR_API_TEMP_WATER = "temp_water"
 ATTR_API_WIND_GUST = "wind_gust"
 ATTR_API_ORIGINAL_CONDITION = "original_condition"
 ATTR_MIN_FORECAST_TEMPERATURE = "min_forecast_temperature"
+ATTR_API_FORECAST_ICONS = "forecast_icons"
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
 CONF_IMAGE_SOURCE = "image_source"
