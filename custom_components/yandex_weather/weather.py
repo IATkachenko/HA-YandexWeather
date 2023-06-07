@@ -91,6 +91,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
         self.hass = hass
         self._attr_name = name
+        self._attr_condition = None
         self._attr_unique_id = config_entry.unique_id
         self._attr_device_info = self.coordinator.device_info
         self._image_source = get_value(config_entry, CONF_IMAGE_SOURCE, "Yandex")
