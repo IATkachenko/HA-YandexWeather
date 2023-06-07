@@ -31,6 +31,7 @@ from .config_flow import get_value
 from .const import (
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
+    ATTR_API_FORECAST_ICONS,
     ATTR_API_HUMIDITY,
     ATTR_API_IMAGE,
     ATTR_API_ORIGINAL_CONDITION,
@@ -161,6 +162,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                 "wind_gust",
                 "yandex_condition",
                 "temp_water",
+                "forecast_icons",
             ]:
                 value = state.attributes.get(attribute)
                 if value is not None:
@@ -201,6 +203,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             "feels_like": self.coordinator.data.get(ATTR_API_FEELS_LIKE_TEMPERATURE),
             "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
+            "forecast_icons": self.coordinator.data.get(ATTR_API_FORECAST_ICONS),
         }
         try:
             self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(
