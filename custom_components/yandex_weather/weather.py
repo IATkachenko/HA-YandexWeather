@@ -7,12 +7,15 @@ import logging
 
 from homeassistant.components.weather import (
     ATTR_FORECAST,
+    ATTR_FORECAST_IS_DAYTIME,
     ATTR_WEATHER_PRECIPITATION_UNIT,
     ATTR_WEATHER_PRESSURE_UNIT,
     ATTR_WEATHER_TEMPERATURE_UNIT,
     ATTR_WEATHER_WIND_SPEED_UNIT,
     UNIT_CONVERSIONS,
+    Forecast,
     WeatherEntity,
+    WeatherEntityFeature,
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
@@ -76,6 +79,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     _attr_native_pressure_unit = PRESSURE_HPA
     _attr_native_temperature_unit = TEMP_CELSIUS
     _attr_native_precipitation_unit = LENGTH_MILLIMETERS
+    _twice_daily_forecast: list[Forecast] | None
     coordinator: WeatherUpdater
 
     def __init__(
@@ -95,6 +99,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_condition = None
         self._attr_unique_id = config_entry.unique_id
         self._attr_device_info = self.coordinator.device_info
+        self._attr_supported_features = WeatherEntityFeature.FORECAST_TWICE_DAILY
         self._image_source = get_value(config_entry, CONF_IMAGE_SOURCE, "Yandex")
 
     async def async_added_to_hass(self) -> None:
@@ -120,24 +125,27 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                 ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
                 ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
             ]:
-                setattr(
-                    self,
-                    f"_attr_native_{attribute}",
-                    converter(
-                        state.attributes.get(attribute),
-                        state.attributes.get(
-                            f"_{attribute}_unit",
+                try:
+                    setattr(
+                        self,
+                        f"_attr_native_{attribute}",
+                        converter(
+                            state.attributes.get(attribute),
+                            state.attributes.get(
+                                f"_{attribute}_unit",
+                                getattr(self, f"_attr_native_{attribute}_unit"),
+                            ),
                             getattr(self, f"_attr_native_{attribute}_unit"),
                         ),
-                        getattr(self, f"_attr_native_{attribute}_unit"),
-                    ),
-                )
+                    )
+                except TypeError:
+                    pass
 
             self._attr_humidity = state.attributes.get("humidity")
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
-            self._attr_forecast = state.attributes.get(ATTR_FORECAST)
-            for f in self._attr_forecast:
+            self._twice_daily_forecast = state.attributes.get(ATTR_FORECAST, [])
+            for f in self._twice_daily_forecast:
                 for (attribute, converter) in [
                     ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
                     ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
@@ -147,15 +155,19 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                         UNIT_CONVERSIONS[ATTR_WEATHER_PRECIPITATION_UNIT],
                     ),
                 ]:
-                    f[attribute] = converter(
-                        f.get(attribute),
-                        getattr(
-                            self,
-                            f"_{attribute}_unit",
+                    try:
+                        f[attribute] = converter(
+                            f.get(attribute),
+                            getattr(
+                                self,
+                                f"_{attribute}_unit",
+                                getattr(self, f"_attr_native_{attribute}_unit"),
+                            ),
                             getattr(self, f"_attr_native_{attribute}_unit"),
-                        ),
-                        getattr(self, f"_attr_native_{attribute}_unit"),
-                    )
+                        )
+                    except TypeError:
+                        pass
+            self._attr_forecast = self._twice_daily_forecast  # backward compatibility
             self._attr_extra_state_attributes = {}
             for attribute in [
                 "feels_like",
@@ -193,7 +205,8 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             is_day=self.coordinator.data.get("daytime") == "d",
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
-        self._attr_forecast = self.coordinator.data.get(ATTR_FORECAST)
+        self._twice_daily_forecast = self.coordinator.data.get(ATTR_FORECAST, [])
+        self._attr_forecast = self._twice_daily_forecast  # backward compatibility
         self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
         self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
         self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
@@ -231,3 +244,15 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             )
 
         self._attr_condition = new_condition
+
+    async def async_forecast_twice_daily(self) -> list[Forecast] | None:
+        """Return the daily forecast in native units."""
+        _LOGGER.debug(f"async_forecast_twice_daily: {self._twice_daily_forecast=}")
+        # we must return at least three elements in forecast
+        # https://github.com/home-assistant/frontend/blob/dev/src/data/weather.ts#L548
+        if len(result := self._twice_daily_forecast) < 3:
+            _LOGGER.debug(
+                "Have not enough forecast data. Adding empty element to forecast..."
+            )
+            result.append({ATTR_FORECAST_IS_DAYTIME: False})
+        return result

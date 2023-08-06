@@ -14,6 +14,7 @@ import aiohttp
 from homeassistant.components.weather import (
     ATTR_FORECAST,
     ATTR_FORECAST_CONDITION,
+    ATTR_FORECAST_IS_DAYTIME,
     ATTR_FORECAST_NATIVE_PRECIPITATION,
     ATTR_FORECAST_NATIVE_PRESSURE,
     ATTR_FORECAST_NATIVE_TEMP,
@@ -266,6 +267,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 f_datetime += timedelta(hours=24 / 4)
                 forecast = Forecast(datetime=f_datetime.isoformat())
                 self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
+                forecast[ATTR_FORECAST_IS_DAYTIME] = f["daytime"] == "d"
                 result[ATTR_FORECAST].append(forecast)
                 result[ATTR_API_FORECAST_ICONS].append(f.get("icon", "no_image"))
 
