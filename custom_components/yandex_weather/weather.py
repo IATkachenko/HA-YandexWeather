@@ -120,7 +120,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             _LOGGER.debug(f"state for restore: {state}")
             self._attr_available = True
             self._attr_condition = state.state
-            for (attribute, converter) in [
+            for attribute, converter in [
                 ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
                 ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
                 ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
@@ -146,7 +146,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             self._attr_entity_picture = state.attributes.get("entity_picture")
             self._twice_daily_forecast = state.attributes.get(ATTR_FORECAST, [])
             for f in self._twice_daily_forecast:
-                for (attribute, converter) in [
+                for attribute, converter in [
                     ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
                     ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
                     ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
