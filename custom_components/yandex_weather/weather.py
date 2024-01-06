@@ -19,6 +19,7 @@ from homeassistant.components.weather import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    STATE_UNAVAILABLE,
     UnitOfPrecipitationDepth,
     UnitOfPressure,
     UnitOfSpeed,
