@@ -198,7 +198,9 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
     def _handle_coordinator_update(self) -> None:
         self._attr_available = True
-        self.update_condition_and_fire_event(new_condition=self.coordinator.data.get(ATTR_API_CONDITION))
+        self.update_condition_and_fire_event(
+            new_condition=self.coordinator.data.get(ATTR_API_CONDITION)
+        )
         self._attr_entity_picture = get_image(
             image_source=self._image_source,
             condition=self.coordinator.data.get(ATTR_API_ORIGINAL_CONDITION),
