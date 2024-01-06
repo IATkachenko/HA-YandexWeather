@@ -19,11 +19,11 @@ from homeassistant.components.weather import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    LENGTH_MILLIMETERS,
-    PRESSURE_HPA,
-    SPEED_METERS_PER_SECOND,
     STATE_UNAVAILABLE,
-    TEMP_CELSIUS,
+    UnitOfPrecipitationDepth,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -75,10 +75,10 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     """Yandex.Weather entry."""
 
     _attr_attribution = ATTRIBUTION
-    _attr_native_wind_speed_unit = SPEED_METERS_PER_SECOND
-    _attr_native_pressure_unit = PRESSURE_HPA
-    _attr_native_temperature_unit = TEMP_CELSIUS
-    _attr_native_precipitation_unit = LENGTH_MILLIMETERS
+    _attr_native_wind_speed_unit = UnitOfSpeed.METERS_PER_SECOND
+    _attr_native_pressure_unit = UnitOfPressure.HPA
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+    _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
     _twice_daily_forecast: list[Forecast] | None
     coordinator: WeatherUpdater
 
