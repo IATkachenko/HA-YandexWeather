@@ -14,12 +14,11 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
-    PRESSURE_HPA,
-    PRESSURE_MMHG,
-    SPEED_METERS_PER_SECOND,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    TEMP_CELSIUS,
+    UnitOfPressure,
+    UnitOfSpeed,
+    UnitOfTemperature,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
@@ -50,7 +49,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_TEMPERATURE,
         name="Temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -58,7 +57,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_FEELS_LIKE_TEMPERATURE,
         name="Feels like temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -66,7 +65,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_WIND_SPEED,
         name="Wind speed",
-        native_unit_of_measurement=SPEED_METERS_PER_SECOND,
+        native_unit_of_measurement=UnitOfSpeed.METERS_PER_SECOND,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
         icon="mdi:weather-windy",
@@ -89,7 +88,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_PRESSURE,
         name="Pressure",
-        native_unit_of_measurement=PRESSURE_HPA,
+        native_unit_of_measurement=UnitOfPressure.HPA,
         device_class=SensorDeviceClass.PRESSURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
@@ -117,7 +116,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_API_PRESSURE_MMHG,
         name="Pressure mmHg",
-        native_unit_of_measurement=PRESSURE_MMHG,
+        native_unit_of_measurement=UnitOfPressure.MMHG,
         icon="mdi:gauge",
         # should not define device_class, because HA will try to convert pressure to system units.
         state_class=SensorStateClass.MEASUREMENT,
@@ -126,7 +125,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
     SensorEntityDescription(
         key=ATTR_MIN_FORECAST_TEMPERATURE,
         name="Minimal forecast temperature",
-        native_unit_of_measurement=TEMP_CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
         entity_registry_enabled_default=False,
