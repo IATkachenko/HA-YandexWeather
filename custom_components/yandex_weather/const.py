@@ -167,7 +167,7 @@ def map_state(src: str, is_day: bool = True, mapping: dict | None = None) -> str
     except KeyError:
         result = src
 
-    if type(result) == dict:
+    if type(result) is dict:
         t = "day" if is_day else "night"
         result = result[t]
 
