@@ -334,7 +334,6 @@ class WeatherUpdater(DataUpdateCoordinator):
         next_refresh = (
             int(self.hass.loop.time()) + self._microsecond + offset.total_seconds()
         )
-        _LOGGER.debug(f"Next refresh will be in {next_refresh}ms")
         self._unsub_refresh = self.hass.loop.call_at(
             next_refresh, self.hass.async_run_hass_job, self._job
         ).cancel
