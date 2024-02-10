@@ -24,11 +24,9 @@ from homeassistant.components.weather import (
     Forecast,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import event
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.util import utcnow
 
 from .const import (
     ATTR_API_CONDITION,
@@ -330,11 +328,14 @@ class WeatherUpdater(DataUpdateCoordinator):
             self._unsub_refresh()
             self._unsub_refresh = None
 
-        self._unsub_refresh = event.async_track_point_in_utc_time(
-            self.hass,
-            self._job,
-            utcnow().replace(microsecond=0) + offset,
+        _LOGGER.debug(f"scheduling next refresh after {offset=}")
+        next_refresh = (
+                int(self.hass.loop.time()) + self._microsecond + offset.total_seconds()
         )
+        _LOGGER.debug(f"Next refresh will be in {next_refresh}ms")
+        self._unsub_refresh = self.hass.loop.call_at(
+            next_refresh, self.hass.async_run_hass_job, self._job
+        ).cancel
 
     @property
     def device_id(self) -> str:
