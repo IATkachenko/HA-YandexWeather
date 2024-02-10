@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from functools import cached_property
 import json
 import logging
 import math
@@ -171,10 +170,11 @@ class WeatherUpdater(DataUpdateCoordinator):
         self.__api_key = api_key
         self._lat = latitude
         self._lon = longitude
-        self._updates_per_day = updates_per_day
         self._device_id = device_id
         self._name = name
         self._language = language
+        # Site tariff have 50 free requests per day, but it may be changed
+        self.update_interval = timedelta(seconds=math.ceil((24 * 60 * 60) / updates_per_day))
 
         if hass is not None:
             super().__init__(
@@ -185,14 +185,6 @@ class WeatherUpdater(DataUpdateCoordinator):
                 update_method=self.update,
             )
         self.data = {}
-
-    @cached_property
-    def update_interval(self) -> timedelta:
-        """How often we may send requests.
-
-        Site tariff have 50 free requests per day, but it may be changed
-        """
-        return timedelta(seconds=math.ceil((24 * 60 * 60) / self._updates_per_day))
 
     def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
         """Convert Yandex API weather state to HA friendly.
