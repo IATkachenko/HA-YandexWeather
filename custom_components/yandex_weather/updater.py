@@ -172,7 +172,9 @@ class WeatherUpdater(DataUpdateCoordinator):
         self._name = name
         self._language = language
         # Site tariff have 50 free requests per day, but it may be changed
-        self.update_interval = timedelta(seconds=math.ceil((24 * 60 * 60) / updates_per_day))
+        self.update_interval = timedelta(
+            seconds=math.ceil((24 * 60 * 60) / updates_per_day)
+        )
 
         if hass is not None:
             super().__init__(
@@ -330,7 +332,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         _LOGGER.debug(f"scheduling next refresh after {offset=}")
         next_refresh = (
-                int(self.hass.loop.time()) + self._microsecond + offset.total_seconds()
+            int(self.hass.loop.time()) + self._microsecond + offset.total_seconds()
         )
         _LOGGER.debug(f"Next refresh will be in {next_refresh}ms")
         self._unsub_refresh = self.hass.loop.call_at(
