@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from functools import cached_property
 import json
 import logging
 import math
@@ -25,11 +24,9 @@ from homeassistant.components.weather import (
     Forecast,
 )
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import event
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.util import utcnow
 
 from .const import (
     ATTR_API_CONDITION,
@@ -171,10 +168,13 @@ class WeatherUpdater(DataUpdateCoordinator):
         self.__api_key = api_key
         self._lat = latitude
         self._lon = longitude
-        self._updates_per_day = updates_per_day
         self._device_id = device_id
         self._name = name
         self._language = language
+        # Site tariff have 50 free requests per day, but it may be changed
+        self.update_interval = timedelta(
+            seconds=math.ceil((24 * 60 * 60) / updates_per_day)
+        )
 
         if hass is not None:
             super().__init__(
@@ -185,14 +185,6 @@ class WeatherUpdater(DataUpdateCoordinator):
                 update_method=self.update,
             )
         self.data = {}
-
-    @cached_property
-    def update_interval(self) -> timedelta:
-        """How often we may send requests.
-
-        Site tariff have 50 free requests per day, but it may be changed
-        """
-        return timedelta(seconds=math.ceil((24 * 60 * 60) / self._updates_per_day))
 
     def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
         """Convert Yandex API weather state to HA friendly.
@@ -338,11 +330,13 @@ class WeatherUpdater(DataUpdateCoordinator):
             self._unsub_refresh()
             self._unsub_refresh = None
 
-        self._unsub_refresh = event.async_track_point_in_utc_time(
-            self.hass,
-            self._job,
-            utcnow().replace(microsecond=0) + offset,
+        _LOGGER.debug(f"scheduling next refresh after {offset=}")
+        next_refresh = (
+            int(self.hass.loop.time()) + self._microsecond + offset.total_seconds()
         )
+        self._unsub_refresh = self.hass.loop.call_at(
+            next_refresh, self.hass.async_run_hass_job, self._job
+        ).cancel
 
     @property
     def device_id(self) -> str:
