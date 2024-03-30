@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 import logging
 
 from homeassistant.components.weather import (
-    ATTR_FORECAST,
     ATTR_FORECAST_IS_DAYTIME,
     ATTR_WEATHER_PRECIPITATION_UNIT,
     ATTR_WEATHER_PRESSURE_UNIT,
@@ -45,8 +44,7 @@ from .const import (
     ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
-    ATTRIBUTION,
-    CONF_IMAGE_SOURCE,
+    ATTRIBUTION, ATTR_FORECAST_DATA, CONF_IMAGE_SOURCE,
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
@@ -144,7 +142,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             self._attr_humidity = state.attributes.get("humidity")
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
-            self._twice_daily_forecast = state.attributes.get(ATTR_FORECAST, [])
+            self._twice_daily_forecast = state.attributes.get(ATTR_FORECAST_DATA, [])
             for f in self._twice_daily_forecast:
                 for attribute, converter in [
                     ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
@@ -167,7 +165,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                         )
                     except TypeError:
                         pass
-            self._attr_forecast = self._twice_daily_forecast  # backward compatibility
+
             self._attr_extra_state_attributes = {}
             for attribute in [
                 "feels_like",
@@ -207,7 +205,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             is_day=self.coordinator.data.get("daytime") == "d",
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
-        self._twice_daily_forecast = self.coordinator.data.get(ATTR_FORECAST, [])
+        self._twice_daily_forecast = self.coordinator.data.get(ATTR_FORECAST_DATA, [])
         self._attr_forecast = self._twice_daily_forecast  # backward compatibility
         self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
         self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
