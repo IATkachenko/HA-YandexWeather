@@ -11,7 +11,6 @@ import os
 
 import aiohttp
 from homeassistant.components.weather import (
-    ATTR_FORECAST,
     ATTR_FORECAST_CONDITION,
     ATTR_FORECAST_IS_DAYTIME,
     ATTR_FORECAST_NATIVE_PRECIPITATION,
@@ -44,6 +43,7 @@ from .const import (
     ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
+    ATTR_FORECAST_DATA,
     ATTR_MIN_FORECAST_TEMPERATURE,
     CONDITION_ICONS,
     DOMAIN,
@@ -250,7 +250,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     tz=self.get_timezone(r["now_dt"], r["now"]),
                 ),
                 ATTR_API_FORECAST_ICONS: [],
-                ATTR_FORECAST: [],
+                ATTR_FORECAST_DATA: [],
             }
             self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
 
@@ -260,11 +260,11 @@ class WeatherUpdater(DataUpdateCoordinator):
                 forecast = Forecast(datetime=f_datetime.isoformat())
                 self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
                 forecast[ATTR_FORECAST_IS_DAYTIME] = f["daytime"] == "d"
-                result[ATTR_FORECAST].append(forecast)
+                result[ATTR_FORECAST_DATA].append(forecast)
                 result[ATTR_API_FORECAST_ICONS].append(f.get("icon", "no_image"))
 
             result[ATTR_MIN_FORECAST_TEMPERATURE] = self.get_min_forecast_temperature(
-                result[ATTR_FORECAST]
+                result[ATTR_FORECAST_DATA]
             )
 
             return result
