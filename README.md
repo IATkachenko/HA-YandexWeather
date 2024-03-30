@@ -2,6 +2,10 @@
 # Yandex weather data provider for Home Assistant
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yandex.ru) service.
 
+## Important
+Currenly Yandex have blocked free tarif for new users, check #104 for meore details, so new users can't obtain personal API key to get weather data via API. Stay tuned.
+
+
 ## Installation
 ### HACS
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![HACS Action](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml) [![Validate with hassfest](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml)
