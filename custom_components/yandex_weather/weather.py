@@ -44,7 +44,9 @@ from .const import (
     ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
-    ATTRIBUTION, ATTR_FORECAST_DATA, CONF_IMAGE_SOURCE,
+    ATTRIBUTION,
+    ATTR_FORECAST_DATA,
+    CONF_IMAGE_SOURCE,
     DOMAIN,
     ENTRY_NAME,
     UPDATER,
@@ -206,7 +208,6 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
         self._twice_daily_forecast = self.coordinator.data.get(ATTR_FORECAST_DATA, [])
-        self._attr_forecast = self._twice_daily_forecast  # backward compatibility
         self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
         self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
         self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
