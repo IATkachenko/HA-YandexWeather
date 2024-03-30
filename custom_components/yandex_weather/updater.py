@@ -22,7 +22,7 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_BEARING,
     Forecast,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -335,8 +335,26 @@ class WeatherUpdater(DataUpdateCoordinator):
             int(self.hass.loop.time()) + self._microsecond + offset.total_seconds()
         )
         self._unsub_refresh = self.hass.loop.call_at(
-            next_refresh, self.hass.async_run_hass_job, self._job
+            next_refresh, self.__wrap_handle_refresh_interval
         ).cancel
+
+    @callback
+    def __wrap_handle_refresh_interval(self) -> None:
+        """Handle a refresh interval occurrence."""
+        # We need this private callback from parent class
+        if self.config_entry:
+            self.config_entry.async_create_background_task(
+                self.hass,
+                self._handle_refresh_interval(),
+                name=f"{self.name} - {self.config_entry.title} - refresh",
+                eager_start=True,
+            )
+        else:
+            self.hass.async_create_background_task(
+                self._handle_refresh_interval(),
+                name=f"{self.name} - refresh",
+                eager_start=True,
+            )
 
     @property
     def device_id(self) -> str:
