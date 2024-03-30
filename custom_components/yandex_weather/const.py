@@ -31,7 +31,7 @@ ATTR_API_ORIGINAL_CONDITION = "original_condition"
 ATTR_MIN_FORECAST_TEMPERATURE = "min_forecast_temperature"
 ATTR_API_FORECAST_ICONS = "forecast_icons"
 
-ATTR_FORECAST_DATA = "forecast_data"
+ATTR_FORECAST_DATA = "forecast"  # just to be able to load saved forecast after restart
 
 CONF_UPDATES_PER_DAY = "updates_per_day"
 CONF_IMAGE_SOURCE = "image_source"

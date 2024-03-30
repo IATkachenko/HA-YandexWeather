@@ -218,6 +218,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
             "forecast_icons": self.coordinator.data.get(ATTR_API_FORECAST_ICONS),
+            ATTR_FORECAST_DATA: self._twice_daily_forecast,
         }
         try:
             self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(
