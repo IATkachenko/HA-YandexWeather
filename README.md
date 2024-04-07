@@ -3,7 +3,7 @@
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yandex.ru) service.
 
 ## Important
-Currenly Yandex have blocked free tarif for new users, check #104 for meore details, so new users can't obtain personal API key to get weather data via API. Stay tuned.
+Currently Yandex have blocked free tarif for new users, check #104 for meore details, so new users can't obtain personal API key to get weather data via API. Stay tuned.
 
 
 ## Installation
