@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 import logging
 
 from homeassistant.components.weather import (
-    ATTR_FORECAST_IS_DAYTIME,
     ATTR_WEATHER_PRECIPITATION_UNIT,
     ATTR_WEATHER_PRESSURE_UNIT,
     ATTR_WEATHER_TEMPERATURE_UNIT,
