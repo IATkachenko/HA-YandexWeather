@@ -113,7 +113,9 @@ FORECAST_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
         "wind_dir", ATTR_FORECAST_WIND_BEARING, mapping=WIND_DIRECTION_MAPPING
     ),
     AttributeMapper("temp_avg", ATTR_FORECAST_NATIVE_TEMP),
+    AttributeMapper("temp_avg", "temperature"),
     AttributeMapper("temp_min", ATTR_FORECAST_NATIVE_TEMP_LOW),
+    AttributeMapper("temp_min", "templow"),
     AttributeMapper("pressure_pa", ATTR_FORECAST_NATIVE_PRESSURE),
     AttributeMapper("wind_speed", ATTR_FORECAST_NATIVE_WIND_SPEED, default=0),
     AttributeMapper("prec_mm", ATTR_FORECAST_NATIVE_PRECIPITATION, default=0),

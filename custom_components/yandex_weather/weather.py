@@ -40,6 +40,7 @@ from .const import (
     ATTR_API_PRESSURE,
     ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
+    ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
@@ -218,7 +219,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
             "forecast_icons": self.coordinator.data.get(ATTR_API_FORECAST_ICONS),
-            ATTR_FORECAST_DATA: self._twice_daily_forecast,
+            ATTR_FORECAST_DATA: self.__forecast_twice_daily(),
         }
         try:
             self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(
@@ -246,14 +247,31 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
         self._attr_condition = new_condition
 
-    async def async_forecast_twice_daily(self) -> list[Forecast] | None:
+    def __forecast_twice_daily(self) -> list[Forecast] | None:
         """Return the daily forecast in native units."""
         _LOGGER.debug(f"async_forecast_twice_daily: {self._twice_daily_forecast=}")
         # we must return at least three elements in forecast
         # https://github.com/home-assistant/frontend/blob/dev/src/data/weather.ts#L548
         if len(result := self._twice_daily_forecast) < 3:
             _LOGGER.debug(
-                "Have not enough forecast data. Adding empty element to forecast..."
+                "Have not enough forecast data. Adding current weather to forecast..."
             )
-            result.append({ATTR_FORECAST_IS_DAYTIME: False})
+            result.insert(
+                0,
+                Forecast(
+                    datetime=self.coordinator.data.get(ATTR_API_WEATHER_TIME),
+                    wind_bearing=self.wind_bearing,
+                    native_temperature=self.native_temperature,
+                    temperatrue=self.native_temperature,
+                    native_templow=self.native_temperature,
+                    templow=self.native_temperature,
+                    native_pressure=self.native_pressure,
+                    native_wind_speed=self.native_wind_speed,
+                    condition=self.condition,
+                    # is_daytime=self.is_daytime,
+                ),
+            )
         return result
+
+    async def async_forecast_twice_daily(self) -> list[Forecast] | None:
+        return self.__forecast_twice_daily()
