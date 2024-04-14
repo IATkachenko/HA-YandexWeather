@@ -168,7 +168,9 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                     except TypeError:
                         pass
 
-            self._attr_extra_state_attributes = {}
+            self._attr_extra_state_attributes = {
+                ATTR_FORECAST_DATA: self._twice_daily_forecast,
+            }
             for attribute in [
                 "feels_like",
                 "wind_gust",
