@@ -269,7 +269,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                     native_pressure=self.native_pressure,
                     native_wind_speed=self.native_wind_speed,
                     condition=self.condition,
-                    # is_daytime=self.is_daytime,
+                    is_daytime=self.coordinator.data.get("daytime") == "d",
                 ),
             )
         return result
