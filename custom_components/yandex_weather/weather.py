@@ -263,7 +263,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                     datetime=self.coordinator.data.get(ATTR_API_WEATHER_TIME),
                     wind_bearing=self.wind_bearing,
                     native_temperature=self.native_temperature,
-                    temperatrue=self.native_temperature,
+                    temperature=self.native_temperature,
                     native_templow=self.native_temperature,
                     templow=self.native_temperature,
                     native_pressure=self.native_pressure,
