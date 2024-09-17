@@ -1,5 +1,5 @@
 """Weather data updater."""
-
+import aiofiles
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -58,7 +58,6 @@ from .const import (
 API_URL = "https://api.weather.yandex.ru"
 API_VERSION = "2"
 _LOGGER = logging.getLogger(__name__)
-
 
 WIND_DIRECTION_MAPPING: dict[str, int | None] = {
     "nw": 315,
@@ -129,19 +128,22 @@ FORECAST_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
 ]
 
 
-def translate_condition(value: str, _language: str) -> str:
+async def translate_condition(value: str, _language: str) -> str:
     """Translate Yandex condition."""
     _my_location = os.path.dirname(os.path.realpath(__file__))
     _translation_location = f"{_my_location}/translations/{_language.lower()}.json"
     try:
-        with open(_translation_location) as f:
-            value = json.loads(f.read())["entity"]["sensor"][ATTR_API_YA_CONDITION][
+        async with aiofiles.open(_translation_location, mode='r') as f:
+            content = await f.read()
+            value = json.loads(content)["entity"]["sensor"][ATTR_API_YA_CONDITION][
                 "state"
             ][value]
     except FileNotFoundError:
         _LOGGER.debug(f"We have no translation for {_language=} in {_my_location}")
+        return value  # Возвращаем исходное значение, если перевод не найден
     except KeyError:
         _LOGGER.debug(f"Have no translation for {value} in {_translation_location}")
+        return value  # Возвращаем исходное значение, если перевод не найден
     return value
 
 
@@ -191,11 +193,11 @@ class WeatherUpdater(DataUpdateCoordinator):
             )
         self.data = {}
 
-    def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
+    async def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
         """Convert Yandex API weather state to HA friendly.
 
         :param dst: weather data for HomeAssistant
-        :param src: weather data form Yandex
+        :param src: weather data from Yandex
         :param attributes: how to translate src to dst
         """
 
@@ -208,7 +210,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     is_day=(src["daytime"] == "d"),
                 )
             if attribute.should_translate and value is not None:
-                value = translate_condition(
+                value = await translate_condition(
                     value=value,
                     _language=self._language,
                 )
@@ -257,13 +259,13 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_FORECAST_ICONS: [],
                 ATTR_FORECAST_DATA: [],
             }
-            self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
+            await self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
 
             f_datetime = datetime.now(tz=local_tz)
             for f in r["forecast"]["parts"]:
                 f_datetime += timedelta(hours=24 / 4)
                 forecast = Forecast(datetime=f_datetime.isoformat())
-                self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
+                await self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
                 forecast[ATTR_FORECAST_IS_DAYTIME] = f["daytime"] == "d"
                 result[ATTR_FORECAST_DATA].append(forecast)
                 result[ATTR_API_FORECAST_ICONS].append(f.get("icon", "no_image"))
