@@ -61,6 +61,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 WIND_DIRECTION_MAPPING: dict[str, int | None] = {
+    "CALM": 0,
     "NORTH": 0,
     "NORTH_EAST": 45,
     "EAST": 90,
