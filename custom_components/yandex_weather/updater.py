@@ -10,6 +10,7 @@ import math
 import os
 
 from gql import Client, gql
+from gql.transport.exceptions import TransportServerError
 from gql.transport.aiohttp import AIOHTTPTransport
 from homeassistant.components.weather import (
     ATTR_FORECAST_CLOUD_COVERAGE,
@@ -165,6 +166,10 @@ def translate_condition(value: str, _language: str) -> str:
 class WeatherUpdater(DataUpdateCoordinator):
     """Weather data updater for interaction with Yandex.Weather API."""
 
+    MAX_FAILS = 3
+    FAIL_DELAY = timedelta(hours=1)
+
+
     def __init__(
         self,
         latitude: float,
@@ -197,6 +202,8 @@ class WeatherUpdater(DataUpdateCoordinator):
         self.update_interval = timedelta(
             seconds=math.ceil((24 * 60 * 60) / updates_per_day)
         )
+        self.last_fail = datetime.fromtimestamp(0)
+        self.fails: int = 0
 
         if hass is not None:
             super().__init__(
@@ -254,6 +261,11 @@ class WeatherUpdater(DataUpdateCoordinator):
 
         :returns: dict with weather data.
         """
+        now = datetime.now().astimezone()
+        if self.fails >= self.MAX_FAILS and now - self.last_fail < self.FAIL_DELAY:
+            _LOGGER.warning(f"{self.fails} >= {self.MAX_FAILS} and last fail was less than {self.FAIL_DELAY=} ago.")
+            _LOGGER.warning(f"Will not try to update data!")
+            return
 
         transport = AIOHTTPTransport(
             url=API_URL, headers={"X-Yandex-Weather-Key": self.__api_key}, timeout=20
@@ -261,9 +273,17 @@ class WeatherUpdater(DataUpdateCoordinator):
         async with Client(
             transport=transport, fetch_schema_from_transport=False
         ) as client:
-            r = await client.execute(gql(QUERY), variable_values=self.geo)
+            try:
+                r = await client.execute(gql(QUERY), variable_values=self.geo)
+            except TransportServerError as e:
+                _LOGGER.critical(f"Got exception while getting data: {e}")
+                self.last_fail = now
+                self.fails += 1
+                _LOGGER.critical(f"Will not update data. Fails counter: {self.fails}/{self.MAX_FAILS}")
+                return self.data
+
             _LOGGER.debug(f"Raw data is {r=}")
-            now = datetime.now().astimezone()
+
             weather = r.get("weatherByPoint", {})
             result = {
                 ATTR_API_WEATHER_TIME: now,
@@ -281,6 +301,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_MIN_FORECAST_TEMPERATURE
             ] = await self.get_min_forecast_temperature(result[ATTR_FORECAST_HOURLY])
 
+            self.fails = 0
             return result
 
     async def fill_hourly_forecast(
