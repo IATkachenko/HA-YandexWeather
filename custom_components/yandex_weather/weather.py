@@ -29,7 +29,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .config_flow import get_value
-from .const import (
+from .const import (  # ATTR_API_TEMP_WATER,; ATTR_API_WIND_GUST,
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_FORECAST_ICONS,
@@ -37,11 +37,9 @@ from .const import (
     ATTR_API_IMAGE,
     ATTR_API_ORIGINAL_CONDITION,
     ATTR_API_PRESSURE,
-    # ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
-    # ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTR_FORECAST_DATA,
@@ -101,7 +99,6 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_device_info = self.coordinator.device_info
         self._attr_supported_features = WeatherEntityFeature.FORECAST_HOURLY
         self._image_source = get_value(config_entry, CONF_IMAGE_SOURCE, "Yandex")
-
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
@@ -222,7 +219,6 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         }
         # self._attr_cloud_coverage = self.coordinator.data.get('cloud_coverage')
         # self._attr_uv_index = self.coordinator.data.get('uvIndex')
-
 
         self.async_write_ha_state()
 

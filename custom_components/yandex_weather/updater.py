@@ -12,7 +12,6 @@ import os
 import aiohttp
 from gql import Client, gql
 from gql.transport.aiohttp import AIOHTTPTransport
-
 from homeassistant.components.weather import (
     ATTR_FORECAST_CLOUD_COVERAGE,
     ATTR_FORECAST_CONDITION,
@@ -37,7 +36,7 @@ from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import (
+from .const import (  # ATTR_API_PRESSURE_MMHG,; ATTR_API_TEMP_WATER,; ATTR_API_WIND_GUST,
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_FORECAST_ICONS,
@@ -45,12 +44,9 @@ from .const import (
     ATTR_API_IMAGE,
     ATTR_API_ORIGINAL_CONDITION,
     ATTR_API_PRESSURE,
-    # ATTR_API_PRESSURE_MMHG,
-    # ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
-    # ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTR_FORECAST_DATA,
@@ -58,9 +54,9 @@ from .const import (
     CONDITION_ICONS,
     DOMAIN,
     MANUFACTURER,
+    QUERY,
     WEATHER_STATES_CONVERSION,
     map_state,
-    QUERY,
 )
 
 API_URL = "https://api.weather.yandex.ru/graphql/query"
@@ -69,9 +65,12 @@ _LOGGER = logging.getLogger(__name__)
 
 
 WIND_DIRECTION_MAPPING: dict[str, int | None] = {
-    "NORTH": 0, "NORTH_EAST": 45,
+    "NORTH": 0,
+    "NORTH_EAST": 45,
     "EAST": 90,
-    "SOUTH_EAST": 135, "SOUTH": 180, "SOUTH_WEST": 225,
+    "SOUTH_EAST": 135,
+    "SOUTH": 180,
+    "SOUTH_WEST": 225,
     "WEST": 270,
     "NORTH_WEST": 315,
 }
@@ -79,9 +78,9 @@ WIND_DIRECTION_MAPPING: dict[str, int | None] = {
 
 CLOUDINESS_MAPPING: dict[str, int] = {
     "CLEAR": 0,
-    "PARTLY": int(1.5/8*100),
-    "SIGNIFICANT": int(3.5/8*100),
-    "CLOUDY": int(6/8*100),
+    "PARTLY": int(1.5 / 8 * 100),
+    "SIGNIFICANT": int(3.5 / 8 * 100),
+    "CLOUDY": int(6 / 8 * 100),
     "OVERCAST": 100,
 }
 """https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Cloudiness"""
@@ -102,21 +101,31 @@ class AttributeMapper:
         """Destination for mapping."""
         return self.src if self._dst is None else self._dst
 
+
 FORECAST_DATA_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
-    AttributeMapper(src='condition', _dst=ATTR_FORECAST_CONDITION, mapping=WEATHER_STATES_CONVERSION),
-    AttributeMapper(src='time', _dst='datetime'),
-    AttributeMapper(src='humidity',  _dst=ATTR_FORECAST_HUMIDITY),
-    AttributeMapper(src='precProbability', _dst=ATTR_FORECAST_PRECIPITATION_PROBABILITY),
-    AttributeMapper(src='cloudiness', _dst=ATTR_FORECAST_CLOUD_COVERAGE, mapping=CLOUDINESS_MAPPING, default=0),
-    AttributeMapper(src='prec', _dst=ATTR_FORECAST_NATIVE_PRECIPITATION),
-    AttributeMapper(src='pressure', _dst=ATTR_FORECAST_NATIVE_PRESSURE),
-    AttributeMapper(src='temperature', _dst=ATTR_FORECAST_NATIVE_TEMP),
-    AttributeMapper(src='feelsLike', _dst=ATTR_FORECAST_NATIVE_APPARENT_TEMP),
-    AttributeMapper(src='windAngle', _dst=ATTR_FORECAST_WIND_BEARING),
-    AttributeMapper(src='windGust', _dst=ATTR_FORECAST_NATIVE_WIND_GUST_SPEED),
-    AttributeMapper(src='windSpeed', _dst=ATTR_FORECAST_NATIVE_WIND_SPEED),
-    AttributeMapper(src='dewPoint', _dst=ATTR_FORECAST_NATIVE_DEW_POINT),
-    AttributeMapper(src='uvIndex', _dst=ATTR_FORECAST_UV_INDEX),
+    AttributeMapper(
+        src="condition", _dst=ATTR_FORECAST_CONDITION, mapping=WEATHER_STATES_CONVERSION
+    ),
+    AttributeMapper(src="time", _dst="datetime"),
+    AttributeMapper(src="humidity", _dst=ATTR_FORECAST_HUMIDITY),
+    AttributeMapper(
+        src="precProbability", _dst=ATTR_FORECAST_PRECIPITATION_PROBABILITY
+    ),
+    AttributeMapper(
+        src="cloudiness",
+        _dst=ATTR_FORECAST_CLOUD_COVERAGE,
+        mapping=CLOUDINESS_MAPPING,
+        default=0,
+    ),
+    AttributeMapper(src="prec", _dst=ATTR_FORECAST_NATIVE_PRECIPITATION),
+    AttributeMapper(src="pressure", _dst=ATTR_FORECAST_NATIVE_PRESSURE),
+    AttributeMapper(src="temperature", _dst=ATTR_FORECAST_NATIVE_TEMP),
+    AttributeMapper(src="feelsLike", _dst=ATTR_FORECAST_NATIVE_APPARENT_TEMP),
+    AttributeMapper(src="windAngle", _dst=ATTR_FORECAST_WIND_BEARING),
+    AttributeMapper(src="windGust", _dst=ATTR_FORECAST_NATIVE_WIND_GUST_SPEED),
+    AttributeMapper(src="windSpeed", _dst=ATTR_FORECAST_NATIVE_WIND_SPEED),
+    AttributeMapper(src="dewPoint", _dst=ATTR_FORECAST_NATIVE_DEW_POINT),
+    AttributeMapper(src="uvIndex", _dst=ATTR_FORECAST_UV_INDEX),
 ]
 CURRENT_WEATHER_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
     AttributeMapper(ATTR_API_WIND_BEARING, mapping=WIND_DIRECTION_MAPPING),
@@ -136,9 +145,10 @@ CURRENT_WEATHER_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
     # AttributeMapper(ATTR_API_WIND_GUST),
     AttributeMapper(ATTR_API_WIND_SPEED, default=0),
     AttributeMapper("daytime"),
-    AttributeMapper("cloudiness", _dst='cloud_coverage', mapping=CLOUDINESS_MAPPING, default=0),
+    AttributeMapper(
+        "cloudiness", _dst="cloud_coverage", mapping=CLOUDINESS_MAPPING, default=0
+    ),
 ]
-
 
 
 def translate_condition(value: str, _language: str) -> str:
@@ -159,8 +169,6 @@ def translate_condition(value: str, _language: str) -> str:
 
 class WeatherUpdater(DataUpdateCoordinator):
     """Weather data updater for interaction with Yandex.Weather API."""
-
-
 
     def __init__(
         self,
@@ -252,11 +260,11 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
 
         transport = AIOHTTPTransport(
-            url=API_URL,
-            headers={"X-Yandex-Weather-Key": self.__api_key},
-            timeout=20
+            url=API_URL, headers={"X-Yandex-Weather-Key": self.__api_key}, timeout=20
         )
-        async with Client(transport=transport, fetch_schema_from_transport=False) as client:
+        async with Client(
+            transport=transport, fetch_schema_from_transport=False
+        ) as client:
             r = await client.execute(gql(QUERY), variable_values=self.geo)
             _LOGGER.debug(f"Raw data is {r=}")
             now = datetime.now().astimezone()
@@ -266,7 +274,9 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_FORECAST_ICONS: [],
                 ATTR_FORECAST_DATA: [],
             }
-            self.process_data(result, weather.get("now", {}), CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
+            self.process_data(
+                result, weather.get("now", {}), CURRENT_WEATHER_ATTRIBUTE_TRANSLATION
+            )
 
             await self.fill_forecast(now, result, weather["forecast"]["days"])
 
@@ -276,7 +286,9 @@ class WeatherUpdater(DataUpdateCoordinator):
 
             return result
 
-    async def fill_forecast(self, now: datetime, weather_data, forecast_data: list[dict]):
+    async def fill_forecast(
+        self, now: datetime, weather_data, forecast_data: list[dict]
+    ):
         """
         Fill weather_data ATTR_FORECAST_DATA and ATTR_API_FORECAST_ICONS fields
 
@@ -289,12 +301,14 @@ class WeatherUpdater(DataUpdateCoordinator):
                 if len(weather_data[ATTR_FORECAST_DATA]) > 24:
                     return
 
-                f_time = datetime.fromisoformat(f['time'])
+                f_time = datetime.fromisoformat(f["time"])
                 if f_time > now:
                     forecast = Forecast(datetime=datetime.isoformat(f_time))
                     self.process_data(forecast, f, FORECAST_DATA_ATTRIBUTE_TRANSLATION)
                     weather_data[ATTR_FORECAST_DATA].append(forecast)
-                    weather_data[ATTR_API_FORECAST_ICONS].append(f.get("icon", "no_image"))
+                    weather_data[ATTR_API_FORECAST_ICONS].append(
+                        f.get("icon", "no_image")
+                    )
 
     def __str__(self):
         """Show as pretty look data json."""

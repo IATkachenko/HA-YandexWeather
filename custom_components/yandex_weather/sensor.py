@@ -13,13 +13,13 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
+    DEGREE,
     PERCENTAGE,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
     UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
-    DEGREE,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import EntityCategory
@@ -27,12 +27,9 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (
+from .const import (  # ATTR_API_HUMIDITY,; ATTR_API_PRESSURE,; ATTR_API_PRESURE_MMHG,
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
-    # ATTR_API_HUMIDITY,
-    # ATTR_API_PRESSURE,
-    # ATTR_API_PRESURE_MMHG,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
@@ -78,7 +75,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         icon="mdi:compass-rose",
         translation_key=ATTR_API_WIND_BEARING,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit_of_measurement=DEGREE
+        native_unit_of_measurement=DEGREE,
     ),
     # SensorEntityDescription(
     #     key=ATTR_API_HUMIDITY,
