@@ -277,7 +277,7 @@ class WeatherUpdater(DataUpdateCoordinator):
 
             await self.fill_forecast(now, result, weather["forecast"]["days"])
 
-            result[ATTR_MIN_FORECAST_TEMPERATURE] = self.get_min_forecast_temperature(
+            result[ATTR_MIN_FORECAST_TEMPERATURE] = await self.get_min_forecast_temperature(
                 result[ATTR_FORECAST_DATA]
             )
 
