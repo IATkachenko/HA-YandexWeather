@@ -77,8 +77,11 @@ WEATHER_STATES_CONVERSION = {
     "THUNDERSTORM_WITH_RAIN": ATTR_CONDITION_LIGHTNING_RAINY,
     "THUNDERSTORM_WITH_HAIL": ATTR_CONDITION_EXCEPTIONAL,
 }
-"""Map Yandex weather condition https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Condition 
-to HA"""
+"""
+Map Yandex weather condition
+https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Condition
+to HA
+"""
 
 CONDITION_ICONS = {
     "clear": {
@@ -240,7 +243,7 @@ QUERY = """
                         condition
                         time
                         temperature
-                        feelsLike                        
+                        feelsLike
                         windSpeed
                         windAngle
                         windGust
@@ -249,5 +252,5 @@ QUERY = """
                 }
             }
         }
-    }     
+    }
 """

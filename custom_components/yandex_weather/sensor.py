@@ -14,10 +14,8 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     DEGREE,
-    PERCENTAGE,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
 )
@@ -27,7 +25,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import (  # ATTR_API_HUMIDITY,; ATTR_API_PRESSURE,; ATTR_API_PRESURE_MMHG,
+from .const import (
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
     ATTR_API_TEMPERATURE,
