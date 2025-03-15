@@ -48,17 +48,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         ENTRY_NAME: name,
         UPDATER: weather_updater,
     }
-
-    result = True
-    for platform in PLATFORMS:
-        result = result & await hass.config_entries.async_forward_entry_setup(
-            entry=entry, domain=platform
-        )
-
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     update_listener = entry.add_update_listener(async_update_options)
     hass.data[DOMAIN][entry.entry_id][UPDATE_LISTENER] = update_listener
 
-    return result
+    return True
 
 
 async def async_update_options(hass: HomeAssistant, entry: ConfigEntry) -> None:
@@ -79,3 +73,19 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+
+async def async_migrate_entry(hass, config_entry: ConfigEntry):
+    """Migrate old entry."""
+    _LOGGER.debug(
+        "Migrating configuration from version %s.%s",
+        config_entry.version,
+        config_entry.minor_version,
+    )
+    if config_entry.version < 4:
+        # have no migration
+        new_data = {**config_entry.data}
+        hass.config_entries.async_update_entry(
+            config_entry, data=new_data, minor_version=3, version=1
+        )
+    return True

@@ -13,10 +13,9 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
-    PERCENTAGE,
+    DEGREE,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfPressure,
     UnitOfSpeed,
     UnitOfTemperature,
 )
@@ -29,9 +28,6 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import (
     ATTR_API_CONDITION,
     ATTR_API_FEELS_LIKE_TEMPERATURE,
-    ATTR_API_HUMIDITY,
-    ATTR_API_PRESSURE,
-    ATTR_API_PRESSURE_MMHG,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
@@ -76,23 +72,25 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         entity_registry_enabled_default=False,
         icon="mdi:compass-rose",
         translation_key=ATTR_API_WIND_BEARING,
-    ),
-    SensorEntityDescription(
-        key=ATTR_API_HUMIDITY,
-        name="Humidity",
-        native_unit_of_measurement=PERCENTAGE,
-        device_class=SensorDeviceClass.HUMIDITY,
         state_class=SensorStateClass.MEASUREMENT,
-        entity_registry_enabled_default=False,
+        native_unit_of_measurement=DEGREE,
     ),
-    SensorEntityDescription(
-        key=ATTR_API_PRESSURE,
-        name="Pressure",
-        native_unit_of_measurement=UnitOfPressure.HPA,
-        device_class=SensorDeviceClass.PRESSURE,
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_registry_enabled_default=False,
-    ),
+    # SensorEntityDescription(
+    #     key=ATTR_API_HUMIDITY,
+    #     name="Humidity",
+    #     native_unit_of_measurement=PERCENTAGE,
+    #     device_class=SensorDeviceClass.HUMIDITY,
+    #     state_class=SensorStateClass.MEASUREMENT,
+    #     entity_registry_enabled_default=False,
+    # ),
+    # SensorEntityDescription(
+    #     key=ATTR_API_PRESSURE,
+    #     name="Pressure",
+    #     native_unit_of_measurement=UnitOfPressure.HPA,
+    #     device_class=SensorDeviceClass.PRESSURE,
+    #     state_class=SensorStateClass.MEASUREMENT,
+    #     entity_registry_enabled_default=False,
+    # ),
     SensorEntityDescription(
         key=ATTR_API_CONDITION,
         name="Condition HomeAssistant",
@@ -113,15 +111,15 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         entity_registry_enabled_default=True,
         translation_key=ATTR_API_YA_CONDITION,
     ),
-    SensorEntityDescription(
-        key=ATTR_API_PRESSURE_MMHG,
-        name="Pressure mmHg",
-        native_unit_of_measurement=UnitOfPressure.MMHG,
-        icon="mdi:gauge",
-        # should not define device_class, because HA will try to convert pressure to system units.
-        state_class=SensorStateClass.MEASUREMENT,
-        entity_registry_enabled_default=True,
-    ),
+    # SensorEntityDescription(
+    #     key=ATTR_API_PRESSURE_MMHG,
+    #     name="Pressure mmHg",
+    #     native_unit_of_measurement=UnitOfPressure.MMHG,
+    #     icon="mdi:gauge",
+    #     # should not define device_class, because HA will try to convert pressure to system units.
+    #     state_class=SensorStateClass.MEASUREMENT,
+    #     entity_registry_enabled_default=True,
+    # ),
     SensorEntityDescription(
         key=ATTR_MIN_FORECAST_TEMPERATURE,
         name="Minimal forecast temperature",

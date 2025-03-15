@@ -32,6 +32,9 @@ Currently Yandex have blocked free tarif for new users, check #104 for meore det
 
 ## Usage
 ### Weather
+ * ![added_in_version_badge](https://img.shields.io/badge/Since-v4.0.0-red) 
+   * migrated to APIv3 
+   * removed sensors "Pressure mmHg", "Pressure", "Humidity" because they are not supported by free API
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v3.1.0-red) attribute forecast icons with Yandex forecast weather state images (check #78 for details) 
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v1.0.0-red) pressure, wind speed and other unit may be customized
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 

@@ -67,6 +67,6 @@ async def test_update(hass, key, value, _bypass_get_data):
 
 
 @pytest.mark.parametrize("forecasts, expected", forecasts_data)
-def test_min_forecast_temperature(hass, forecasts, expected):
+async def test_min_forecast_temperature(hass, forecasts, expected):
     """Test min forecast temperature getter."""
-    assert WeatherUpdater.get_min_forecast_temperature(forecasts) == expected
+    assert (await WeatherUpdater.get_min_forecast_temperature(forecasts)) == expected

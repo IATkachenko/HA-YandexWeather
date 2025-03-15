@@ -3,24 +3,27 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import json
 import logging
 import math
 import os
 
-import aiohttp
+from gql import Client, gql
+from gql.transport.aiohttp import AIOHTTPTransport
 from homeassistant.components.weather import (
+    ATTR_FORECAST_CLOUD_COVERAGE,
     ATTR_FORECAST_CONDITION,
-    ATTR_FORECAST_IS_DAYTIME,
+    ATTR_FORECAST_HUMIDITY,
+    ATTR_FORECAST_NATIVE_APPARENT_TEMP,
+    ATTR_FORECAST_NATIVE_DEW_POINT,
     ATTR_FORECAST_NATIVE_PRECIPITATION,
     ATTR_FORECAST_NATIVE_PRESSURE,
     ATTR_FORECAST_NATIVE_TEMP,
-    ATTR_FORECAST_NATIVE_TEMP_LOW,
+    ATTR_FORECAST_NATIVE_WIND_GUST_SPEED,
     ATTR_FORECAST_NATIVE_WIND_SPEED,
     ATTR_FORECAST_PRECIPITATION_PROBABILITY,
-    ATTR_FORECAST_TEMP,
-    ATTR_FORECAST_TEMP_LOW,
+    ATTR_FORECAST_UV_INDEX,
     ATTR_FORECAST_WIND_BEARING,
     Forecast,
 )
@@ -28,7 +31,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
-from homeassistant.util.dt import get_time_zone
 
 from .const import (
     ATTR_API_CONDITION,
@@ -38,12 +40,9 @@ from .const import (
     ATTR_API_IMAGE,
     ATTR_API_ORIGINAL_CONDITION,
     ATTR_API_PRESSURE,
-    ATTR_API_PRESSURE_MMHG,
-    ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
-    ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTR_FORECAST_DATA,
@@ -51,27 +50,36 @@ from .const import (
     CONDITION_ICONS,
     DOMAIN,
     MANUFACTURER,
+    QUERY,
     WEATHER_STATES_CONVERSION,
     map_state,
 )
 
-API_URL = "https://api.weather.yandex.ru"
-API_VERSION = "2"
+API_URL = "https://api.weather.yandex.ru/graphql/query"
+API_VERSION = "3"
 _LOGGER = logging.getLogger(__name__)
 
 
 WIND_DIRECTION_MAPPING: dict[str, int | None] = {
-    "nw": 315,
-    "n": 360,
-    "ne": 45,
-    "e": 90,
-    "se": 135,
-    "s": 180,
-    "sw": 225,
-    "w": 270,
-    "c": 0,
+    "NORTH": 0,
+    "NORTH_EAST": 45,
+    "EAST": 90,
+    "SOUTH_EAST": 135,
+    "SOUTH": 180,
+    "SOUTH_WEST": 225,
+    "WEST": 270,
+    "NORTH_WEST": 315,
 }
 """Wind directions mapping."""
+
+CLOUDINESS_MAPPING: dict[str, int] = {
+    "CLEAR": 0,
+    "PARTLY": int(1.5 / 8 * 100),
+    "SIGNIFICANT": int(3.5 / 8 * 100),
+    "CLOUDY": int(6 / 8 * 100),
+    "OVERCAST": 100,
+}
+"""https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Cloudiness"""
 
 
 @dataclass
@@ -90,6 +98,31 @@ class AttributeMapper:
         return self.src if self._dst is None else self._dst
 
 
+FORECAST_DATA_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
+    AttributeMapper(
+        src="condition", _dst=ATTR_FORECAST_CONDITION, mapping=WEATHER_STATES_CONVERSION
+    ),
+    AttributeMapper(src="time", _dst="datetime"),
+    AttributeMapper(src="humidity", _dst=ATTR_FORECAST_HUMIDITY),
+    AttributeMapper(
+        src="precProbability", _dst=ATTR_FORECAST_PRECIPITATION_PROBABILITY
+    ),
+    AttributeMapper(
+        src="cloudiness",
+        _dst=ATTR_FORECAST_CLOUD_COVERAGE,
+        mapping=CLOUDINESS_MAPPING,
+        default=0,
+    ),
+    AttributeMapper(src="prec", _dst=ATTR_FORECAST_NATIVE_PRECIPITATION),
+    AttributeMapper(src="pressure", _dst=ATTR_FORECAST_NATIVE_PRESSURE),
+    AttributeMapper(src="temperature", _dst=ATTR_FORECAST_NATIVE_TEMP),
+    AttributeMapper(src="feelsLike", _dst=ATTR_FORECAST_NATIVE_APPARENT_TEMP),
+    AttributeMapper(src="windAngle", _dst=ATTR_FORECAST_WIND_BEARING),
+    AttributeMapper(src="windGust", _dst=ATTR_FORECAST_NATIVE_WIND_GUST_SPEED),
+    AttributeMapper(src="windSpeed", _dst=ATTR_FORECAST_NATIVE_WIND_SPEED),
+    AttributeMapper(src="dewPoint", _dst=ATTR_FORECAST_NATIVE_DEW_POINT),
+    AttributeMapper(src="uvIndex", _dst=ATTR_FORECAST_UV_INDEX),
+]
 CURRENT_WEATHER_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
     AttributeMapper(ATTR_API_WIND_BEARING, mapping=WIND_DIRECTION_MAPPING),
     AttributeMapper(ATTR_API_CONDITION, ATTR_API_ORIGINAL_CONDITION),
@@ -102,29 +135,14 @@ CURRENT_WEATHER_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
     AttributeMapper(ATTR_API_HUMIDITY),
     AttributeMapper(ATTR_API_IMAGE),
     AttributeMapper(ATTR_API_PRESSURE),
-    AttributeMapper(ATTR_API_PRESSURE_MMHG),
-    AttributeMapper(ATTR_API_TEMP_WATER),
+    # AttributeMapper(ATTR_API_PRESSURE_MMHG),
+    # AttributeMapper(ATTR_API_TEMP_WATER),
     AttributeMapper(ATTR_API_TEMPERATURE),
-    AttributeMapper(ATTR_API_WIND_GUST),
+    # AttributeMapper(ATTR_API_WIND_GUST),
     AttributeMapper(ATTR_API_WIND_SPEED, default=0),
     AttributeMapper("daytime"),
-]
-
-
-FORECAST_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
     AttributeMapper(
-        "wind_dir", ATTR_FORECAST_WIND_BEARING, mapping=WIND_DIRECTION_MAPPING
-    ),
-    AttributeMapper("temp_avg", ATTR_FORECAST_NATIVE_TEMP),
-    AttributeMapper("temp_avg", ATTR_FORECAST_TEMP),
-    AttributeMapper("temp_min", ATTR_FORECAST_NATIVE_TEMP_LOW),
-    AttributeMapper("temp_min", ATTR_FORECAST_TEMP_LOW),
-    AttributeMapper("pressure_pa", ATTR_FORECAST_NATIVE_PRESSURE),
-    AttributeMapper("wind_speed", ATTR_FORECAST_NATIVE_WIND_SPEED, default=0),
-    AttributeMapper("prec_mm", ATTR_FORECAST_NATIVE_PRECIPITATION, default=0),
-    AttributeMapper("prec_prob", ATTR_FORECAST_PRECIPITATION_PROBABILITY, default=0),
-    AttributeMapper(
-        "condition", ATTR_FORECAST_CONDITION, mapping=WEATHER_STATES_CONVERSION
+        "cloudiness", _dst="cloud_coverage", mapping=CLOUDINESS_MAPPING, default=0
     ),
 ]
 
@@ -191,7 +209,8 @@ class WeatherUpdater(DataUpdateCoordinator):
             )
         self.data = {}
 
-    def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
+    @staticmethod
+    async def process_data(dst: dict, src: dict, attributes: list[AttributeMapper]):
         """Convert Yandex API weather state to HA friendly.
 
         :param dst: weather data for HomeAssistant
@@ -205,68 +224,58 @@ class WeatherUpdater(DataUpdateCoordinator):
                 value = map_state(
                     src=value,
                     mapping=attribute.mapping,
-                    is_day=(src["daytime"] == "d"),
+                    is_day=(src.get("daytime", "DAY") == "DAY"),
                 )
-            if attribute.should_translate and value is not None:
-                value = translate_condition(
-                    value=value,
-                    _language=self._language,
-                )
+            # if attribute.should_translate and value is not None:
+            #     value = await translate_condition(
+            #         value=value,
+            #         _language=self._language,
+            #     )
 
             dst[attribute.dst] = value
 
     @staticmethod
-    def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
+    async def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
         """Get minimum temperature from forecast data."""
         low_fc_temperatures: list[float] = []
 
         for f in forecasts:
-            f_low_temperature: float = f.get(ATTR_FORECAST_NATIVE_TEMP_LOW, None)
+            f_low_temperature: float = f.get(ATTR_FORECAST_NATIVE_TEMP, None)
             if f_low_temperature is not None:
                 low_fc_temperatures.append(f_low_temperature)
 
         return min(low_fc_temperatures) if len(low_fc_temperatures) > 0 else None
 
-    @staticmethod
-    def get_timezone(nows: str, nowi: int) -> timezone:
-        """Get API server timezone based on str and int time values."""
-        server_utc_time = datetime.strptime(nows, "%Y-%m-%dT%H:%M:%S.%fZ").replace(
-            microsecond=0
-        )
-        server_unix_time = datetime.fromtimestamp(nowi)
-        return timezone(server_unix_time - server_utc_time)
+    @property
+    def geo(self) -> dict[str, float]:
+        return {"lat": self._lat, "lon": self._lon}
 
     async def update(self):
         """Update weather information.
 
         :returns: dict with weather data.
         """
-        result = {}
-        timeout = aiohttp.ClientTimeout(total=20)
-        local_tz = get_time_zone(self.hass.config.time_zone)
-        async with aiohttp.ClientSession(timeout=timeout) as session:
-            response = await self.request(
-                session, self.__api_key, self._lat, self._lon, "en_US"
-            )
-            r = json.loads(response)
+
+        transport = AIOHTTPTransport(
+            url=API_URL, headers={"X-Yandex-Weather-Key": self.__api_key}, timeout=20
+        )
+        async with Client(
+            transport=transport, fetch_schema_from_transport=False
+        ) as client:
+            r = await client.execute(gql(QUERY), variable_values=self.geo)
+            _LOGGER.debug(f"Raw data is {r=}")
+            now = datetime.now().astimezone()
+            weather = r.get("weatherByPoint", {})
             result = {
-                ATTR_API_WEATHER_TIME: datetime.fromtimestamp(
-                    r["fact"][ATTR_API_WEATHER_TIME],
-                    tz=self.get_timezone(r["now_dt"], r["now"]),
-                ).astimezone(tz=local_tz),
+                ATTR_API_WEATHER_TIME: now,
                 ATTR_API_FORECAST_ICONS: [],
                 ATTR_FORECAST_DATA: [],
             }
-            self.process_data(result, r["fact"], CURRENT_WEATHER_ATTRIBUTE_TRANSLATION)
+            await self.process_data(
+                result, weather.get("now", {}), CURRENT_WEATHER_ATTRIBUTE_TRANSLATION
+            )
 
-            f_datetime = datetime.now(tz=local_tz)
-            for f in r["forecast"]["parts"]:
-                f_datetime += timedelta(hours=24 / 4)
-                forecast = Forecast(datetime=f_datetime.isoformat())
-                self.process_data(forecast, f, FORECAST_ATTRIBUTE_TRANSLATION)
-                forecast[ATTR_FORECAST_IS_DAYTIME] = f["daytime"] == "d"
-                result[ATTR_FORECAST_DATA].append(forecast)
-                result[ATTR_API_FORECAST_ICONS].append(f.get("icon", "no_image"))
+            await self.fill_forecast(now, result, weather["forecast"]["days"])
 
             result[ATTR_MIN_FORECAST_TEMPERATURE] = self.get_min_forecast_temperature(
                 result[ATTR_FORECAST_DATA]
@@ -274,38 +283,31 @@ class WeatherUpdater(DataUpdateCoordinator):
 
             return result
 
-    @staticmethod
-    async def request(
-        session: aiohttp.ClientSession,
-        api_key: str,
-        lat: float,
-        lon: float,
-        lang: str = "en_US",
+    async def fill_forecast(
+        self, now: datetime, weather_data, forecast_data: list[dict]
     ):
         """
-        Make request to API endpoint.
+        Fill weather_data ATTR_FORECAST_DATA and ATTR_API_FORECAST_ICONS fields
 
-        :param session: aiohttp.ClientSession: HTTP session for request
-        :param api_key: str: API key
-        :param lat: float: latitude of location where we are getting weather data
-        :param lon: float: longitude of location where we ate getting weather data
-        :param lang: str: Language for request, defaults to 'en_US'
-
-        :returns: dict with response data
-        :raises AssertionError: when response.status is not 200
+        :param now: current datetime
+        :param weather_data: this integration weather result
+        :param forecast_data: Yandex forecast days data
         """
-        headers = {"X-Yandex-API-Key": api_key}
-        url = f"{API_URL}/v{API_VERSION}/informers?lat={lat}&lon={lon}&lang={lang}"
-        _LOGGER.info("Sending API request")
-        async with session.get(url, headers=headers) as response:
-            try:
-                assert response.status == 200
-                _LOGGER.debug(f"{await response.text()}")
-            except AssertionError as e:
-                _LOGGER.error(f"Could not get data from API: {response}")
-                raise aiohttp.ClientError(response.status, await response.text()) from e
+        for d in forecast_data:
+            for f in d["hours"]:
+                if len(weather_data[ATTR_FORECAST_DATA]) > 24:
+                    return
 
-            return await response.text()
+                f_time = datetime.fromisoformat(f["time"])
+                if f_time > now:
+                    forecast = Forecast(datetime=datetime.isoformat(f_time))
+                    await self.process_data(
+                        forecast, f, FORECAST_DATA_ATTRIBUTE_TRANSLATION
+                    )
+                    weather_data[ATTR_FORECAST_DATA].append(forecast)
+                    weather_data[ATTR_API_FORECAST_ICONS].append(
+                        f.get("icon", "no_image")
+                    )
 
     def __str__(self):
         """Show as pretty look data json."""

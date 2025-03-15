@@ -9,9 +9,9 @@
     "step": {
       "init": {
         "title": "Yandex.Weather settings",
-        "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
+        "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone](https://yandex.ru/pogoda/b2b/console/smarthome) for API key",
         "data": {
-          "api_key": "Weather API key",
+          "api_key": "Weather API v3 key",
           "language": "Language for Yandex weather state sensor",
           "updates_per_day": "Updates per day",
           "image_source": "Weather condition images"
@@ -29,9 +29,9 @@
     "step": {
       "user": {
         "title": "Yandex.Weather settings",
-        "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone](https://developer.tech.yandex.ru/services/) for API key",
+        "description": "Settings for Yandex Weather integration.\n\nCheck [Yandex developer zone]https://yandex.ru/pogoda/b2b/console/smarthome) for API key",
         "data": {
-          "api_key": "Weather API key",
+          "api_key": "Weather API v3 key",
           "name": "Name",
           "latitude": "Latitude for weather info (default is HA latitude)",
           "longitude": "Longitude for weather info (default is HA longitude)",

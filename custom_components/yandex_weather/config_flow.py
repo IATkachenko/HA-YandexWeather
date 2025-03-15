@@ -46,6 +46,9 @@ def get_value(config_entry: config_entries | None, param: str, default=None):
 class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """First time set up flow."""
 
+    VERSION = 4
+    MINOR_VERSION = 0
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
