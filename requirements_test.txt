@@ -1,1 +1,2 @@
-pytest-homeassistant-custom-component==0.13.85
+pytest-homeassistant-custom-component==0.13.224
+gql>=3.0.0
