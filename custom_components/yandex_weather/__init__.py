@@ -86,6 +86,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         # have no migration
         new_data = {**config_entry.data}
         hass.config_entries.async_update_entry(
-            config_entry, data=new_data, minor_version=3, version=1
+            config_entry, data=new_data, minor_version=0, version=4
         )
     return True
