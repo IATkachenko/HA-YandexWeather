@@ -5,8 +5,8 @@ from custom_components.yandex_weather.const import map_state
 from custom_components.yandex_weather.updater import WIND_DIRECTION_MAPPING
 
 testdata = [
-    ("w", 270),
-    ("c", 0),
+    ("WEST", 270),
+    ("CALM", 0),
 ]
 
 
