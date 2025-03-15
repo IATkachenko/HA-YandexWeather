@@ -209,7 +209,8 @@ class WeatherUpdater(DataUpdateCoordinator):
             )
         self.data = {}
 
-    def process_data(self, dst: dict, src: dict, attributes: list[AttributeMapper]):
+    @staticmethod
+    async def process_data(dst: dict, src: dict, attributes: list[AttributeMapper]):
         """Convert Yandex API weather state to HA friendly.
 
         :param dst: weather data for HomeAssistant
@@ -226,7 +227,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     is_day=(src.get("daytime", "DAY") == "DAY"),
                 )
             # if attribute.should_translate and value is not None:
-            #     value = translate_condition(
+            #     value = await translate_condition(
             #         value=value,
             #         _language=self._language,
             #     )
@@ -234,7 +235,7 @@ class WeatherUpdater(DataUpdateCoordinator):
             dst[attribute.dst] = value
 
     @staticmethod
-    def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
+    async def get_min_forecast_temperature(forecasts: list[dict]) -> float | None:
         """Get minimum temperature from forecast data."""
         low_fc_temperatures: list[float] = []
 
@@ -270,7 +271,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                 ATTR_API_FORECAST_ICONS: [],
                 ATTR_FORECAST_DATA: [],
             }
-            self.process_data(
+            await self.process_data(
                 result, weather.get("now", {}), CURRENT_WEATHER_ATTRIBUTE_TRANSLATION
             )
 
@@ -300,7 +301,9 @@ class WeatherUpdater(DataUpdateCoordinator):
                 f_time = datetime.fromisoformat(f["time"])
                 if f_time > now:
                     forecast = Forecast(datetime=datetime.isoformat(f_time))
-                    self.process_data(forecast, f, FORECAST_DATA_ATTRIBUTE_TRANSLATION)
+                    await self.process_data(
+                        forecast, f, FORECAST_DATA_ATTRIBUTE_TRANSLATION
+                    )
                     weather_data[ATTR_FORECAST_DATA].append(forecast)
                     weather_data[ATTR_API_FORECAST_ICONS].append(
                         f.get("icon", "no_image")
