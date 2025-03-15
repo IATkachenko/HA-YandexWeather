@@ -10,7 +10,10 @@ import math
 import os
 
 from gql import Client, gql
-from gql.transport.exceptions import TransportServerError
+from gql.transport.exceptions import (
+    TransportServerError,
+    TransportQueryError,
+)
 from gql.transport.aiohttp import AIOHTTPTransport
 from homeassistant.components.weather import (
     ATTR_FORECAST_CLOUD_COVERAGE,
@@ -275,7 +278,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         ) as client:
             try:
                 r = await client.execute(gql(QUERY), variable_values=self.geo)
-            except TransportServerError as e:
+            except (TransportServerError, TransportQueryError) as e:
                 _LOGGER.critical(f"Got exception while getting data: {e}")
                 self.last_fail = now
                 self.fails += 1
