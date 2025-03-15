@@ -1,2 +1,2 @@
 -r https://raw.githubusercontent.com/home-assistant/core/dev/requirements_test_pre_commit.txt
-pre-commit==3.3.3
+pre-commit==4.1.0
