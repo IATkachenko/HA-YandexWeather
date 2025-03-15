@@ -3,30 +3,37 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from homeassistant.components.weather import ATTR_CONDITION_CLEAR_NIGHT, ATTR_CONDITION_CLOUDY, \
+    ATTR_CONDITION_EXCEPTIONAL, ATTR_CONDITION_HAIL, ATTR_CONDITION_LIGHTNING, ATTR_CONDITION_LIGHTNING_RAINY, \
+    ATTR_CONDITION_PARTLYCLOUDY, ATTR_CONDITION_POURING, ATTR_CONDITION_RAINY, ATTR_CONDITION_SNOWY, \
+    ATTR_CONDITION_SUNNY
 from homeassistant.const import Platform
 
 DOMAIN = "yandex_weather"
 DEFAULT_NAME = "Yandex Weather"
-DEFAULT_UPDATES_PER_DAY = 48
+DEFAULT_UPDATES_PER_DAY = 24
 ATTRIBUTION = "Data provided by Yandex Weather"
 MANUFACTURER = "Yandex"
 ENTRY_NAME = "name"
 UPDATER = "updater"
 UPDATES_PER_DAY = "updates_per_day"
 
-ATTR_API_TEMPERATURE = "temp"
-ATTR_API_FEELS_LIKE_TEMPERATURE = "feels_like"
-ATTR_API_WIND_SPEED = "wind_speed"
-ATTR_API_WIND_BEARING = "wind_dir"
+
+ATTR_API_TEMPERATURE = "temperature"
+"""Temperature"""
+ATTR_API_FEELS_LIKE_TEMPERATURE = "feelsLike"
+ATTR_API_WIND_SPEED = "windSpeed"
+ATTR_API_WIND_BEARING = "windDirection"
+"""Wind direction"""
 ATTR_API_HUMIDITY = "humidity"
-ATTR_API_PRESSURE = "pressure_pa"
+ATTR_API_PRESSURE = "pressure"
 ATTR_API_CONDITION = "condition"
 ATTR_API_IMAGE = "icon"
 ATTR_API_WEATHER_TIME = "obs_time"
 ATTR_API_YA_CONDITION = "yandex_condition"
-ATTR_API_PRESSURE_MMHG = "pressure_mm"
-ATTR_API_TEMP_WATER = "temp_water"
-ATTR_API_WIND_GUST = "wind_gust"
+
+# ATTR_API_TEMP_WATER = "temp_water"
+# ATTR_API_WIND_GUST = "windGust"
 ATTR_API_ORIGINAL_CONDITION = "original_condition"
 ATTR_MIN_FORECAST_TEMPERATURE = "min_forecast_temperature"
 ATTR_API_FORECAST_ICONS = "forecast_icons"
@@ -41,30 +48,28 @@ PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 
 
 WEATHER_STATES_CONVERSION = {
-    "clear": {
-        "day": "sunny",
-        "night": "clear-night",
+    "CLEAR": {
+        "day": ATTR_CONDITION_SUNNY,
+        "night": ATTR_CONDITION_CLEAR_NIGHT,
     },
-    "partly-cloudy": "partlycloudy",
-    "cloudy": "cloudy",
-    "overcast": "cloudy",
-    "drizzle": "fog",
-    "light-rain": "rainy",
-    "rain": "rainy",
-    "moderate-rain": "rainy",
-    "heavy-rain": "pouring",
-    "continuous-heavy-rain": "pouring",
-    "showers": "pouring",
-    "wet-snow": "snowy-rainy",
-    "light-snow": "snowy",
-    "snow": "snowy",
-    "snow-showers": "snowy",
-    "hail": "hail",
-    "thunderstorm": "lightning",
-    "thunderstorm-with-rain": "lightning-rainy",
-    "thunderstorm-with-hail": "lightning-rainy",
+    "PARTLY_CLOUDY": ATTR_CONDITION_PARTLYCLOUDY,
+    "CLOUDY": ATTR_CONDITION_CLOUDY,
+    "OVERCAST": ATTR_CONDITION_CLOUDY,
+    "LIGHT_RAIN": ATTR_CONDITION_RAINY,
+    "RAIN": ATTR_CONDITION_RAINY,
+    "HEAVY_RAIN": ATTR_CONDITION_POURING,
+    "SHOWERS": ATTR_CONDITION_POURING,
+    "SLEET": ATTR_CONDITION_SNOWY,
+    "LIGHT_SNOW": ATTR_CONDITION_SNOWY,
+    "SNOW": ATTR_CONDITION_SNOWY,
+    "SNOWFALL": ATTR_CONDITION_SNOWY,
+    "HAIL": ATTR_CONDITION_HAIL,
+    "THUNDERSTORM": ATTR_CONDITION_LIGHTNING,
+    "THUNDERSTORM_WITH_RAIN": ATTR_CONDITION_LIGHTNING_RAINY,
+    "THUNDERSTORM_WITH_HAIL": ATTR_CONDITION_EXCEPTIONAL,
 }
-"""Map rich Yandex weather condition to ordinary HA"""
+"""Map Yandex weather condition https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Condition 
+to HA"""
 
 CONDITION_ICONS = {
     "clear": {
@@ -204,3 +209,35 @@ def get_image(
         condition = image
 
     return ci.link.format(condition)
+
+# https://yandex.ru/dev/weather/doc/ru/concepts/parameters#pressure
+# access denied for free role: pressure, humidity, cloudiness, precStrength, precProbability, uvIndex
+QUERY = """
+    query($lat: Float!, $lon: Float!) {
+        weatherByPoint(request: { lat: $lat, lon: $lon }, language: EN) {
+            now {
+              temperature
+              feelsLike
+              windSpeed
+              windDirection
+              condition
+              icon(format: SVG)
+              daytime
+            }
+            forecast {
+                days(limit: 2) {
+                    hours {
+                        condition
+                        time
+                        temperature
+                        feelsLike                        
+                        windSpeed
+                        windAngle
+                        windGust
+                        icon(format: SVG)
+                    }
+                }
+            }
+        }
+    }     
+"""

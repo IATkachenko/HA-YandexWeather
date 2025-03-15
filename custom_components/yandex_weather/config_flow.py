@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_API_KEY, CONF_LATITUDE, CONF_LONGITUDE, CONF_NAME
 from homeassistant.core import HomeAssistant, callback
 import homeassistant.helpers.config_validation as cv
@@ -43,8 +44,16 @@ def get_value(config_entry: config_entries | None, param: str, default=None):
         return default
 
 
+
+
+
 class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """First time set up flow."""
+
+    VERSION = 4
+    MINOR_VERSION = 0
+
+
 
     @staticmethod
     @callback

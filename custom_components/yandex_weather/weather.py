@@ -37,11 +37,11 @@ from .const import (
     ATTR_API_IMAGE,
     ATTR_API_ORIGINAL_CONDITION,
     ATTR_API_PRESSURE,
-    ATTR_API_TEMP_WATER,
+    # ATTR_API_TEMP_WATER,
     ATTR_API_TEMPERATURE,
     ATTR_API_WEATHER_TIME,
     ATTR_API_WIND_BEARING,
-    ATTR_API_WIND_GUST,
+    # ATTR_API_WIND_GUST,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
     ATTR_FORECAST_DATA,
@@ -99,8 +99,9 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_condition = None
         self._attr_unique_id = config_entry.unique_id
         self._attr_device_info = self.coordinator.device_info
-        self._attr_supported_features = WeatherEntityFeature.FORECAST_TWICE_DAILY
+        self._attr_supported_features = WeatherEntityFeature.FORECAST_HOURLY
         self._image_source = get_value(config_entry, CONF_IMAGE_SOURCE, "Yandex")
+
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""
@@ -168,9 +169,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                     except TypeError:
                         pass
 
-            self._attr_extra_state_attributes = {
-                ATTR_FORECAST_DATA: self._twice_daily_forecast,
-            }
+            self._attr_extra_state_attributes = {}
             for attribute in [
                 "feels_like",
                 "wind_gust",
@@ -209,7 +208,6 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             is_day=self.coordinator.data.get("daytime") == "d",
             image=self.coordinator.data.get(ATTR_API_IMAGE),
         )
-        self._twice_daily_forecast = self.coordinator.data.get(ATTR_FORECAST_DATA, [])
         self._attr_humidity = self.coordinator.data.get(ATTR_API_HUMIDITY)
         self._attr_native_pressure = self.coordinator.data.get(ATTR_API_PRESSURE)
         self._attr_native_temperature = self.coordinator.data.get(ATTR_API_TEMPERATURE)
@@ -217,17 +215,14 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_wind_bearing = self.coordinator.data.get(ATTR_API_WIND_BEARING)
         self._attr_extra_state_attributes = {
             "feels_like": self.coordinator.data.get(ATTR_API_FEELS_LIKE_TEMPERATURE),
-            "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
+            # "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
             "forecast_icons": self.coordinator.data.get(ATTR_API_FORECAST_ICONS),
-            ATTR_FORECAST_DATA: self.__forecast_twice_daily(),
+            "forecast_hourly": self.coordinator.data.get(ATTR_FORECAST_DATA),
         }
-        try:
-            self._attr_extra_state_attributes["temp_water"] = self.coordinator.data.get(
-                ATTR_API_TEMP_WATER
-            )
-        except KeyError:
-            self.coordinator.logger.debug("data have no temp_water. Skipping.")
+        # self._attr_cloud_coverage = self.coordinator.data.get('cloud_coverage')
+        # self._attr_uv_index = self.coordinator.data.get('uvIndex')
+
 
         self.async_write_ha_state()
 
@@ -248,31 +243,5 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
 
         self._attr_condition = new_condition
 
-    def __forecast_twice_daily(self) -> list[Forecast] | None:
-        """Return the daily forecast in native units."""
-        _LOGGER.debug(f"async_forecast_twice_daily: {self._twice_daily_forecast=}")
-        # we must return at least three elements in forecast
-        # https://github.com/home-assistant/frontend/blob/dev/src/data/weather.ts#L548
-        if len(result := self._twice_daily_forecast) < 3:
-            _LOGGER.debug(
-                "Have not enough forecast data. Adding current weather to forecast..."
-            )
-            result.insert(
-                0,
-                Forecast(
-                    datetime=self.coordinator.data.get(ATTR_API_WEATHER_TIME),
-                    wind_bearing=self.wind_bearing,
-                    native_temperature=self.native_temperature,
-                    temperature=self.native_temperature,
-                    native_templow=self.native_temperature,
-                    templow=self.native_temperature,
-                    native_pressure=self.native_pressure,
-                    native_wind_speed=self.native_wind_speed,
-                    condition=self.condition,
-                    is_daytime=self.coordinator.data.get("daytime") == "d",
-                ),
-            )
-        return result
-
-    async def async_forecast_twice_daily(self) -> list[Forecast] | None:
-        return self.__forecast_twice_daily()
+    async def async_forecast_hourly(self) -> list[Forecast] | None:
+        return self.coordinator.data.get(ATTR_FORECAST_DATA)
