@@ -2,10 +2,6 @@
 # Yandex weather data provider for Home Assistant
 This custom integration is providing weather component and set of sensors based on data from [yandex weather](https://weather.yandex.ru) service.
 
-## Important
-Currently Yandex have blocked free tarif for new users, check #104 for meore details, so new users can't obtain personal API key to get weather data via API. Stay tuned.
-
-
 ## Installation
 ### HACS
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration) [![HACS Action](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hacs.yml) [![Validate with hassfest](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml/badge.svg)](https://github.com/IATkachenko/HA-YandexWeather/actions/workflows/hassfest.yaml)
@@ -19,9 +15,8 @@ Currently Yandex have blocked free tarif for new users, check #104 for meore det
 3. Restart Home Assistant
 
 ## Configuration
-1. Go to Yandex [developer page](https://developer.tech.yandex.ru/services)
-2. Add Weather API with "Test tariff" _(3000 requests for 30 days for free)_
-3. Switch to "Weather for web-site tariff" _(50 requests per day for free)_. It may require up to 30 minutes for activating key.
+1. Go to Yandex [weather console](https://yandex.ru/pogoda/b2b/console/smarthome)
+2. Add Weather API with "SmartHome API"
 4. Save API key
 5. Go to Home Assistant settings
     * Integrations
@@ -33,8 +28,9 @@ Currently Yandex have blocked free tarif for new users, check #104 for meore det
 ## Usage
 ### Weather
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v4.0.0-red) 
-   * migrated to APIv3 
-   * removed sensors "Pressure mmHg", "Pressure", "Humidity" because they are not supported by free API
+   * migrated to APIv3    
+   * removed twice daily forecast
+   * add hourly forecast
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v3.1.0-red) attribute forecast icons with Yandex forecast weather state images (check #78 for details) 
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v1.0.0-red) pressure, wind speed and other unit may be customized
  * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.8.0-red) forecast data is available for next two periods (morning/day/evening/night) 
@@ -49,7 +45,7 @@ Currently Yandex have blocked free tarif for new users, check #104 for meore det
  
 ### Sensors
 Most sensors are disabled by default to not overload system. 
- 
+* ![added_in_version_badge](https://img.shields.io/badge/Since-v4.0.0-red) removed sensors "Pressure mmHg", "Pressure", "Humidity" because they are not supported by free API
 * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.3.0-red) `data update time` -- when weather data was updated (at Yandex side).
 * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.4.0-red) `original_condition` -- native Yandex.Weather condition. Because Yandex weather conditions is richer than Home Assistant, some different Yandex.Weather conditions is mapped to same Home Assistant. This sensor will keep original condition.
 * ![added_in_version_badge](https://img.shields.io/badge/Since-v0.6.0-red) `pressure_mmhg` -- pressure in mmHg units. Home Asistant is prefer Pa as pressure units, but mmHg is more familiar for some countries. This sensor is enabled by default.
