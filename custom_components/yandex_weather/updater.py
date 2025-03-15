@@ -10,11 +10,8 @@ import math
 import os
 
 from gql import Client, gql
-from gql.transport.exceptions import (
-    TransportServerError,
-    TransportQueryError,
-)
 from gql.transport.aiohttp import AIOHTTPTransport
+from gql.transport.exceptions import TransportQueryError, TransportServerError
 from homeassistant.components.weather import (
     ATTR_FORECAST_CLOUD_COVERAGE,
     ATTR_FORECAST_CONDITION,
@@ -34,7 +31,7 @@ from homeassistant.components.weather import (
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .const import (
     ATTR_API_CONDITION,
@@ -172,7 +169,6 @@ class WeatherUpdater(DataUpdateCoordinator):
     MAX_FAILS = 3
     FAIL_DELAY = timedelta(hours=1)
 
-
     def __init__(
         self,
         latitude: float,
@@ -266,9 +262,15 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
         now = datetime.now().astimezone()
         if self.fails >= self.MAX_FAILS and now - self.last_fail < self.FAIL_DELAY:
-            _LOGGER.warning(f"{self.fails} >= {self.MAX_FAILS} and last fail was less than {self.FAIL_DELAY=} ago.")
-            _LOGGER.warning(f"Will not try to update data!")
-            return
+            _LOGGER.warning(
+                f"{self.fails} >= {self.MAX_FAILS} and last fail was less than {self.FAIL_DELAY=} ago."
+            )
+            _LOGGER.warning(
+                f"Will not try to update data till {(self.last_fail + self.FAIL_DELAY).isoformat()}!"
+            )
+            raise UpdateFailed(
+                f"Will not try to update data till {(self.last_fail + self.FAIL_DELAY).isoformat()}"
+            )
 
         transport = AIOHTTPTransport(
             url=API_URL, headers={"X-Yandex-Weather-Key": self.__api_key}, timeout=20
@@ -282,8 +284,10 @@ class WeatherUpdater(DataUpdateCoordinator):
                 _LOGGER.critical(f"Got exception while getting data: {e}")
                 self.last_fail = now
                 self.fails += 1
-                _LOGGER.critical(f"Will not update data. Fails counter: {self.fails}/{self.MAX_FAILS}")
-                return self.data
+                _LOGGER.critical(
+                    f"Will not update data. Fails counter: {self.fails}/{self.MAX_FAILS}"
+                )
+                raise UpdateFailed("Could not get data from API") from e
 
             _LOGGER.debug(f"Raw data is {r=}")
 
