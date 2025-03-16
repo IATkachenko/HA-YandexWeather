@@ -41,7 +41,8 @@ from .const import (  # ATTR_API_TEMP_WATER,; ATTR_API_WIND_GUST,
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
-    ATTR_FORECAST_DATA,
+    ATTR_FORECAST_DAILY,
+    ATTR_FORECAST_HOURLY,
     ATTRIBUTION,
     CONF_IMAGE_SOURCE,
     DOMAIN,
@@ -76,7 +77,8 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
     _attr_native_pressure_unit = UnitOfPressure.HPA
     _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
     _attr_native_precipitation_unit = UnitOfPrecipitationDepth.MILLIMETERS
-    _twice_daily_forecast: list[Forecast] | None
+    ATTR_FORECAST_HOURLY: list[Forecast] | None
+    ATTR_FORECAST_DAILY: list[Forecast] | None
     coordinator: WeatherUpdater
 
     def __init__(
@@ -141,29 +143,39 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             self._attr_humidity = state.attributes.get("humidity")
             self._attr_wind_bearing = state.attributes.get("wind_bearing")
             self._attr_entity_picture = state.attributes.get("entity_picture")
-            self._twice_daily_forecast = state.attributes.get(ATTR_FORECAST_DATA, [])
-            for f in self._twice_daily_forecast:
-                for attribute, converter in [
-                    ("temperature", UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT]),
-                    ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
-                    ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
-                    (
-                        "precipitation",
-                        UNIT_CONVERSIONS[ATTR_WEATHER_PRECIPITATION_UNIT],
-                    ),
-                ]:
-                    try:
-                        f[attribute] = converter(
-                            f.get(attribute),
-                            getattr(
-                                self,
-                                f"_{attribute}_unit",
+            self.__setattr__(
+                ATTR_FORECAST_HOURLY, state.attributes.get(ATTR_FORECAST_HOURLY, [])
+            )
+            self.__setattr__(
+                ATTR_FORECAST_DAILY, state.attributes.get(ATTR_FORECAST_DAILY, [])
+            )
+
+            for forecast_type in [ATTR_FORECAST_HOURLY, ATTR_FORECAST_DAILY]:
+                for f in self.__getattribute__(forecast_type):
+                    for attribute, converter in [
+                        (
+                            "temperature",
+                            UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT],
+                        ),
+                        ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
+                        ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
+                        (
+                            "precipitation",
+                            UNIT_CONVERSIONS[ATTR_WEATHER_PRECIPITATION_UNIT],
+                        ),
+                    ]:
+                        try:
+                            f[attribute] = converter(
+                                f.get(attribute),
+                                getattr(
+                                    self,
+                                    f"_{attribute}_unit",
+                                    getattr(self, f"_attr_native_{attribute}_unit"),
+                                ),
                                 getattr(self, f"_attr_native_{attribute}_unit"),
-                            ),
-                            getattr(self, f"_attr_native_{attribute}_unit"),
-                        )
-                    except TypeError:
-                        pass
+                            )
+                        except TypeError:
+                            pass
 
             self._attr_extra_state_attributes = {}
             for attribute in [
@@ -191,6 +203,15 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                 self.coordinator.schedule_refresh(
                     offset=self.coordinator.update_interval - since_last_update
                 )
+                # write data to coordinator
+                for forecast_type in [ATTR_FORECAST_HOURLY, ATTR_FORECAST_DAILY]:
+                    self.coordinator.data[forecast_type] = self.__getattribute__(
+                        forecast_type
+                    )
+                    self._attr_extra_state_attributes[
+                        forecast_type
+                    ] = self.__getattribute__(forecast_type)
+
         self.async_write_ha_state()
 
     def _handle_coordinator_update(self) -> None:
@@ -214,7 +235,8 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             # "wind_gust": self.coordinator.data.get(ATTR_API_WIND_GUST),
             "yandex_condition": self.coordinator.data.get(ATTR_API_YA_CONDITION),
             "forecast_icons": self.coordinator.data.get(ATTR_API_FORECAST_ICONS),
-            "forecast_hourly": self.coordinator.data.get(ATTR_FORECAST_DATA),
+            ATTR_FORECAST_HOURLY: self.coordinator.data.get(ATTR_FORECAST_HOURLY),
+            ATTR_FORECAST_DAILY: self.coordinator.data.get(ATTR_FORECAST_DAILY),
         }
         # self._attr_cloud_coverage = self.coordinator.data.get('cloud_coverage')
         # self._attr_uv_index = self.coordinator.data.get('uvIndex')
@@ -239,4 +261,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         self._attr_condition = new_condition
 
     async def async_forecast_hourly(self) -> list[Forecast] | None:
-        return self.coordinator.data.get(ATTR_FORECAST_DATA)
+        return self.coordinator.data.get(ATTR_FORECAST_HOURLY)
+
+    async def async_forecast_twice_daily(self) -> list[Forecast] | None:
+        return self.coordinator.data.get(ATTR_FORECAST_DAILY)
