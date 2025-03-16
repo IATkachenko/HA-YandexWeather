@@ -15,10 +15,6 @@ from homeassistant.components.weather import (
     WeatherEntity,
     WeatherEntityFeature,
 )
-from homeassistant.components.weatherkit.const import (
-    ATTR_FORECAST_DAILY,
-    ATTR_FORECAST_HOURLY,
-)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -45,6 +41,8 @@ from .const import (  # ATTR_API_TEMP_WATER,; ATTR_API_WIND_GUST,
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
+    ATTR_FORECAST_DAILY,
+    ATTR_FORECAST_HOURLY,
     ATTRIBUTION,
     CONF_IMAGE_SOURCE,
     DOMAIN,

@@ -27,10 +27,6 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_BEARING,
     Forecast,
 )
-from homeassistant.components.weatherkit.const import (
-    ATTR_FORECAST_DAILY,
-    ATTR_FORECAST_HOURLY,
-)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -49,6 +45,8 @@ from .const import (
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
+    ATTR_FORECAST_DAILY,
+    ATTR_FORECAST_HOURLY,
     ATTR_MIN_FORECAST_TEMPERATURE,
     CONDITION_ICONS,
     DOMAIN,
