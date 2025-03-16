@@ -109,10 +109,7 @@ FORECAST_DATA_ATTRIBUTE_TRANSLATION: list[AttributeMapper] = [
         src="precProbability", _dst=ATTR_FORECAST_PRECIPITATION_PROBABILITY
     ),
     AttributeMapper(
-        src="cloudiness",
-        _dst=ATTR_FORECAST_CLOUD_COVERAGE,
-        mapping=CLOUDINESS_MAPPING,
-        default=0,
+        src="cloudiness", _dst=ATTR_FORECAST_CLOUD_COVERAGE, mapping=CLOUDINESS_MAPPING
     ),
     AttributeMapper(src="prec", _dst=ATTR_FORECAST_NATIVE_PRECIPITATION),
     AttributeMapper(src="pressure", _dst=ATTR_FORECAST_NATIVE_PRESSURE),
