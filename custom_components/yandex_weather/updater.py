@@ -27,6 +27,10 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_BEARING,
     Forecast,
 )
+from homeassistant.components.weatherkit.const import (
+    ATTR_FORECAST_DAILY,
+    ATTR_FORECAST_HOURLY,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceEntryType
 from homeassistant.helpers.entity import DeviceInfo
@@ -45,7 +49,6 @@ from .const import (
     ATTR_API_WIND_BEARING,
     ATTR_API_WIND_SPEED,
     ATTR_API_YA_CONDITION,
-    ATTR_FORECAST_DATA,
     ATTR_MIN_FORECAST_TEMPERATURE,
     CONDITION_ICONS,
     DOMAIN,
@@ -270,25 +273,26 @@ class WeatherUpdater(DataUpdateCoordinator):
             result = {
                 ATTR_API_WEATHER_TIME: now,
                 ATTR_API_FORECAST_ICONS: [],
-                ATTR_FORECAST_DATA: [],
+                ATTR_FORECAST_HOURLY: [],
+                ATTR_FORECAST_DAILY: [],
             }
             await self.process_data(
                 result, weather.get("now", {}), CURRENT_WEATHER_ATTRIBUTE_TRANSLATION
             )
 
-            await self.fill_forecast(now, result, weather["forecast"]["days"])
+            await self.fill_hourly_forecast(now, result, weather["forecast"]["days"])
 
             result[
                 ATTR_MIN_FORECAST_TEMPERATURE
-            ] = await self.get_min_forecast_temperature(result[ATTR_FORECAST_DATA])
+            ] = await self.get_min_forecast_temperature(result[ATTR_FORECAST_HOURLY])
 
             return result
 
-    async def fill_forecast(
+    async def fill_hourly_forecast(
         self, now: datetime, weather_data, forecast_data: list[dict]
     ):
         """
-        Fill weather_data ATTR_FORECAST_DATA and ATTR_API_FORECAST_ICONS fields
+        Fill weather_data ATTR_FORECAST_HOURLY and ATTR_API_FORECAST_ICONS fields
 
         :param now: current datetime
         :param weather_data: this integration weather result
@@ -296,7 +300,7 @@ class WeatherUpdater(DataUpdateCoordinator):
         """
         for d in forecast_data:
             for f in d["hours"]:
-                if len(weather_data[ATTR_FORECAST_DATA]) > 24:
+                if len(weather_data[ATTR_FORECAST_HOURLY]) > 24:
                     return
 
                 f_time = datetime.fromisoformat(f["time"])
@@ -305,7 +309,7 @@ class WeatherUpdater(DataUpdateCoordinator):
                     await self.process_data(
                         forecast, f, FORECAST_DATA_ATTRIBUTE_TRANSLATION
                     )
-                    weather_data[ATTR_FORECAST_DATA].append(forecast)
+                    weather_data[ATTR_FORECAST_HOURLY].append(forecast)
                     weather_data[ATTR_API_FORECAST_ICONS].append(
                         f.get("icon", "no_image")
                     )
