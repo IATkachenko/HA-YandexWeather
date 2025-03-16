@@ -6,7 +6,6 @@ from datetime import datetime, timezone
 import logging
 
 from homeassistant.components.weather import (
-    ATTR_WEATHER_PRECIPITATION_UNIT,
     ATTR_WEATHER_PRESSURE_UNIT,
     ATTR_WEATHER_TEMPERATURE_UNIT,
     ATTR_WEATHER_WIND_SPEED_UNIT,
@@ -131,7 +130,7 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
                         converter(
                             state.attributes.get(attribute),
                             state.attributes.get(
-                                f"_{attribute}_unit",
+                                f"{attribute}_unit",
                                 getattr(self, f"_attr_native_{attribute}_unit"),
                             ),
                             getattr(self, f"_attr_native_{attribute}_unit"),
@@ -149,33 +148,6 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
             self.__setattr__(
                 ATTR_FORECAST_DAILY, state.attributes.get(ATTR_FORECAST_DAILY, [])
             )
-
-            for forecast_type in [ATTR_FORECAST_HOURLY, ATTR_FORECAST_DAILY]:
-                for f in self.__getattribute__(forecast_type):
-                    for attribute, converter in [
-                        (
-                            "temperature",
-                            UNIT_CONVERSIONS[ATTR_WEATHER_TEMPERATURE_UNIT],
-                        ),
-                        ("pressure", UNIT_CONVERSIONS[ATTR_WEATHER_PRESSURE_UNIT]),
-                        ("wind_speed", UNIT_CONVERSIONS[ATTR_WEATHER_WIND_SPEED_UNIT]),
-                        (
-                            "precipitation",
-                            UNIT_CONVERSIONS[ATTR_WEATHER_PRECIPITATION_UNIT],
-                        ),
-                    ]:
-                        try:
-                            f[attribute] = converter(
-                                f.get(attribute),
-                                getattr(
-                                    self,
-                                    f"_{attribute}_unit",
-                                    getattr(self, f"_attr_native_{attribute}_unit"),
-                                ),
-                                getattr(self, f"_attr_native_{attribute}_unit"),
-                            )
-                        except TypeError:
-                            pass
 
             self._attr_extra_state_attributes = {}
             for attribute in [
