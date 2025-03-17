@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import Enum
 
 from homeassistant.components.weather import (
     ATTR_CONDITION_CLEAR_NIGHT,
@@ -58,93 +59,124 @@ UPDATE_LISTENER = "update_listener"
 PLATFORMS = [Platform.SENSOR, Platform.WEATHER]
 
 
-WEATHER_STATES_CONVERSION = {
-    "CLEAR": {
-        "day": ATTR_CONDITION_SUNNY,
-        "night": ATTR_CONDITION_CLEAR_NIGHT,
-    },
-    "PARTLY_CLOUDY": ATTR_CONDITION_PARTLYCLOUDY,
-    "CLOUDY": ATTR_CONDITION_CLOUDY,
-    "OVERCAST": ATTR_CONDITION_CLOUDY,
-    "LIGHT_RAIN": ATTR_CONDITION_RAINY,
-    "RAIN": ATTR_CONDITION_RAINY,
-    "HEAVY_RAIN": ATTR_CONDITION_POURING,
-    "SHOWERS": ATTR_CONDITION_POURING,
-    "SLEET": ATTR_CONDITION_SNOWY,
-    "LIGHT_SNOW": ATTR_CONDITION_SNOWY,
-    "SNOW": ATTR_CONDITION_SNOWY,
-    "SNOWFALL": ATTR_CONDITION_SNOWY,
-    "HAIL": ATTR_CONDITION_HAIL,
-    "THUNDERSTORM": ATTR_CONDITION_LIGHTNING,
-    "THUNDERSTORM_WITH_RAIN": ATTR_CONDITION_LIGHTNING_RAINY,
-    "THUNDERSTORM_WITH_HAIL": ATTR_CONDITION_EXCEPTIONAL,
-}
-"""
-Map Yandex weather condition
-https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Condition
-to HA
-"""
+@dataclass
+class ConditionMapper:
+    HA: dict | str
+    icons: dict | str
+    custom_weather_card: dict | str
 
-CONDITION_ICONS = {
-    "clear": {
-        "day": "mdi:weather-sunny",
-        "night": "mdi:weather-night",
-    },
-    "partly-cloudy": {
-        "day": "mdi:weather-partly-cloudy",
-        "night": "mdi:weather-night-partly-cloudy",
-    },
-    "cloudy": "mdi:weather-cloudy",
-    "overcast": "mdi:weather-cloudy",
-    "drizzle": "mdi:weather-fog",
-    "light-rain": "mdi:weather-rainy",
-    "rain": "mdi:weather-rainy",
-    "moderate-rain": "mdi:weather-rainy",
-    "heavy-rain": "mdi:weather-pouring",
-    "continuous-heavy-rain": "mdi:weather-pouring",
-    "showers": "mdi:weather-pouring",
-    "wet-snow": "mdi:weather-snowy-rainy",
-    "light-snow": "mdi:weather-snowy",
-    "snow": "mdi:weather-snowy",
-    "snow-showers": "mdi:weather-snowy-heavy",
-    "hail": "mdi:weather-hail",
-    "thunderstorm": "mdi:weather-lightning",
-    "thunderstorm-with-rain": "mdi:weather-lightning-rainy",
-    "thunderstorm-with-hail": "mdi:weather-lightning-rainy",
-}
+
+class Conditions(Enum):
+    """
+    Yandex weather conditions
+
+    https://yandex.ru/dev/weather/doc/ru/concepts/spectaql#definition-Condition
+    """
+
+    CLEAR = ConditionMapper(
+        HA={"day": ATTR_CONDITION_SUNNY, "night": ATTR_CONDITION_CLEAR_NIGHT},
+        icons={"day": "mdi:weather-sunny", "night": "mdi:weather-night"},
+        custom_weather_card={"day": "day", "night": "night"},
+    )
+    PARTLY_CLOUDY = ConditionMapper(
+        HA=ATTR_CONDITION_PARTLYCLOUDY,
+        icons={
+            "day": "mdi:weather-partly-cloudy",
+            "night": "mdi:weather-night-partly-cloudy",
+        },
+        custom_weather_card={
+            "day": "cloudy-day-1",
+            "night": "cloudy-night-1",
+        },
+    )
+    CLOUDY = ConditionMapper(
+        HA=ATTR_CONDITION_CLOUDY,
+        icons="mdi:weather-cloudy",
+        custom_weather_card={"day": "cloudy-day-2", "night": "cloudy-night-2"},
+    )
+    OVERCAST = ConditionMapper(
+        HA=ATTR_CONDITION_CLOUDY,
+        icons="mdi:weather-cloudy",
+        custom_weather_card={"day": "cloudy-day-3", "night": "cloudy-night-3"},
+    )
+    LIGHT_RAIN = ConditionMapper(
+        HA=ATTR_CONDITION_RAINY,
+        icons="mdi:weather-rainy",
+        custom_weather_card="rainy-2",
+    )
+    RAIN = ConditionMapper(
+        HA=ATTR_CONDITION_RAINY,
+        icons="mdi:weather-rainy",
+        custom_weather_card="rainy-3",
+    )
+    HEAVY_RAIN = ConditionMapper(
+        HA=ATTR_CONDITION_POURING,
+        icons="mdi:weather-pouring",
+        custom_weather_card="rainy-5",
+    )
+    SHOWERS = ConditionMapper(
+        HA=ATTR_CONDITION_POURING,
+        icons="mdi:weather-pouring",
+        custom_weather_card="rainy-7",
+    )
+    SLEET = ConditionMapper(
+        HA=ATTR_CONDITION_SNOWY,
+        icons="mdi:weather-snowy",
+        custom_weather_card="snowy-1",
+    )
+    LIGHT_SNOW = ConditionMapper(
+        HA=ATTR_CONDITION_SNOWY,
+        icons="mdi:weather-snowy",
+        custom_weather_card="snowy-2",
+    )
+    SNOW = ConditionMapper(
+        HA=ATTR_CONDITION_SNOWY,
+        icons="mdi:weather-snowy",
+        custom_weather_card="snowy-4",
+    )
+    SNOWFALL = ConditionMapper(
+        HA=ATTR_CONDITION_SNOWY,
+        icons="mdi:weather-snowy-heavy",
+        custom_weather_card="snowy-5",
+    )
+    HAIL = ConditionMapper(
+        HA=ATTR_CONDITION_HAIL,
+        icons="mdi:weather-hail",
+        custom_weather_card="snowy-6",
+    )
+    THUNDERSTORM = ConditionMapper(
+        HA=ATTR_CONDITION_LIGHTNING,
+        icons="mdi:weather-lightning",
+        custom_weather_card="thunder",
+    )
+    THUNDERSTORM_WITH_RAIN = ConditionMapper(
+        HA=ATTR_CONDITION_LIGHTNING_RAINY,
+        icons="mdi:weather-lightning-rainy",
+        custom_weather_card="thunder",
+    )
+    THUNDERSTORM_WITH_HAIL = ConditionMapper(
+        HA=ATTR_CONDITION_EXCEPTIONAL,
+        icons="mdi:weather-lightning-rainy",
+        custom_weather_card="thunder",
+    )
+
+
+WEATHER_STATES_CONVERSION: dict[str, dict[str, str] | str] = {}
+"""
+Map Yandex weather condition to HA
+"""
+for _condition in Conditions:
+    WEATHER_STATES_CONVERSION[_condition.name] = _condition.value.HA
+
+CONDITION_ICONS: dict[Conditions.value, dict[str, str] | str] = {}
 """Mapping for state icon"""
+for _condition in Conditions:
+    CONDITION_ICONS[_condition.name] = _condition.value.icons
 
-CUSTOM_WEATHER_CARD_MAPPING = {
-    "clear": {
-        "day": "day",
-        "night": "night",
-    },
-    "partly-cloudy": {
-        "day": "cloudy-day-1",
-        "night": "cloudy-night-1",
-    },
-    "cloudy": {
-        "day": "cloudy-day-2",
-        "night": "cloudy-night-2",
-    },
-    "overcast": {"day": "cloudy-day-3", "night": "cloudy-night-3"},
-    "drizzle": "rainy-1",
-    "light-rain": "rainy-2",
-    "rain": "rainy-3",
-    "moderate-rain": "rainy-4",
-    "heavy-rain": "rainy-5",
-    "continuous-heavy-rain": "rainy-6",
-    "showers": "rainy-7",
-    "wet-snow": "snowy-2",
-    "light-snow": "snowy-1",
-    "snow": "snowy-4",
-    "snow-showers": "snowy-5",
-    "hail": "snowy-6",
-    "thunderstorm": "thunder",
-    "thunderstorm-with-rain": "thunder",
-    "thunderstorm-with-hail": "thunder",
-}
+CUSTOM_WEATHER_CARD_MAPPING: dict[Conditions.value, dict[str, str] | str] = {}
 """Condition mapping for images from https://github.com/bramkragten/weather-card"""
+for _condition in Conditions:
+    CUSTOM_WEATHER_CARD_MAPPING[_condition.name] = _condition.value.custom_weather_card
 
 
 @dataclass
