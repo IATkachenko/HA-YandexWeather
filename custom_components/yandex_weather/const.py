@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
+from math import floor
 
 from homeassistant.components.weather import (
     ATTR_CONDITION_CLEAR_NIGHT,
@@ -21,7 +22,9 @@ from homeassistant.const import Platform
 
 DOMAIN = "yandex_weather"
 DEFAULT_NAME = "Yandex Weather"
-DEFAULT_UPDATES_PER_DAY = 24
+API_LIMIT_PER_DAY = 24
+API_LIMIT_PER_MONTH = 500  # https://yandex.ru/pogoda/b2b/console/smarthome
+DEFAULT_UPDATES_PER_DAY = min(24, API_LIMIT_PER_DAY, floor(API_LIMIT_PER_MONTH / 31))
 ATTRIBUTION = "Data provided by Yandex Weather"
 MANUFACTURER = "Yandex"
 ENTRY_NAME = "name"

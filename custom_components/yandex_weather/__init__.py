@@ -11,6 +11,7 @@ from homeassistant.core import HomeAssistant
 from .config_flow import get_value
 from .const import (
     CONF_LANGUAGE_KEY,
+    CONF_UPDATES_PER_DAY,
     DEFAULT_UPDATES_PER_DAY,
     DOMAIN,
     ENTRY_NAME,
@@ -87,5 +88,21 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         new_data = {**config_entry.data}
         hass.config_entries.async_update_entry(
             config_entry, data=new_data, minor_version=0, version=4
+        )
+
+    if config_entry.version >= 4 and config_entry.minor_version < 4:
+        new_options = {**config_entry.options}
+        data = {**config_entry.data}
+        new_data = data | new_options
+        _LOGGER.warning(f"Going to update config {new_data}")
+        new_updates_per_day = min(
+            new_data[CONF_UPDATES_PER_DAY], DEFAULT_UPDATES_PER_DAY
+        )
+        _LOGGER.warning(
+            f"Will set update per day to {new_updates_per_day} due to API limits"
+        )
+        new_data[CONF_UPDATES_PER_DAY] = new_updates_per_day
+        hass.config_entries.async_update_entry(
+            config_entry, data=new_data, minor_version=4, version=4
         )
     return True
