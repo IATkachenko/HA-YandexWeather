@@ -47,7 +47,7 @@ class YandexWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """First time set up flow."""
 
     VERSION = 4
-    MINOR_VERSION = 4
+    MINOR_VERSION = 5
 
     @staticmethod
     @callback
