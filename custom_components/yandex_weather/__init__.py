@@ -103,6 +103,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         )
         new_data[CONF_UPDATES_PER_DAY] = new_updates_per_day
         hass.config_entries.async_update_entry(
-            config_entry, data=new_data, options=new_data, minor_version=4, version=4
+            config_entry, data=new_data, options=new_data, minor_version=4, version=5
         )
     return True
