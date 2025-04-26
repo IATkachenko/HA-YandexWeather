@@ -25,7 +25,7 @@ from homeassistant.const import (
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.helpers.update_coordinator import CoordinatorEntity, UpdateFailed
 
 from .config_flow import get_value
 from .const import (  # ATTR_API_TEMP_WATER,; ATTR_API_WIND_GUST,
@@ -108,12 +108,18 @@ class YandexWeather(WeatherEntity, CoordinatorEntity, RestoreEntity):
         state = await self.async_get_last_state()
         if not state:
             _LOGGER.debug("Have no state for restore!")
-            await self.coordinator.async_config_entry_first_refresh()
+            try:
+                await self.coordinator.async_config_entry_first_refresh()
+            except UpdateFailed as e:
+                _LOGGER.critical(f"Failed to run async_config_entry_first_refresh: {e}")
             return
 
         if state.state == STATE_UNAVAILABLE:
             self._attr_available = False
-            await self.coordinator.async_config_entry_first_refresh()
+            try:
+                await self.coordinator.async_config_entry_first_refresh()
+            except UpdateFailed as e:
+                _LOGGER.critical(f"Failed to run async_config_entry_first_refresh: {e}")
         else:
             _LOGGER.debug(f"state for restore: {state}")
             self._attr_available = True
