@@ -167,7 +167,7 @@ class WeatherUpdater(DataUpdateCoordinator):
     """Weather data updater for interaction with Yandex.Weather API."""
 
     MAX_FAILS = 3
-    FAIL_DELAY = timedelta(hours=1)
+    FAIL_DELAY = timedelta(hours=4)
 
     def __init__(
         self,
