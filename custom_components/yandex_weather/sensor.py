@@ -73,6 +73,7 @@ WEATHER_SENSORS: tuple[SensorEntityDescription, ...] = (
         icon="mdi:compass-rose",
         translation_key=ATTR_API_WIND_BEARING,
         state_class=SensorStateClass.WIND_DIRECTION,
+        device_class=SensorDeviceClass.WIND_DIRECTION,
         native_unit_of_measurement=DEGREE,
     ),
     # SensorEntityDescription(
