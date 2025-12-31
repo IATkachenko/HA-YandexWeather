@@ -90,7 +90,7 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
             config_entry, data=new_data, minor_version=0, version=4
         )
 
-    if config_entry.version >= 5 and config_entry.minor_version < 5:
+    if config_entry.version >= 5 and config_entry.minor_version < 6:
         new_options = {**config_entry.options}
         data = {**config_entry.data}
         new_data = data | new_options
@@ -103,6 +103,6 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
         )
         new_data[CONF_UPDATES_PER_DAY] = new_updates_per_day
         hass.config_entries.async_update_entry(
-            config_entry, data=new_data, options=new_data, minor_version=5, version=5
+            config_entry, data=new_data, options=new_data, minor_version=5, version=6
         )
     return True

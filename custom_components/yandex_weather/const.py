@@ -23,7 +23,7 @@ from homeassistant.const import Platform
 DOMAIN = "yandex_weather"
 DEFAULT_NAME = "Yandex Weather"
 API_LIMIT_PER_DAY = 30
-API_LIMIT_PER_MONTH = 380  # 2.7 https://yandex.ru/legal/apib2c_weather_agreement/ru/
+API_LIMIT_PER_MONTH = 1000  # 2.7 https://yandex.ru/legal/apib2c_weather_agreement/ru/
 DEFAULT_UPDATES_PER_DAY = min(24, API_LIMIT_PER_DAY, floor(API_LIMIT_PER_MONTH / 31))
 ATTRIBUTION = "Data provided by Yandex Weather"
 MANUFACTURER = "Yandex"
