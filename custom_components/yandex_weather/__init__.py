@@ -90,7 +90,7 @@ async def async_migrate_entry(hass, config_entry: ConfigEntry):
             config_entry, data=new_data, minor_version=0, version=4
         )
 
-    if config_entry.version >= 5 and config_entry.minor_version < 6:
+    if config_entry.version < 6 and config_entry.minor_version < 5:
         new_options = {**config_entry.options}
         data = {**config_entry.data}
         new_data = data | new_options
